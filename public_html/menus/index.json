@@ -1,0 +1,39 @@
+{
+  "title":
+  {
+    "show": true,
+    "logo": "<img src='img/logo-cliente.png' />"
+  },
+  "drawer":
+  {
+    "show": false,
+    "onclick": "menuSec();"
+  },
+  "back":
+  {
+    "show": false,
+    "onclick": "loadPage('', true);"
+  },
+  "actions":
+  {
+    "show": false,
+    "itens":
+    [
+      {
+        "id": "exibSearch",
+        "icon": "search"
+      }
+    ]
+  },
+  "menu":
+  {
+    "show": true,
+    "itens":
+    [
+      {
+        "onclick": "loadPage('configuracoes');",
+        "label": "Configurações"
+      }
+    ]
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "title":
+  {
+    "show": true,
+    "logo": "<img src='img/logo-cliente.png' />"
+  },
+  "drawer":
+  {
+    "show": false,
+    "onclick": "menuSec();"
+  },
+  "back":
+  {
+    "show": true,
+    "onclick": "loadPage('', true);"
+  },
+  "actions":
+  {
+    "show": true,
+    "itens":
+    [
+      {
+        "onclick": "actionSearch();",
+        "icon": "search",
+        "barcode": true
+      },
+      {
+        "onclick": "",
+        "icon": "new"
+      }
+    ]
+  },
+  "menu":
+  {
+    "show": true,
+    "itens":
+    [
+      {
+        "onclick": "loadPage('configuracoes');",
+        "label": "Configurações"
+      }
+    ]
+  },
+  "nav":
+  {
+    "show": true,
+    "type": "cliente"
+  }
+}

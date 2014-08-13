@@ -1,0 +1,33 @@
+<div id="lista-gift" class="box" title="cliente-busca">
+  <div class="back-img box-list bradius animate">
+    <p>
+      Lista de Presentes
+    </p>
+  </div>
+</div>
+
+<div id="convidado" class="box" title="lista-busca">
+  <div class="back-img box-gift bradius animate">
+    <p>
+      Convidados
+    </p>
+  </div>
+</div>
+
+<script>
+  $(function() {
+
+    $(".box").click(function(){
+      if($(this).hasClass("activeBox")){
+        var page = $(this).attr("title");
+        loadPage(page);
+      }
+      else{
+        $(".box").removeClass("activeBox");
+        $(this).addClass("activeBox");
+      }
+    });
+
+    hideMask();
+  });
+</script>

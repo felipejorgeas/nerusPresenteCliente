@@ -1,0 +1,49 @@
+{
+  "title":
+  {
+    "show": false,
+    "itens":
+    [
+      {
+        "desc": "Cliente"
+      }
+    ]
+  },
+  "drawer":
+  {
+    "show": false,
+    "onclick": "showDrawer();"
+  },
+  "back":
+  {
+    "show": true,
+    "onclick": "loadPage('', true);"
+  },
+  "actions":
+  {
+    "show": false,
+    "itens":
+    [
+      {
+        "onclick": "actionSearch();",
+        "icon": "search",
+        "barcode": true
+      },
+      {
+        "onclick": "",
+        "icon": "new"
+      }
+    ]
+  },
+  "menu":
+  {
+    "show": false,
+    "itens":
+    [
+      {
+        "onclick": "loadPage('config');",
+        "label": "Configuracoes"
+      }
+    ]
+  }
+}
