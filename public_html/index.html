@@ -69,6 +69,16 @@
       </p>
     </div>
 
+    <!-- popup para alert e promtps -->
+    <div id="popup-dialog" class="popup bradius">
+      <div class="dialog">
+        <p class="title"></p>
+        <p class="msg"></p>
+      </div>
+      <button></button>
+      <button></button>
+    </div>
+
     <!-- popup para simular select field -->
     <div id="popup-select" class="popup bradius"></div>
 
@@ -88,7 +98,7 @@
           <li>
             Tipo de Lista
             <p>
-              <span class="input input-select bradius" onclick="showSelect('tipoLista', this);">Selecione</span>
+              <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this);" title="">Selecione</span>
             </p>
           </li>
         </ul>
@@ -262,6 +272,7 @@
       window.setTimeout(function(){
         FastClick.attach(document.body);
       }, 500);
+
     });
   </script>
 

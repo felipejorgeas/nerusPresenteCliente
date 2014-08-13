@@ -216,7 +216,7 @@ function loadPage(page, backButton, noPushPage) {
 
     $("#content .page").removeClass("activePage").addClass("inactivePage");
 
-    window.setTimeout(function(){
+    window.setTimeout(function() {
       if (!backButton) {
         $.ajax({
           url: content,
@@ -341,85 +341,85 @@ function loadHeader(page) {
   // personaliza o header
 
   $.getJSON("menus/" + page + ".json",
-    function(response) {
+          function(response) {
 
-      var pageTitle = response.hasOwnProperty("title") ? response.title : false;
-      var pageDrawer = response.hasOwnProperty("drawer") ? response.drawer : false;
-      var pageBack = response.hasOwnProperty("back") ? response.back : false;
-      var pageActions = response.hasOwnProperty("actions") ? response.actions : false;
-      var pageMenu = response.hasOwnProperty("menu") ? response.menu : false;
-      var pageNav = response.hasOwnProperty("nav") ? response.nav : false;
+            var pageTitle = response.hasOwnProperty("title") ? response.title : false;
+            var pageDrawer = response.hasOwnProperty("drawer") ? response.drawer : false;
+            var pageBack = response.hasOwnProperty("back") ? response.back : false;
+            var pageActions = response.hasOwnProperty("actions") ? response.actions : false;
+            var pageMenu = response.hasOwnProperty("menu") ? response.menu : false;
+            var pageNav = response.hasOwnProperty("nav") ? response.nav : false;
 
-      if (pageTitle) {
-        if (pageTitle.hasOwnProperty("show") && pageTitle.show) {
-          if (pageTitle.hasOwnProperty("logo")) {
-            title.find(".logo").html(pageTitle.logo).show();
+            if (pageTitle) {
+              if (pageTitle.hasOwnProperty("show") && pageTitle.show) {
+                if (pageTitle.hasOwnProperty("logo")) {
+                  title.find(".logo").html(pageTitle.logo).show();
+                }
+                else {
+                  title.find(".logo").hide();
+                  $.each(pageTitle.itens, function(i, item) {
+                    descs.eq(i).html(item.desc);
+                    descs.eq(i).show();
+                  });
+                }
+              }
+            }
+
+            if (pageDrawer && pageDrawer.hasOwnProperty("show") && pageDrawer.show) {
+              action.attr("onclick", pageDrawer.onclick);
+              animateClick(action);
+              back.hide();
+              drawer.show();
+            }
+
+            else if (pageBack && pageBack.hasOwnProperty("show") && pageBack.show) {
+              action.attr("onclick", pageBack.onclick);
+              animateClick(action);
+              drawer.hide();
+              back.show();
+            }
+
+            else {
+              action.removeAttr("onclick");
+            }
+
+            if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
+              $.each(pageActions.itens, function(i, item) {
+                var icon = getIcon(item.icon);
+                actionsHeader.eq(i).attr("onclick", item.onclick);
+                actionsHeader.eq(i).html(icon);
+                animateClick(actionsHeader.eq(i));
+                actionsHeader.eq(i).show();
+              });
+            }
+
+            if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
+              $.each(pageMenu.itens, function(i, item) {
+                var op = $("<li>");
+                op.attr("onclick", item.onclick).text(item.label);
+                menu.append(op);
+              });
+              exibMenu.show();
+              window.setTimeout(function() {
+                menu.show();
+              }, 500);
+            }
+
+            if (pageNav && pageNav.hasOwnProperty("show") && pageNav.show) {
+              nav.find(".nav-filter").hide();
+              nav.find("#filter-" + pageNav.type).show();
+              nav.show();
+              var drawerScroll = new IScroll("#scroll", {
+                bounce: false,
+                scrollY: true,
+                scrollbars: "custom",
+                fadeScrollbars: true
+              });
+            }
+            else {
+              nav.hide();
+            }
           }
-          else {
-            title.find(".logo").hide();
-            $.each(pageTitle.itens, function(i, item) {
-              descs.eq(i).html(item.desc);
-              descs.eq(i).show();
-            });
-          }
-        }
-      }
-
-      if (pageDrawer && pageDrawer.hasOwnProperty("show") && pageDrawer.show) {
-        action.attr("onclick", pageDrawer.onclick);
-        animateClick(action);
-        back.hide();
-        drawer.show();
-      }
-
-      else if (pageBack && pageBack.hasOwnProperty("show") && pageBack.show) {
-        action.attr("onclick", pageBack.onclick);
-        animateClick(action);
-        drawer.hide();
-        back.show();
-      }
-
-      else {
-        action.removeAttr("onclick");
-      }
-
-      if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
-        $.each(pageActions.itens, function(i, item) {
-          var icon = getIcon(item.icon);
-          actionsHeader.eq(i).attr("onclick", item.onclick);
-          actionsHeader.eq(i).html(icon);
-          animateClick(actionsHeader.eq(i));
-          actionsHeader.eq(i).show();
-        });
-      }
-
-      if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
-        $.each(pageMenu.itens, function(i, item) {
-          var op = $("<li>");
-          op.attr("onclick", item.onclick).text(item.label);
-          menu.append(op);
-        });
-        exibMenu.show();
-        window.setTimeout(function() {
-          menu.show();
-        }, 500);
-      }
-
-      if (pageNav && pageNav.hasOwnProperty("show") && pageNav.show) {
-        nav.find(".nav-filter").hide();
-        nav.find("#filter-" + pageNav.type).show();
-        nav.show();
-        var drawerScroll = new IScroll("#scroll", {
-          bounce: false,
-          scrollY: true,
-          scrollbars: "custom",
-          fadeScrollbars: true
-        });
-      }
-      else {
-        nav.hide();
-      }
-    }
   );
 }
 
@@ -512,6 +512,38 @@ function hideLogin() {
   loadPage('index');
 }
 
+function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2) {
+  showMaskFull();
+
+  // oculta todos os botoes
+  $("#popup-dialog").find("button").hide();
+
+  // seta o titulo e a mensagem no dialog
+  $("#popup-dialog .dialog").find(".title").text(title);
+  $("#popup-dialog .dialog").find(".msg").text(msg);
+
+  // seta o primeiro botao
+  $("#popup-dialog").find("button").eq(0).text(labelBt1).attr("onclick", onclickBt1).show();
+
+  // caso o segundo botao esteja definido reduz o tamanho dos botoes para 50% e exibe o segundo botao
+  if (labelBt2) {
+    $("#popup-dialog").find("button").eq(0).addClass("cancel").css("width", "50%");
+    $("#popup-dialog").find("button").eq(1).text(labelBt2).attr("onclick", onclickBt2).css("width", "50%").show();
+  }
+
+  // caso o segundo botao nao esteja definido aumenta o tamanho do primeiro botao para 100%
+  else {
+    $("#popup-dialog").find("button").eq(0).css("width", "100%");
+  }
+
+  $("#popup-dialog").show();
+}
+
+function hideDialog() {
+  hidePopup();
+  hideMaskFull();
+}
+
 function showSelect(type, elem) {
 
   switch (type) {
@@ -552,12 +584,15 @@ function showSelect(type, elem) {
       var year = new Date().getFullYear();
       var ul = $("<ul>");
       year -= 20;
+
       for (var i = 0; i <= 40; i++) {
         var li = $("<li>");
         li.text(year + i);
         ul.append(li);
       }
+
       $("#popup-select").html(ul);
+
       $("#popup-select ul li").click(function() {
         var value = $(this).text();
         $(elem).text(value);
@@ -568,16 +603,21 @@ function showSelect(type, elem) {
 
     case "tipoLista":
       var ul = $("<ul>");
-      year -= 20;
-      for (var i = 0; i <= 40; i++) {
+      var tipos = localStorage.getItem("tiposListas");
+      var tiposListas = JSON.parse(tipos);
+
+      $.each(tiposListas, function(i, tipo) {
         var li = $("<li>");
-        li.text(year + i);
+        li.text(tipo.tipo_lista_nome).attr("title", tipo.tipo_lista_codigo);
         ul.append(li);
-      }
+      });
+
       $("#popup-select").html(ul);
+
       $("#popup-select ul li").click(function() {
-        var value = $(this).text();
-        $(elem).text(value);
+        var tipo_name = $(this).text();
+        var tipo_codigo = $(this).attr("title");
+        $(elem).text(tipo_name).attr("title", tipo_codigo);
         hideMaskFull();
         $("#popup-select").hide();
       });

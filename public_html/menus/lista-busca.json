@@ -6,12 +6,12 @@
   },
   "drawer":
   {
-    "show": false,
+    "show": true,
     "onclick": "menuSec();"
   },
   "back":
   {
-    "show": true,
+    "show": false,
     "onclick": "loadPage('', true);"
   },
   "actions":

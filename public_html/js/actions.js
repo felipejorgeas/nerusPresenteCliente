@@ -1,48 +1,46 @@
 var configServerUrl = "http://192.168.1.13/saciPresenteServidor";
 
 function loginAction(){
+  wsGetTipoDeLista();
   $("#login #followingBallsG").fadeIn();
   window.setTimeout(hideLogin, 2000);
 }
 
-function wsGetLista() {
-  hideMenuSec();
-  showMask();
+/**
+ * wsGetTipoDeLista
+ *
+ * Funcao obter os tipos de listas de presentes via ajax
+ *
+ * @param {json} response
+ */
+function wsGetTipoDeLista() {
 
-  /* obtem os dados para execucao da requisicao */
-  var dia = $(".input-date.day").text();
-  var mes = $(".input-date.month").text();
-  var ano = $(".input-date.year").text();
+  // cria bloco de dados a serem enviados na requisicao
+  var dados = { wscallback: "wsResponseTipoDeLista" };
 
-  var dataEvento = "" + ano + mes + dia;
-
-  /* ativa a tela de loading */
-//  showLoading();
-
-  var dados = { wscallback: "wsResponseLista", lista: { data_evento: dataEvento } };
-
-  /* executa a requisicao via ajax */
+  // executa a requisicao via ajax
   $.ajax({
-    url: configServerUrl + "/getLista.php",
+    url: configServerUrl + "/getTipoDeLista.php",
     type: "POST",
     dataType: "jsonp",
-    data: { dados: dados },
-    success: wsResponseLista
+    data: { dados: dados }
   });
 }
 
 /**
- * wsResponseLogar
- * Funcao para tratar o retorno da funcao "wsLogar"
+ * wsResponseTipoDeLista
+ *
+ * Funcao para tratar o retorno da requisicao "wsGetTipoDeLista"
+ *
  * @param {json} response
  */
-function wsResponseLista(response) {
-  /* faz o parser do json */
+function wsResponseTipoDeLista(response) {
+  // faz o parser do json
   response = JSON.parse(response);
 
-  /* em caso de erro */
+  // em caso de erro
   if (response.wsstatus == 0) {
-    var msg = "Nenhume lista cadastrada!";
+    var msg = "Nenhum tipo de lista cadastrado!";
     var error = response.wserror;
     if (error.length > 0)
       msg = error;
@@ -50,12 +48,94 @@ function wsResponseLista(response) {
 //    showDialog("Autentica&ccedil;&atilde;o", msg, null, null, "Fechar", "goToPage('index.html')");
   }
 
-  /* em caso de sucesso */
+  // em caso de sucesso
   else if (response.wsstatus == 1) {
-    var listas = response.wsresult;
 
+    var tiposListas = response.wsresult;
+
+    // limpa a pagina a ser preenchida com os dados
     var page = $("#content").find(".page.activePage:last");
     page.html("");
+
+    localStorage.setItem("tiposListas", JSON.stringify(tiposListas));
+  }
+}
+
+/**
+ * wsGetLista
+ *
+ * Funcao obter as listas de presentes via ajax
+ *
+ * @param {json} response
+ */
+function wsGetLista() {
+  hideMenuSec();
+  showMask();
+
+  // obtem os dados para execucao da requisicao
+  var dia = $(".input-date.day").text();
+  var mes = $(".input-date.month").text();
+  var ano = $(".input-date.year").text();
+  var tipoListaCodigo = $(".input-select.tipoLista").attr("title");
+
+  // preparacao dos dados
+  var dataEvento = "" + ano + mes + dia;
+
+  var lista = {
+    data_evento:  parseInt(dataEvento) > 0 ? dataEvento : "",
+    tipo:         tipoListaCodigo.length > 0 ? tipoListaCodigo : ""
+  };
+
+  // cria bloco de dados a serem enviados na requisicao
+  var dados = { wscallback: "wsResponseLista", lista: lista };
+
+  // executa a requisicao via ajax
+  $.ajax({
+    url: configServerUrl + "/getLista.php",
+    type: "POST",
+    dataType: "jsonp",
+    data: { dados: dados }
+  });
+}
+
+/**
+ * wsResponseLista
+ *
+ * Funcao para tratar o retorno da requisicao "wsGetLista"
+ *
+ * @param {json} response
+ */
+function wsResponseLista(response) {
+  // faz o parser do json
+  response = JSON.parse(response);
+
+  // em caso de erro
+  if (response.wsstatus == 0) {
+    var msg = "Nenhuma lista encontrada!";
+    var error = response.wserror;
+    if (error.length > 0)
+      msg = error;
+
+    // limpa a pagina a ser preenchida com os dados
+    var page = $("#content").find(".page.activePage:last").attr("id");
+
+    $("#" + page).find(".content-response").hide();
+    $("#" + page).find(".mark-agua").show();
+
+    hideMask();
+//    showDialog("Lista", msg, "Cancelar", "hideDialog()", "Ok", "hideDialog()");
+    showDialog("Lista", msg, "Fechar", "hideDialog()");
+  }
+
+  // em caso de sucesso
+  else if (response.wsstatus == 1) {
+
+    var listas = response.wsresult;
+
+    // limpa a pagina a ser preenchida com os dados
+    var page = $("#content").find(".page.activePage:last");
+    $("#" + page.attr("id")).find(".mark-agua").hide();
+    $("#" + page.attr("id")).find(".content-response").show();
 
     $.each(listas, function(i, lista){
       // tratamento dos dados retornados
@@ -76,19 +156,23 @@ function wsResponseLista(response) {
       var title = $("<p>");
       var desc = $("<p>");
 
+      // seta as informacoes
       title.addClass("title").text(clienteName);
       desc.addClass("desc").text(tipoName + " dia " + dataEvento);
 
+      // finaliza o bloco de informacoes
       card.addClass("card").addClass("bradius");
       card.append(title);
       card.append(desc);
 
-      page.append(card);
+      // insere o bloco na pagina
+      page.find(".content-response").append(card);
     });
 
+    // ativa as acoes de cliques nos blocos inseridos
+    $(".card").removeClass("activeCard");
     $(".card").click(function(){
       if($(this).hasClass("activeCard")){
-        var buttonOrigem = $(this).attr("id");
         loadPage("configuracoes");
       }
       else{
