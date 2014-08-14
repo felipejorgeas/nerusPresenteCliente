@@ -141,6 +141,7 @@ button {
 #navigator ul li {
   width: 100%;
   padding: 15px 10px;
+  display: block;
   border-bottom: 1px solid #DDD;
 }
 
@@ -149,25 +150,39 @@ button {
   margin-bottom: 20px;
 }
 
+#navigator .nav-filter{
+  background: none;
+}
+
 #navigator .nav-filter .category{
   font-weight: bold;
   color: #900;
   padding-left: 0;
 }
 
-#navigator .nav-filter{
-  display: none;
-}
-
 #navigator .filter-submit{
-  position: absolute;
   width: 290px;
-  left: 10px;
+  margin: 0 0 10px 10px;
 }
 
 #navigator .nav-filter input{
   width: 100%;
   background: none;
+}
+
+#navigator .nav-filter p{
+  position: relative;
+}
+
+#navigator .nav-filter .reset-fields{
+  position: absolute;
+  top: 10px;
+  right: 0;
+  width: 20px;
+  height: 20px;
+  background: url("../img/ico-cancel.png");
+  background-size: 20px;
+  display: inline-block;
 }
 
 #menu {
@@ -307,7 +322,6 @@ button {
   width: 300px;
   top: 50%;
   left: 50%;
-  margin-top: -100px;
   margin-left: -150px;
   background: #FFF;
   border: 1px solid #CCC;
@@ -351,7 +365,6 @@ button {
   width: 300px;
   top: 50%;
   left: 50%;
-  margin-top: -150px;
   margin-left: -150px;
   background: #FFF;
   display: none;
@@ -460,7 +473,6 @@ button {
 
 #action {
   display: table;
-  padding-right: 8px;
 }
 
 .click {
@@ -526,7 +538,7 @@ button {
 }
 
 #actions-left #action #title img{
-  max-height: 35px;
+  max-height: 30px;
 }
 
 #actions-right {
@@ -542,7 +554,7 @@ button {
 }
 
 #search input {
-  width: 100%;
+  width: 80%;
   max-width: 300px;
   float: right;
   height: 36px;

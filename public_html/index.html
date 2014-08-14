@@ -85,7 +85,7 @@
     <!-- Menu lateral -->
     <div id="navigator">
       <div id="scroll">
-        <ul id="filter-cliente" class="nav-filter">
+        <ul id="filter-lista-busca" class="nav-filter">
           <li class="category">Filtros</li>
           <li>
             Data do evento
@@ -93,16 +93,18 @@
               <span class="input input-date day bradius" onclick="showSelect('day', this);">00</span>/
               <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>/
               <span class="input input-date year bradius" onclick="showSelect('year', this);">0000</span>
+              <span class="reset-fields" onclick="resetFields(this, 'date');"></span>
             </p>
           </li>
           <li>
             Tipo de Lista
             <p>
               <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this);" title="">Selecione</span>
+              <span class="reset-fields" onclick="resetFields(this, 'select');"></span>
             </p>
           </li>
         </ul>
-        <ul id="filter-produto" class="nav-filter">
+        <ul id="filter-index" class="nav-filter">
           <li>Acessar painel</li>
           <li>Configurações</li>
           <li>Acessar painel</li>
@@ -164,114 +166,11 @@
 
     $(function() {
 
-//      hideLogin();
-//      menuSec();
-
       // Define as acoes dos botoes fisicos do android
       document.addEventListener("menubutton", onBackKeyMenu, false);
       document.addEventListener("backbutton", onBackKeyDown, false);
 
-      // Ativa algumas acoes ao clicar em determinados locais da tela
-      clickOut();
-
-      // instancia algumas variaveis globais para auxiliar no controle do menu lateral
-      var currentPageX = 0;
-      var currentPageY = 0;
-      var touchStartPageX = 0;
-      var touchStartPageY = 0;
-      var touchStartMenuLeft = 0;
-
-      // Controlador do menu lateral
-      var menu = document.getElementById("navigator");
-
-      /** Evento TouchStart
-       *
-       * Ao iniciar um toque no menu lateral executa este processo
-       */
-      menu.addEventListener("touchstart", function(evt) {
-        var touch = evt.targetTouches[0];
-        var menu = $("#navigator");
-
-        showMaskShadow();
-
-        touchStartPageX = touch.pageX;
-        touchStartPageY = touch.pageY;
-
-        touchStartMenuLeft = getTranslateX(menu);
-
-        evt.preventDefault();
-      });
-
-      /** Evento TouchMove
-       *
-       * Ao mover o dedo sobre o menu lateral executa este processo
-       */
-      menu.addEventListener("touchmove", function(evt) {
-        var touch = evt.targetTouches[0];
-        currentPageX = touch.pageX;
-        currentPageY = touch.pageY;
-
-        var menu = $("#navigator");
-
-        var menuLeft = getTranslateX(menu);
-
-        var newMenuLeft = touchStartMenuLeft + (currentPageX - touchStartPageX);
-
-        var slideOk = Math.abs(currentPageX - touchStartPageX) > Math.abs(currentPageY - touchStartPageY) ? true : false;
-
-        if (slideOk && (menuLeft <= 0 && newMenuLeft <= 0)) {
-          menu.css({
-            "-moz-transform": "translateX(" + newMenuLeft + "px)",
-            "-webkit-transform": "translateX(" + newMenuLeft + "px)",
-            "transform": "translateX(" + newMenuLeft + "px)",
-          });
-        }
-
-        evt.preventDefault();
-      });
-
-      /** Evento TouchEnd
-       *
-       * Ao finalizar um toque no menu lateral executa este processo
-       */
-      menu.addEventListener("touchend", function() {
-        var menu = $("#navigator");
-
-        var menuLeft = getTranslateX(menu);
-        var newMenuLeft = 0;
-
-        if (menuLeft < -(menu.width() / 2))
-          newMenuLeft = -330;
-
-        menu.addClass("animate").css({
-          "-moz-transform": "translateX(" + newMenuLeft + "px)",
-          "-webkit-transform": "translateX(" + newMenuLeft + "px)",
-          "transform": "translateX(" + newMenuLeft + "px)",
-        });
-
-        window.setTimeout(function() {
-          menu.removeClass("animate");
-        }, 300);
-
-        if (newMenuLeft == 0)
-          showDrawer();
-        else
-          hideDrawer();
-      });
-
-      $("#scroll >").on("touchstart", function(evt){
-        evt.stopPropagation();
-      });
-
-      initFields();
-
-      /** FastClick
-       *
-       * Remove o delay do clique em qualquer item do documento
-       */
-      window.setTimeout(function(){
-        FastClick.attach(document.body);
-      }, 500);
+      init();
 
     });
   </script>

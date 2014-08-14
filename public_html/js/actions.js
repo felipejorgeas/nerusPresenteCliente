@@ -1,4 +1,4 @@
-var configServerUrl = "http://192.168.1.13/saciPresenteServidor";
+var configServerUrl = "http://192.168.1.25/saciPresenteServidor";
 
 function loginAction(){
   wsGetTipoDeLista();
@@ -134,8 +134,12 @@ function wsResponseLista(response) {
 
     // limpa a pagina a ser preenchida com os dados
     var page = $("#content").find(".page.activePage:last");
-    $("#" + page.attr("id")).find(".mark-agua").hide();
-    $("#" + page.attr("id")).find(".content-response").show();
+    var pageId = "#" + page.attr("id");
+    var marcaDagua = $(pageId).find(".mark-agua");
+    var contentResponse = $(pageId).find(".content-response");
+
+    marcaDagua.hide();
+    contentResponse.html("").scrollTop(0).show();
 
     $.each(listas, function(i, lista){
       // tratamento dos dados retornados
@@ -164,9 +168,9 @@ function wsResponseLista(response) {
       card.addClass("card").addClass("bradius");
       card.append(title);
       card.append(desc);
-
+      
       // insere o bloco na pagina
-      page.find(".content-response").append(card);
+      contentResponse.append(card);
     });
 
     // ativa as acoes de cliques nos blocos inseridos

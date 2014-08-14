@@ -341,85 +341,91 @@ function loadHeader(page) {
   // personaliza o header
 
   $.getJSON("menus/" + page + ".json",
-          function(response) {
+    function(response) {
 
-            var pageTitle = response.hasOwnProperty("title") ? response.title : false;
-            var pageDrawer = response.hasOwnProperty("drawer") ? response.drawer : false;
-            var pageBack = response.hasOwnProperty("back") ? response.back : false;
-            var pageActions = response.hasOwnProperty("actions") ? response.actions : false;
-            var pageMenu = response.hasOwnProperty("menu") ? response.menu : false;
-            var pageNav = response.hasOwnProperty("nav") ? response.nav : false;
+      var pageTitle = response.hasOwnProperty("title") ? response.title : false;
+      var pageDrawer = response.hasOwnProperty("drawer") ? response.drawer : false;
+      var pageBack = response.hasOwnProperty("back") ? response.back : false;
+      var pageActions = response.hasOwnProperty("actions") ? response.actions : false;
+      var pageMenu = response.hasOwnProperty("menu") ? response.menu : false;
+      var pageNav = response.hasOwnProperty("nav") ? response.nav : false;
 
-            if (pageTitle) {
-              if (pageTitle.hasOwnProperty("show") && pageTitle.show) {
-                if (pageTitle.hasOwnProperty("logo")) {
-                  title.find(".logo").html(pageTitle.logo).show();
-                }
-                else {
-                  title.find(".logo").hide();
-                  $.each(pageTitle.itens, function(i, item) {
-                    descs.eq(i).html(item.desc);
-                    descs.eq(i).show();
-                  });
-                }
-              }
-            }
-
-            if (pageDrawer && pageDrawer.hasOwnProperty("show") && pageDrawer.show) {
-              action.attr("onclick", pageDrawer.onclick);
-              animateClick(action);
-              back.hide();
-              drawer.show();
-            }
-
-            else if (pageBack && pageBack.hasOwnProperty("show") && pageBack.show) {
-              action.attr("onclick", pageBack.onclick);
-              animateClick(action);
-              drawer.hide();
-              back.show();
-            }
-
-            else {
-              action.removeAttr("onclick");
-            }
-
-            if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
-              $.each(pageActions.itens, function(i, item) {
-                var icon = getIcon(item.icon);
-                actionsHeader.eq(i).attr("onclick", item.onclick);
-                actionsHeader.eq(i).html(icon);
-                animateClick(actionsHeader.eq(i));
-                actionsHeader.eq(i).show();
-              });
-            }
-
-            if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
-              $.each(pageMenu.itens, function(i, item) {
-                var op = $("<li>");
-                op.attr("onclick", item.onclick).text(item.label);
-                menu.append(op);
-              });
-              exibMenu.show();
-              window.setTimeout(function() {
-                menu.show();
-              }, 500);
-            }
-
-            if (pageNav && pageNav.hasOwnProperty("show") && pageNav.show) {
-              nav.find(".nav-filter").hide();
-              nav.find("#filter-" + pageNav.type).show();
-              nav.show();
-              var drawerScroll = new IScroll("#scroll", {
-                bounce: false,
-                scrollY: true,
-                scrollbars: "custom",
-                fadeScrollbars: true
-              });
-            }
-            else {
-              nav.hide();
-            }
+      if (pageTitle) {
+        if (pageTitle.hasOwnProperty("show") && pageTitle.show) {
+          if (pageTitle.hasOwnProperty("logo")) {
+            title.find(".logo").html(pageTitle.logo).show();
           }
+          else {
+            title.find(".logo").hide();
+            $.each(pageTitle.itens, function(i, item) {
+              descs.eq(i).html(item.desc);
+              descs.eq(i).show();
+            });
+          }
+        }
+      }
+
+      if (pageDrawer && pageDrawer.hasOwnProperty("show") && pageDrawer.show) {
+        action.attr("onclick", pageDrawer.onclick);
+        animateClick(action);
+        back.hide();
+        drawer.show();
+      }
+
+      else if (pageBack && pageBack.hasOwnProperty("show") && pageBack.show) {
+        action.attr("onclick", pageBack.onclick);
+        animateClick(action);
+        drawer.hide();
+        back.show();
+      }
+
+      else {
+        action.removeAttr("onclick");
+      }
+
+      if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
+        $.each(pageActions.itens, function(i, item) {
+          var icon = getIcon(item.icon);
+          actionsHeader.eq(i).attr("onclick", item.onclick);
+          actionsHeader.eq(i).html(icon);
+          animateClick(actionsHeader.eq(i));
+          actionsHeader.eq(i).show();
+        });
+      }
+
+      if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
+        $.each(pageMenu.itens, function(i, item) {
+          var op = $("<li>");
+          op.attr("onclick", item.onclick).text(item.label);
+          menu.append(op);
+        });
+        exibMenu.show();
+        window.setTimeout(function() {
+          menu.show();
+        }, 500);
+      }
+
+      if (pageNav && pageNav.hasOwnProperty("show") && pageNav.show) {
+        nav.find(".nav-filter").hide();
+        nav.find("#filter-" + pageNav.type).show();
+        nav.show();
+        var myScroll = new IScroll("#scroll", {
+          bounce: false,
+          scrollY: true,
+          scrollbars: "custom",
+          fadeScrollbars: true
+        });
+      }
+      else {
+        nav.hide();
+      }
+
+      /** FastClick
+       *
+       * Remove o delay do clique em qualquer item do documento
+       */
+      FastClick.attach(document.body);
+    }
   );
 }
 
@@ -536,6 +542,9 @@ function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2) {
     $("#popup-dialog").find("button").eq(0).css("width", "100%");
   }
 
+  var marginTop = - (parseInt($("#popup-dialog").css("height")) / 2);
+  $("#popup-dialog").css("margin-top", marginTop);
+
   $("#popup-dialog").show();
 }
 
@@ -583,9 +592,9 @@ function showSelect(type, elem) {
     case "year":
       var year = new Date().getFullYear();
       var ul = $("<ul>");
-      year -= 20;
+      year -= 10;
 
-      for (var i = 0; i <= 40; i++) {
+      for (var i = 0; i <= 20; i++) {
         var li = $("<li>");
         li.text(year + i);
         ul.append(li);
@@ -624,10 +633,134 @@ function showSelect(type, elem) {
       break;
   }
   showMaskFull();
+  var marginTop = - (parseInt($("#popup-select").css("height")) / 2);
+  $("#popup-select").css("margin-top", marginTop);
   $("#popup-select").show();
 }
 
-function initFields() {
+function resetFields(elem, type){
+  var p = $(elem).parent();
+
+  switch(type){
+    case "select":
+      p.find(".input-select").text("Selecione").attr("title", "");
+      break;
+    case "date":
+      p.find(".input-date.day").text("00");
+      p.find(".input-date.month").text("00");
+      p.find(".input-date.year").text("0000");
+      break;
+  }
+}
+
+function init() {
+
+  hideLogin();
+
+  // Ativa algumas acoes ao clicar em determinados locais da tela
+  clickOut();
+
+  // instancia algumas variaveis globais para auxiliar no controle do menu lateral
+  var currentPageX = 0;
+  var currentPageY = 0;
+  var touchStartPageX = 0;
+  var touchStartPageY = 0;
+  var touchStartMenuLeft = 0;
+
+  // Controlador do menu lateral
+  var menu = document.getElementById("navigator");
+
+  /** Evento TouchStart
+   *
+   * Ao iniciar um toque no menu lateral executa este processo
+   */
+  menu.addEventListener("touchstart", function(evt) {
+    var touch = evt.targetTouches[0];
+    var menu = $("#navigator");
+
+    showMaskShadow();
+
+    touchStartPageX = touch.pageX;
+    touchStartPageY = touch.pageY;
+
+    touchStartMenuLeft = getTranslateX(menu);
+
+    evt.preventDefault();
+  });
+
+  /** Evento TouchMove
+   *
+   * Ao mover o dedo sobre o menu lateral executa este processo
+   */
+  menu.addEventListener("touchmove", function(evt) {
+    var touch = evt.targetTouches[0];
+    currentPageX = touch.pageX;
+    currentPageY = touch.pageY;
+
+    var menu = $("#navigator");
+
+    var menuLeft = getTranslateX(menu);
+
+    var newMenuLeft = touchStartMenuLeft + (currentPageX - touchStartPageX);
+
+    var slideOk = Math.abs(currentPageX - touchStartPageX) > Math.abs(currentPageY - touchStartPageY) ? true : false;
+
+    if (slideOk && (menuLeft <= 0 && newMenuLeft <= 0)) {
+      menu.css({
+        "-moz-transform": "translateX(" + newMenuLeft + "px)",
+        "-webkit-transform": "translateX(" + newMenuLeft + "px)",
+        "transform": "translateX(" + newMenuLeft + "px)",
+      });
+    }
+
+    evt.preventDefault();
+  });
+
+  /** Evento TouchEnd
+   *
+   * Ao finalizar um toque no menu lateral executa este processo
+   */
+  menu.addEventListener("touchend", function() {
+    var menu = $("#navigator");
+
+    var menuLeft = getTranslateX(menu);
+    var newMenuLeft = 0;
+
+    if (menuLeft < -(menu.width() / 2))
+      newMenuLeft = -330;
+
+    menu.addClass("animate").css({
+      "-moz-transform": "translateX(" + newMenuLeft + "px)",
+      "-webkit-transform": "translateX(" + newMenuLeft + "px)",
+      "transform": "translateX(" + newMenuLeft + "px)",
+    });
+
+    window.setTimeout(function() {
+      menu.removeClass("animate");
+    }, 300);
+
+    if (newMenuLeft == 0)
+      showDrawer();
+    else
+      hideDrawer();
+  });
+
+  $("#scroll li").on("touchstart", function(evt){
+    evt.stopPropagation();
+  });
+
+  $("#scroll li").on("touchmove", function(evt){
+    evt.stopPropagation();
+  });
+
+  $("#scroll button").on("touchstart", function(evt){
+    evt.stopPropagation();
+  });
+
+  $("#scroll button").on("touchmove", function(evt){
+    evt.stopPropagation();
+  });
+
   var date = new Date();
   var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
   var month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
@@ -644,7 +777,5 @@ function initFields() {
     window.setTimeout(function() {
       $(button).removeClass("activeButton");
     }, 200);
-
   });
-
 }

@@ -6,12 +6,12 @@
   },
   "drawer":
   {
-    "show": true,
+    "show": false,
     "onclick": "menuSec();"
   },
   "back":
   {
-    "show": false,
+    "show": true,
     "onclick": "loadPage('', true);"
   },
   "actions":
@@ -23,16 +23,12 @@
         "onclick": "actionSearch();",
         "icon": "search",
         "barcode": true
-      },
-      {
-        "onclick": "",
-        "icon": "new"
       }
     ]
   },
   "menu":
   {
-    "show": true,
+    "show": false,
     "itens":
     [
       {
@@ -44,6 +40,6 @@
   "nav":
   {
     "show": true,
-    "type": "cliente"
+    "type": "lista-busca"
   }
 }
