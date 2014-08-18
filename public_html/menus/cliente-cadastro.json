@@ -16,17 +16,14 @@
   },
   "actions":
   {
-    "show": true,
+    "show": false,
     "itens":
     [
       {
         "onclick": "actionSearch();",
         "icon": "search",
-        "type": "cliente"
-      },
-      {
-        "onclick": "loadPage('cliente-cadastro');",
-        "icon": "new"
+        "type": "lista",
+        "barcode": true
       }
     ]
   },

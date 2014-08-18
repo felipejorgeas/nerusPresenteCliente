@@ -341,91 +341,93 @@ function loadHeader(page) {
   // personaliza o header
 
   $.getJSON("menus/" + page + ".json",
-    function(response) {
+          function(response) {
 
-      var pageTitle = response.hasOwnProperty("title") ? response.title : false;
-      var pageDrawer = response.hasOwnProperty("drawer") ? response.drawer : false;
-      var pageBack = response.hasOwnProperty("back") ? response.back : false;
-      var pageActions = response.hasOwnProperty("actions") ? response.actions : false;
-      var pageMenu = response.hasOwnProperty("menu") ? response.menu : false;
-      var pageNav = response.hasOwnProperty("nav") ? response.nav : false;
+            var pageTitle = response.hasOwnProperty("title") ? response.title : false;
+            var pageDrawer = response.hasOwnProperty("drawer") ? response.drawer : false;
+            var pageBack = response.hasOwnProperty("back") ? response.back : false;
+            var pageActions = response.hasOwnProperty("actions") ? response.actions : false;
+            var pageMenu = response.hasOwnProperty("menu") ? response.menu : false;
+            var pageNav = response.hasOwnProperty("nav") ? response.nav : false;
 
-      if (pageTitle) {
-        if (pageTitle.hasOwnProperty("show") && pageTitle.show) {
-          if (pageTitle.hasOwnProperty("logo")) {
-            title.find(".logo").html(pageTitle.logo).show();
+            if (pageTitle) {
+              if (pageTitle.hasOwnProperty("show") && pageTitle.show) {
+                if (pageTitle.hasOwnProperty("logo")) {
+                  title.find(".logo").html(pageTitle.logo).show();
+                }
+                else {
+                  title.find(".logo").hide();
+                  $.each(pageTitle.itens, function(i, item) {
+                    descs.eq(i).html(item.desc);
+                    descs.eq(i).show();
+                  });
+                }
+              }
+            }
+
+            if (pageDrawer && pageDrawer.hasOwnProperty("show") && pageDrawer.show) {
+              action.attr("onclick", pageDrawer.onclick);
+              animateClick(action);
+              back.hide();
+              drawer.show();
+            }
+
+            else if (pageBack && pageBack.hasOwnProperty("show") && pageBack.show) {
+              action.attr("onclick", pageBack.onclick);
+              animateClick(action);
+              drawer.hide();
+              back.show();
+            }
+
+            else {
+              action.removeAttr("onclick");
+            }
+
+            if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
+              $.each(pageActions.itens, function(i, item) {
+                var icon = getIcon(item.icon);
+                actionsHeader.eq(i).attr("onclick", item.onclick);
+                actionsHeader.eq(i).html(icon);
+                animateClick(actionsHeader.eq(i));
+                actionsHeader.eq(i).show();
+                if(item.type)
+                  $("#search input[name=funcSearch]").val(item.type);
+              });
+            }
+
+            if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
+              $.each(pageMenu.itens, function(i, item) {
+                var op = $("<li>");
+                op.attr("onclick", item.onclick).text(item.label);
+                menu.append(op);
+              });
+              exibMenu.show();
+              window.setTimeout(function() {
+                menu.show();
+              }, 500);
+            }
+
+            if (pageNav && pageNav.hasOwnProperty("show") && pageNav.show) {
+              nav.find(".nav-filter").hide();
+              nav.find("#filter-" + pageNav.type).show();
+              nav.show();
+              var myScroll = new IScroll("#scroll", {
+                bounce: false,
+                scrollY: true,
+                scrollbars: "custom",
+                fadeScrollbars: true
+              });
+            }
+            else {
+              nav.hide();
+            }
+
+            /** FastClick
+             *
+             * Remove o delay do clique em qualquer item do documento
+             */
+            FastClick.attach(document.body);
           }
-          else {
-            title.find(".logo").hide();
-            $.each(pageTitle.itens, function(i, item) {
-              descs.eq(i).html(item.desc);
-              descs.eq(i).show();
-            });
-          }
-        }
-      }
-
-      if (pageDrawer && pageDrawer.hasOwnProperty("show") && pageDrawer.show) {
-        action.attr("onclick", pageDrawer.onclick);
-        animateClick(action);
-        back.hide();
-        drawer.show();
-      }
-
-      else if (pageBack && pageBack.hasOwnProperty("show") && pageBack.show) {
-        action.attr("onclick", pageBack.onclick);
-        animateClick(action);
-        drawer.hide();
-        back.show();
-      }
-
-      else {
-        action.removeAttr("onclick");
-      }
-
-      if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
-        $.each(pageActions.itens, function(i, item) {
-          var icon = getIcon(item.icon);
-          actionsHeader.eq(i).attr("onclick", item.onclick);
-          actionsHeader.eq(i).html(icon);
-          animateClick(actionsHeader.eq(i));
-          actionsHeader.eq(i).show();
-        });
-      }
-
-      if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
-        $.each(pageMenu.itens, function(i, item) {
-          var op = $("<li>");
-          op.attr("onclick", item.onclick).text(item.label);
-          menu.append(op);
-        });
-        exibMenu.show();
-        window.setTimeout(function() {
-          menu.show();
-        }, 500);
-      }
-
-      if (pageNav && pageNav.hasOwnProperty("show") && pageNav.show) {
-        nav.find(".nav-filter").hide();
-        nav.find("#filter-" + pageNav.type).show();
-        nav.show();
-        var myScroll = new IScroll("#scroll", {
-          bounce: false,
-          scrollY: true,
-          scrollbars: "custom",
-          fadeScrollbars: true
-        });
-      }
-      else {
-        nav.hide();
-      }
-
-      /** FastClick
-       *
-       * Remove o delay do clique em qualquer item do documento
-       */
-      FastClick.attach(document.body);
-    }
   );
 }
 
@@ -542,7 +544,7 @@ function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2) {
     $("#popup-dialog").find("button").eq(0).css("width", "100%");
   }
 
-  var marginTop = - (parseInt($("#popup-dialog").css("height")) / 2);
+  var marginTop = -(parseInt($("#popup-dialog").css("height")) / 2);
   $("#popup-dialog").css("margin-top", marginTop);
 
   $("#popup-dialog").show();
@@ -633,15 +635,15 @@ function showSelect(type, elem) {
       break;
   }
   showMaskFull();
-  var marginTop = - (parseInt($("#popup-select").css("height")) / 2);
+  var marginTop = -(parseInt($("#popup-select").css("height")) / 2);
   $("#popup-select").css("margin-top", marginTop);
   $("#popup-select").show();
 }
 
-function resetFields(elem, type){
+function resetFields(elem, type) {
   var p = $(elem).parent();
 
-  switch(type){
+  switch (type) {
     case "select":
       p.find(".input-select").text("Selecione").attr("title", "");
       break;
@@ -745,19 +747,19 @@ function init() {
       hideDrawer();
   });
 
-  $("#scroll li").on("touchstart", function(evt){
+  $("#scroll li").on("touchstart", function(evt) {
     evt.stopPropagation();
   });
 
-  $("#scroll li").on("touchmove", function(evt){
+  $("#scroll li").on("touchmove", function(evt) {
     evt.stopPropagation();
   });
 
-  $("#scroll button").on("touchstart", function(evt){
+  $("#scroll button").on("touchstart", function(evt) {
     evt.stopPropagation();
   });
 
-  $("#scroll button").on("touchmove", function(evt){
+  $("#scroll button").on("touchmove", function(evt) {
     evt.stopPropagation();
   });
 
@@ -777,5 +779,23 @@ function init() {
     window.setTimeout(function() {
       $(button).removeClass("activeButton");
     }, 200);
+  });
+
+  $("#search input[name=search]").keypress(function(evt) {
+    var tecla = (evt.keyCode ? evt.keyCode : evt.which);
+    if (tecla == 13) {
+      var typeSearch = $("#search input[name=funcSearch]").val();
+
+      switch (typeSearch) {
+
+        case "cliente":
+          wsGetCliente();
+          break;
+
+        case "lista":
+          wsGetLista();
+          break;
+      }
+    }
   });
 }

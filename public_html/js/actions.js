@@ -16,7 +16,7 @@ function loginAction(){
 function wsGetTipoDeLista() {
 
   // cria bloco de dados a serem enviados na requisicao
-  var dados = { wscallback: "wsResponseTipoDeLista" };
+  var dados = { wscallback: "wsResponseGetTipoDeLista" };
 
   // executa a requisicao via ajax
   $.ajax({
@@ -28,13 +28,13 @@ function wsGetTipoDeLista() {
 }
 
 /**
- * wsResponseTipoDeLista
+ * wsResponseGetTipoDeLista
  *
  * Funcao para tratar o retorno da requisicao "wsGetTipoDeLista"
  *
  * @param {json} response
  */
-function wsResponseTipoDeLista(response) {
+function wsResponseGetTipoDeLista(response) {
   // faz o parser do json
   response = JSON.parse(response);
 
@@ -78,16 +78,20 @@ function wsGetLista() {
   var ano = $(".input-date.year").text();
   var tipoListaCodigo = $(".input-select.tipoLista").attr("title");
 
+  var cliente_nome = $("#search input[name=search]").val();
+  $("#search input[name=search]").val("");
+
   // preparacao dos dados
   var dataEvento = "" + ano + mes + dia;
 
   var lista = {
     data_evento:  parseInt(dataEvento) > 0 ? dataEvento : "",
-    tipo:         tipoListaCodigo.length > 0 ? tipoListaCodigo : ""
+    tipo:         tipoListaCodigo.length > 0 ? tipoListaCodigo : "",
+    nome_cliente: cliente_nome
   };
 
   // cria bloco de dados a serem enviados na requisicao
-  var dados = { wscallback: "wsResponseLista", lista: lista };
+  var dados = { wscallback: "wsResponseGetLista", lista: lista };
 
   // executa a requisicao via ajax
   $.ajax({
@@ -99,13 +103,13 @@ function wsGetLista() {
 }
 
 /**
- * wsResponseLista
+ * wsResponseGetLista
  *
  * Funcao para tratar o retorno da requisicao "wsGetLista"
  *
  * @param {json} response
  */
-function wsResponseLista(response) {
+function wsResponseGetLista(response) {
   // faz o parser do json
   response = JSON.parse(response);
 
@@ -132,59 +136,61 @@ function wsResponseLista(response) {
 
     var listas = response.wsresult;
 
-    // limpa a pagina a ser preenchida com os dados
-    var page = $("#content").find(".page.activePage:last");
-    var pageId = "#" + page.attr("id");
-    var marcaDagua = $(pageId).find(".mark-agua");
-    var contentResponse = $(pageId).find(".content-response");
+    if(listas.length > 0){
 
-    marcaDagua.hide();
-    contentResponse.html("").scrollTop(0).show();
+      // limpa a pagina a ser preenchida com os dados
+      var page = $("#content").find(".page.activePage:last");
+      var pageId = "#" + page.attr("id");
+      var marcaDagua = $(pageId).find(".mark-agua");
+      var contentResponse = $(pageId).find(".content-response");
 
-    $.each(listas, function(i, lista){
-      // tratamento dos dados retornados
-      var clienteCodigo = lista.cliente_codigo;
-      var clienteNome = lista.cliente_nome;
-      var tipoCodigo = lista.tipo;
-      var tipoNome = lista.tipo_nome;
-      var dataEvento = lista.data_evento;
+      marcaDagua.hide();
+      contentResponse.html("").scrollTop(0).show();
 
-      var anoEvento = dataEvento.substr(0, 4);
-      var mesEvento = dataEvento.substr(4, 2);
-      var diaEvento = dataEvento.substr(6, 2);
+      $.each(listas, function(i, lista){
+        // tratamento dos dados retornados
+        var clienteCodigo = lista.cliente_codigo;
+        var clienteNome = lista.cliente_nome;
+        var tipoCodigo = lista.tipo;
+        var tipoNome = lista.tipo_nome;
+        var dataEvento = lista.data_evento;
 
-      dataEvento = diaEvento + "/" + mesEvento + "/" + anoEvento;
+        var anoEvento = dataEvento.substr(0, 4);
+        var mesEvento = dataEvento.substr(4, 2);
+        var diaEvento = dataEvento.substr(6, 2);
 
-      // criacao dos objetos a serem inseridos na pagina
-      var card = $("<div>");
-      var title = $("<p>");
-      var desc = $("<p>");
+        dataEvento = diaEvento + "/" + mesEvento + "/" + anoEvento;
 
-      // seta as informacoes
-      title.addClass("title").text(clienteNome);
-      desc.addClass("desc").text(tipoNome + " dia " + dataEvento);
+        // criacao dos objetos a serem inseridos na pagina
+        var card = $("<div>");
+        var title = $("<p>");
+        var desc = $("<p>");
 
-      // finaliza o bloco de informacoes
-      card.addClass("card").addClass("bradius");
-      card.append(title);
-      card.append(desc);
+        // seta as informacoes
+        title.addClass("title").text(clienteNome);
+        desc.addClass("desc").text(tipoNome + " dia " + dataEvento);
 
-      // insere o bloco na pagina
-      contentResponse.append(card);
-    });
+        // finaliza o bloco de informacoes
+        card.addClass("card").addClass("bradius");
+        card.append(title);
+        card.append(desc);
 
-    // ativa as acoes de cliques nos blocos inseridos
-    $(".card").removeClass("activeCard");
-    $(".card").click(function(){
-      if($(this).hasClass("activeCard")){
-        loadPage("configuracoes");
-      }
-      else{
-        $(".card").removeClass("activeCard");
-        $(this).addClass("activeCard");
-      }
-    });
+        // insere o bloco na pagina
+        contentResponse.append(card);
+      });
 
+      // ativa as acoes de cliques nos blocos inseridos
+      $(".card").removeClass("activeCard");
+      $(".card").click(function(){
+        if($(this).hasClass("activeCard")){
+          loadPage("configuracoes");
+        }
+        else{
+          $(".card").removeClass("activeCard");
+          $(this).addClass("activeCard");
+        }
+      });
+    }
     hideMask();
   }
 }
@@ -201,14 +207,19 @@ function wsGetCliente() {
   showMask();
 
   // obtem os dados para execucao da requisicao
-  var dia = $(".input-date.day").text();
+  var cliente_nome = $("#search [name=search]").val();
+  $("#search input[name=search]").val("");
+
+  if(cliente_nome.length == 0){
+    alert("Favor buscar algum nome")
+  }
 
   var cliente = {
-    nome_cliente: "adalucia"
+    nome_cliente: cliente_nome
   };
 
   // cria bloco de dados a serem enviados na requisicao
-  var dados = { wscallback: "wsResponseCliente", cliente: cliente };
+  var dados = { wscallback: "wsResponseGetCliente", cliente: cliente };
 
   // executa a requisicao via ajax
   $.ajax({
@@ -220,13 +231,13 @@ function wsGetCliente() {
 }
 
 /**
- * wsResponseCliente
+ * wsResponseGetCliente
  *
  * Funcao para tratar o retorno da requisicao "wsGetCliente"
  *
  * @param {json} response
  */
-function wsResponseCliente(response) {
+function wsResponseGetCliente(response) {
   // faz o parser do json
   response = JSON.parse(response);
 
@@ -253,51 +264,122 @@ function wsResponseCliente(response) {
 
     var clientes = response.wsresult;
 
-    // limpa a pagina a ser preenchida com os dados
-    var page = $("#content").find(".page.activePage:last");
-    var pageId = "#" + page.attr("id");
-    var marcaDagua = $(pageId).find(".mark-agua");
-    var contentResponse = $(pageId).find(".content-response");
+    if(clientes.length > 0){
 
-    marcaDagua.hide();
-    contentResponse.html("").scrollTop(0).show();
+      // limpa a pagina a ser preenchida com os dados
+      var page = $("#content").find(".page.activePage:last");
+      var pageId = "#" + page.attr("id");
+      var marcaDagua = $(pageId).find(".mark-agua");
+      var contentResponse = $(pageId).find(".content-response");
 
-    $.each(clientes, function(i, cliente){
-      // tratamento dos dados retornados
-      var clienteCodigo = cliente.cliente_codigo;
-      var clienteName = cliente.cliente_nome;
+      marcaDagua.hide();
+      contentResponse.html("").scrollTop(0).show();
 
-//      // criacao dos objetos a serem inseridos na pagina
-//      var card = $("<div>");
-//      var title = $("<p>");
-//      var desc = $("<p>");
-//
-//      // seta as informacoes
-//      title.addClass("title").text(clienteName);
-//      desc.addClass("desc").text(tipoName + " dia " + dataEvento);
-//
-//      // finaliza o bloco de informacoes
-//      card.addClass("card").addClass("bradius");
-//      card.append(title);
-//      card.append(desc);
-//
-      // insere o bloco na pagina
-//      contentResponse.append(card);
-      contentResponse.append("<p>" + clienteCodigo + " - " + clienteName + "</p>");
-    });
+      $.each(clientes, function(i, cliente){
+        // tratamento dos dados retornados
+        var clienteCodigo = cliente.cliente_codigo;
+        var clienteName = cliente.cliente_nome;
 
-    // ativa as acoes de cliques nos blocos inseridos
-//    $(".card").removeClass("activeCard");
-//    $(".card").click(function(){
-//      if($(this).hasClass("activeCard")){
-//        loadPage("configuracoes");
-//      }
-//      else{
-//        $(".card").removeClass("activeCard");
-//        $(this).addClass("activeCard");
-//      }
-//    });
+  //      // criacao dos objetos a serem inseridos na pagina
+  //      var card = $("<div>");
+  //      var title = $("<p>");
+  //      var desc = $("<p>");
+  //
+  //      // seta as informacoes
+  //      title.addClass("title").text(clienteName);
+  //      desc.addClass("desc").text(tipoName + " dia " + dataEvento);
+  //
+  //      // finaliza o bloco de informacoes
+  //      card.addClass("card").addClass("bradius");
+  //      card.append(title);
+  //      card.append(desc);
+  //
+        // insere o bloco na pagina
+  //      contentResponse.append(card);
+        contentResponse.append("<p>" + clienteCodigo + " - " + clienteName + "</p>");
+      });
+
+      // ativa as acoes de cliques nos blocos inseridos
+  //    $(".card").removeClass("activeCard");
+  //    $(".card").click(function(){
+  //      if($(this).hasClass("activeCard")){
+  //        loadPage("configuracoes");
+  //      }
+  //      else{
+  //        $(".card").removeClass("activeCard");
+  //        $(this).addClass("activeCard");
+  //      }
+  //    });
+    }
+    hideMask();
+  }
+}
+
+/**
+ * wsSaveCliente
+ *
+ * Funcao salvar novos clientes via ajax
+ *
+ * @param {json} response
+ */
+function wsSaveCliente() {
+  showMask();
+
+  // obtem os dados para execucao da requisicao
+  var cliente_nome = $(".form [name=new_cliente_nome]").val();
+  var cliente_cpf = $(".form [name=new_cliente_cpf]").val();
+
+  if(cliente_nome.length == 0 || cliente_cpf.length == 0){
+    alert("Todos os campos são obrigatórios")
+  }
+
+  var cliente = {
+    cliente_nome: cliente_nome,
+    cliente_cpf: cliente_cpf
+  };
+
+  // cria bloco de dados a serem enviados na requisicao
+  var dados = { wscallback: "wsResponseSaveCliente", cliente: cliente };
+
+  // executa a requisicao via ajax
+  $.ajax({
+    url: configServerUrl + "/saveCliente.php",
+    type: "POST",
+    dataType: "jsonp",
+    data: { dados: dados }
+  });
+}
+
+/**
+ * wsResponseSaveCliente
+ *
+ * Funcao para tratar o retorno da requisicao "wsSaveCliente"
+ *
+ * @param {json} response
+ */
+function wsResponseSaveCliente(response) {
+  // faz o parser do json
+  response = JSON.parse(response);
+
+  // em caso de erro
+  if (response.wsstatus == 0) {
+    var msg = "Não foi possível cadastrar o cliente!";
+    var error = response.wserror;
+    if (error.length > 0)
+      msg = error;
 
     hideMask();
+    showDialog("Cliente", msg, "Fechar", "hideDialog()");
+  }
+
+  // em caso de sucesso
+  else if (response.wsstatus == 1) {
+
+    var cliente = response.wsresult;
+    
+    var msg = "Cliente cadastrado com sucesso!";
+
+    hideMask();
+    showDialog("Cliente", msg, "Fechar", "hideDialog()");
   }
 }

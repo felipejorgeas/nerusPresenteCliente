@@ -406,6 +406,21 @@ button {
   text-align: left;
 }
 
+.form{
+  text-align: center;
+}
+
+.form input{
+  width: 100%;
+  max-width: 400px;
+  margin-bottom: 20px;
+}
+
+.form button{
+  width: 100%;
+  max-width: 400px;
+}
+
 .page {
   position: absolute;
   top: 50px;
