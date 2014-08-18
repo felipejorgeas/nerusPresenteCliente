@@ -228,7 +228,7 @@ button {
   right: 0;
   bottom: 0;
   left: 0;
-  background: #FFF;
+  background: #EEE;
   display: none;
   z-index: 3;
 }
@@ -251,7 +251,6 @@ button {
   right: 0;
   bottom: 0;
   left: 0;
-  background: #000;
   z-index: 3;
   display: none;
   opacity: 0;

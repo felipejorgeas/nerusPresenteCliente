@@ -655,7 +655,7 @@ function resetFields(elem, type){
 
 function init() {
 
-  hideLogin();
+//  hideLogin();
 
   // Ativa algumas acoes ao clicar em determinados locais da tela
   clickOut();
