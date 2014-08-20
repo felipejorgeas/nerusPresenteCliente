@@ -608,7 +608,7 @@ function showSelect(type, elem) {
     case "tipoLista":
       var ul = $("<ul>");
       var lis = "";
-      var tipos = localStorage.getItem("tiposListas");
+      var tipos = sessionStorage.getItem("tiposListas");
       var tiposListas = JSON.parse(tipos);
 
       $.each(tiposListas, function(i, tipo) {
@@ -858,7 +858,7 @@ function wsResponseGetTipoDeLista(response) {
     var page = $("#content").find(".page.activePage:last");
     page.html("");
 
-    localStorage.setItem("tiposListas", JSON.stringify(tiposListas));
+    sessionStorage.setItem("tiposListas", JSON.stringify(tiposListas));
   }
 }
 
@@ -872,7 +872,14 @@ function wsResponseGetTipoDeLista(response) {
 function wsGetLista() {
   hideMenuSec();
   showMask();
-
+  
+  var clienteCodigo = sessionStorage.getItem("clienteSelecionado");
+  
+  if(clienteCodigo > 0) {
+        var lista = {
+            codigo_cliente:  clienteCodigo
+        };
+  } else {
   // obtem os dados para execucao da requisicao
   var dia = $(".input-date.day").text();
   var mes = $(".input-date.month").text();
@@ -890,6 +897,8 @@ function wsGetLista() {
     tipo:         tipoListaCodigo.length > 0 ? tipoListaCodigo : "",
     nome_cliente: cliente_nome
   };
+  
+}
 
   // cria bloco de dados a serem enviados na requisicao
   var dados = { wscallback: "wsResponseGetLista", lista: lista };
@@ -945,10 +954,14 @@ function wsResponseGetLista(response) {
       var marcaDagua = $(pageId).find(".mark-agua");
       var contentResponse = $(pageId).find(".content-response");
 
+      var listasStorage = [];
+
       marcaDagua.hide();
       contentResponse.html("").scrollTop(0).show();
 
       $.each(listas, function(i, lista){
+        listasStorage.push(lista);
+ 
         // tratamento dos dados retornados
         var clienteCodigo = lista.cliente_codigo;
         var clienteNome = lista.cliente_nome;
@@ -972,7 +985,7 @@ function wsResponseGetLista(response) {
         desc.addClass("desc").text(tipoNome + " dia " + dataEvento);
 
         // finaliza o bloco de informacoes
-        card.addClass("card").addClass("bradius");
+        card.addClass("card").addClass("bradius").attr("id", i);
         card.append(title);
         card.append(desc);
 
@@ -984,7 +997,9 @@ function wsResponseGetLista(response) {
       $(".card").removeClass("activeCard");
       $(".card").click(function(){
         if($(this).hasClass("activeCard")){
-          loadPage("configuracoes");
+          var lista = listasStorage[this.id];
+          sessionStorage.setItem("listaSelecionada", JSON.stringify(lista));
+          loadPage("lista-produto");
         }
         else{
           $(".card").removeClass("activeCard");
@@ -992,6 +1007,7 @@ function wsResponseGetLista(response) {
         }
       });
     }
+    sessionStorage.removeItem("clienteSelecionado");
     hideMask();
   }
 }
@@ -1097,20 +1113,21 @@ function wsResponseGetCliente(response) {
   //
         // insere o bloco na pagina
   //      contentResponse.append(card);
-        contentResponse.append("<p>" + clienteCodigo + " - " + clienteName + "</p>");
+        contentResponse.append("<p class='cliente' id='" + clienteCodigo + "'>" + clienteCodigo + " - " + clienteName + "</p>");
       });
 
       // ativa as acoes de cliques nos blocos inseridos
-  //    $(".card").removeClass("activeCard");
-  //    $(".card").click(function(){
-  //      if($(this).hasClass("activeCard")){
-  //        loadPage("configuracoes");
-  //      }
-  //      else{
-  //        $(".card").removeClass("activeCard");
-  //        $(this).addClass("activeCard");
-  //      }
-  //    });
+      $(".cliente").removeClass("activeCard");
+      $(".cliente").click(function(){
+        if($(this).hasClass("activeCard")){
+          sessionStorage.setItem("clienteSelecionado", this.id);
+          loadPage("cliente-lista");
+        }
+        else{
+          $(".card").removeClass("activeCard");
+          $(this).addClass("activeCard");
+        }
+      });
     }
     hideMask();
   }
