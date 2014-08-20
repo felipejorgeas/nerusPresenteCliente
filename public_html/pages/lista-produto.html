@@ -1,0 +1,39 @@
+
+<script>
+
+    $(function() {
+
+        var listas = localStorage.getItem("listaSelecionada");
+        listas = JSON.parse(listas);
+        
+        var produtos = [];
+
+        /**
+         * Verifica se veio apenas um produtos ou varios.
+         * Isto influencia na estrutura do array de produtos
+         * 
+         * Ex.:
+         *      se vier apenas um produto o array retornado sera:
+         *      lista_produtos = array("codigo_produto", "grade", ...);
+         *      
+         *      se vier varios produtos o array retornado sera:
+         *      lista_produtos = array(0 => array("codigo_produto", "grade", ...),
+         *                             1 => array("codigo_produto", "grade", ...));
+         *                             
+         * O tratamento abaixo garante que iremos manipular sempre
+         * um array multi-dimensional no each().
+         */
+        if(listas.lista_produtos.produto.hasOwnProperty("0")){
+            produtos = listas.lista_produtos.produto;
+        }else{
+            produtos.push(listas.lista_produtos.produto);
+        }
+
+        $.each(produtos, function(i, produto) {
+            console.log(JSON.stringify(produto));
+        });
+
+
+        hideMask();
+    });
+</script>
