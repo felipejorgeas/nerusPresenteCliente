@@ -1,0 +1,44 @@
+{
+  "title":
+  {
+    "show": true,
+    "logo": "<img src='img/logo-cliente.png' />"
+  },
+  "drawer":
+  {
+    "show": false,
+    "onclick": "menuSec();"
+  },
+  "back":
+  {
+    "show": true,
+    "onclick": "loadPage('', true);"
+  },
+  "actions":
+  {
+    "show": true,
+    "itens":
+    [
+      {
+        "onclick": "loadPage('lista-cadastro');",
+        "icon": "new"
+      }
+    ]
+  },
+  "menu":
+  {
+    "show": false,
+    "itens":
+    [
+      {
+        "onclick": "loadPage('configuracoes');",
+        "label": "Configurações"
+      }
+    ]
+  },
+  "nav":
+  {
+    "show": false,
+    "type": "lista-busca"
+  }
+}
