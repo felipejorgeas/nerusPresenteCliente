@@ -28,14 +28,15 @@ function getTranslateX(el) {
 }
 
 function showMenu() {
-  $('#menu').removeClass("inactiveMenu").addClass("activeMenu");
-  $('#menu').scrollTop(0);
+  var menu = $('#menu');
+  menu.removeClass("inactiveMenu").addClass("activeMenu").scrollTop(0);
 }
 
 function hideMenu() {
-  $('#menu').removeClass("activeMenu").addClass("inactiveMenu");
+  var menu = $('#menu');
+  menu.removeClass("activeMenu").addClass("inactiveMenu");
   window.setTimeout(function() {
-    $('#menu').removeClass("inactiveMenu");
+    menu.removeClass("inactiveMenu");
   }, 200);
 }
 
@@ -148,10 +149,8 @@ function showSearch() {
   actions.hide();
   exibMenu.hide();
 
-  searchInput.val("");
-  search.find(".actions").show();
-  search.show();
-  searchInput.focus();
+  search.show().find(".actions").show();
+  searchInput.val("").focus();
 }
 
 function hideSearch() {
@@ -200,8 +199,8 @@ function loadPage(page, backButton, noPushPage) {
     }
 
     if (!noPushPage) {
-      var existsPageActive = $("#content .page").hasClass("activePage");
-      var pageActive = existsPageActive ? $("#content .page.activePage") : false;
+      var existsPageActive = $("#content").find(".page").hasClass("activePage");
+      var pageActive = existsPageActive ? $("#content").find(".page.activePage") : false;
 
       if (backButton)
         page = pageBack.pop().page;
@@ -214,7 +213,7 @@ function loadPage(page, backButton, noPushPage) {
     var element = $("#" + page);
     var content = "pages/" + page + ".html";
 
-    $("#content .page").removeClass("activePage").addClass("inactivePage");
+    $("#content").find(".page").removeClass("activePage").addClass("inactivePage");
 
     window.setTimeout(function() {
       if (!backButton) {
@@ -340,102 +339,99 @@ function loadHeader(page) {
   // personaliza os itens de acordo com cada pagina
   // personaliza o header
 
-  $.getJSON("menus/" + page + ".json",
-          function(response) {
+  $.ajax({
+    url: "menus/" + page + ".json",
+    type: "GET",
+    dataType: "json",
+    success: function(response) {
 
-            var pageTitle = response.hasOwnProperty("title") ? response.title : false;
-            var pageDrawer = response.hasOwnProperty("drawer") ? response.drawer : false;
-            var pageBack = response.hasOwnProperty("back") ? response.back : false;
-            var pageActions = response.hasOwnProperty("actions") ? response.actions : false;
-            var pageMenu = response.hasOwnProperty("menu") ? response.menu : false;
-            var pageNav = response.hasOwnProperty("nav") ? response.nav : false;
+      var pageTitle = response.hasOwnProperty("title") ? response.title : false;
+      var pageDrawer = response.hasOwnProperty("drawer") ? response.drawer : false;
+      var pageBack = response.hasOwnProperty("back") ? response.back : false;
+      var pageActions = response.hasOwnProperty("actions") ? response.actions : false;
+      var pageMenu = response.hasOwnProperty("menu") ? response.menu : false;
+      var pageNav = response.hasOwnProperty("nav") ? response.nav : false;
 
-            if (pageTitle) {
-              if (pageTitle.hasOwnProperty("show") && pageTitle.show) {
-                if (pageTitle.hasOwnProperty("logo")) {
-                  title.find(".logo").html(pageTitle.logo).show();
-                }
-                else {
-                  title.find(".logo").hide();
-                  $.each(pageTitle.itens, function(i, item) {
-                    descs.eq(i).html(item.desc);
-                    descs.eq(i).show();
-                  });
-                }
-              }
-            }
-
-            if (pageDrawer && pageDrawer.hasOwnProperty("show") && pageDrawer.show) {
-              action.attr("onclick", pageDrawer.onclick);
-              animateClick(action);
-              back.hide();
-              drawer.show();
-            }
-
-            else if (pageBack && pageBack.hasOwnProperty("show") && pageBack.show) {
-              action.attr("onclick", pageBack.onclick);
-              animateClick(action);
-              drawer.hide();
-              back.show();
-            }
-
-            else {
-              action.removeAttr("onclick");
-            }
-
-            if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
-              $.each(pageActions.itens, function(i, item) {
-                var icon = getIcon(item.icon);
-                actionsHeader.eq(i).attr("onclick", item.onclick);
-                actionsHeader.eq(i).html(icon);
-                animateClick(actionsHeader.eq(i));
-                actionsHeader.eq(i).show();
-                if(item.type)
-                  $("#search input[name=funcSearch]").val(item.type);
-              });
-            }
-
-            if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
-              $.each(pageMenu.itens, function(i, item) {
-                var op = $("<li>");
-                op.attr("onclick", item.onclick).text(item.label);
-                menu.append(op);
-              });
-              exibMenu.show();
-              window.setTimeout(function() {
-                menu.show();
-              }, 500);
-            }
-
-            if (pageNav && pageNav.hasOwnProperty("show") && pageNav.show) {
-              nav.find(".nav-filter").hide();
-              nav.find("#filter-" + pageNav.type).show();
-              nav.show();
-              var myScroll = new IScroll("#scroll", {
-                bounce: false,
-                scrollY: true,
-                scrollbars: "custom",
-                fadeScrollbars: true
-              });
-            }
-            else {
-              nav.hide();
-            }
-
-            /** FastClick
-             *
-             * Remove o delay do clique em qualquer item do documento
-             */
-            FastClick.attach(document.body);
+      if (pageTitle) {
+        if (pageTitle.hasOwnProperty("show") && pageTitle.show) {
+          if (pageTitle.hasOwnProperty("logo")) {
+            title.find(".logo").html(pageTitle.logo).show();
           }
-  );
+          else {
+            title.find(".logo").hide();
+            $.each(pageTitle.itens, function(i, item) {
+              descs.eq(i).html(item.desc).show();
+            });
+          }
+        }
+      }
+
+      if (pageDrawer && pageDrawer.hasOwnProperty("show") && pageDrawer.show) {
+        action.attr("onclick", pageDrawer.onclick);
+        animateClick(action);
+        back.hide();
+        drawer.show();
+      }
+
+      else if (pageBack && pageBack.hasOwnProperty("show") && pageBack.show) {
+        action.attr("onclick", pageBack.onclick);
+        animateClick(action);
+        drawer.hide();
+        back.show();
+      }
+
+      else {
+        action.removeAttr("onclick");
+      }
+
+      if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
+        $.each(pageActions.itens, function(i, item) {
+          var icon = getIcon(item.icon);
+          actionsHeader.eq(i).attr("onclick", item.onclick).html(icon).show();
+          animateClick(actionsHeader.eq(i));
+          if (item.type)
+            $("#search").find("input[name=funcSearch]").val(item.type);
+        });
+      }
+
+      if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
+        $.each(pageMenu.itens, function(i, item) {
+          var op = $("<li>");
+          op.attr("onclick", item.onclick).text(item.label);
+          menu.append(op);
+        });
+        exibMenu.show();
+        window.setTimeout(function() {
+          menu.show();
+        }, 500);
+      }
+
+      if (pageNav && pageNav.hasOwnProperty("show") && pageNav.show) {
+        nav.find(".nav-filter").hide();
+        nav.show().find("#filter-" + pageNav.type).show();
+        var myScroll = new IScroll("#scroll", {
+          bounce: false,
+          scrollY: true,
+          scrollbars: "custom",
+          fadeScrollbars: true
+        });
+      }
+      else {
+        nav.hide();
+      }
+
+      /** FastClick
+       *
+       * Remove o delay do clique em qualquer item do documento
+       */
+      FastClick.attach(document.body);
+    }
+  });
 }
 
 function getIcon(type) {
   var icon = $("<img>");
   var src = "";
-
-  icon.addClass("ico-actions");
 
   switch (type) {
     case "search":
@@ -446,7 +442,7 @@ function getIcon(type) {
       break;
   }
 
-  icon.attr("src", src);
+  icon.attr("src", src).addClass("ico-actions");
 
   return icon;
 }
@@ -527,8 +523,8 @@ function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2) {
   $("#popup-dialog").find("button").hide();
 
   // seta o titulo e a mensagem no dialog
-  $("#popup-dialog .dialog").find(".title").text(title);
-  $("#popup-dialog .dialog").find(".msg").text(msg);
+  $("#popup-dialog").find(".dialog").find(".title").text(title);
+  $("#popup-dialog").find(".dialog").find(".msg").text(msg);
 
   // seta o primeiro botao
   $("#popup-dialog").find("button").eq(0).text(labelBt1).attr("onclick", onclickBt1).show();
@@ -545,9 +541,7 @@ function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2) {
   }
 
   var marginTop = -(parseInt($("#popup-dialog").css("height")) / 2);
-  $("#popup-dialog").css("margin-top", marginTop);
-
-  $("#popup-dialog").show();
+  $("#popup-dialog").css("margin-top", marginTop).show();
 }
 
 function hideDialog() {
@@ -561,13 +555,13 @@ function showSelect(type, elem) {
 
     case "day":
       var ul = $("<ul>");
+      var lis = "";
       for (var i = 1; i <= 31; i++) {
-        var li = $("<li>");
-        li.text(i < 10 ? "0" + i : i);
-        ul.append(li);
+        lis += "<li>" + (i < 10 ? "0" + i : i) + "</li>";
       }
+      ul.append(lis);
       $("#popup-select").html(ul);
-      $("#popup-select ul li").click(function() {
+      $("#popup-select").find("ul").find("li").click(function() {
         var value = $(this).text();
         $(elem).text(value);
         hideMaskFull();
@@ -577,13 +571,13 @@ function showSelect(type, elem) {
 
     case "month":
       var ul = $("<ul>");
+      var lis = "";
       for (var i = 1; i <= 12; i++) {
-        var li = $("<li>");
-        li.text(i < 10 ? "0" + i : i);
-        ul.append(li);
+        lis += "<li>" + (i < 10 ? "0" + i : i) + "</li>";
       }
+      ul.append(lis);
       $("#popup-select").html(ul);
-      $("#popup-select ul li").click(function() {
+      $("#popup-select").find("ul").find("li").click(function() {
         var value = $(this).text();
         $(elem).text(value);
         hideMaskFull();
@@ -594,17 +588,14 @@ function showSelect(type, elem) {
     case "year":
       var year = new Date().getFullYear();
       var ul = $("<ul>");
+      var lis = "";
       year -= 10;
-
       for (var i = 0; i <= 20; i++) {
-        var li = $("<li>");
-        li.text(year + i);
-        ul.append(li);
+        lis += "<li>" + (year + i) + "</li>";
       }
-
+      ul.append(lis);
       $("#popup-select").html(ul);
-
-      $("#popup-select ul li").click(function() {
+      $("#popup-select").find("ul").find("li").click(function() {
         var value = $(this).text();
         $(elem).text(value);
         hideMaskFull();
@@ -614,18 +605,16 @@ function showSelect(type, elem) {
 
     case "tipoLista":
       var ul = $("<ul>");
+      var lis = "";
       var tipos = localStorage.getItem("tiposListas");
       var tiposListas = JSON.parse(tipos);
 
       $.each(tiposListas, function(i, tipo) {
-        var li = $("<li>");
-        li.text(tipo.tipo_lista_nome).attr("title", tipo.tipo_lista_codigo);
-        ul.append(li);
+        lis += "<li title='" + tipo.tipo_lista_codigo + "'>" + tipo.tipo_lista_nome + "</li>";
       });
-
-      $("#popup-select").html(ul);
-
-      $("#popup-select ul li").click(function() {
+      ul.append(lis);
+      $("#popup-select").html(ul);      
+      $("#popup-select").find("ul").find("li").click(function() {
         var tipo_name = $(this).text();
         var tipo_codigo = $(this).attr("title");
         $(elem).text(tipo_name).attr("title", tipo_codigo);
@@ -657,6 +646,7 @@ function resetFields(elem, type) {
 
 function init() {
 
+  $.ajaxSetup({cache: false});
 //  hideLogin();
 
   // Ativa algumas acoes ao clicar em determinados locais da tela
@@ -747,19 +737,19 @@ function init() {
       hideDrawer();
   });
 
-  $("#scroll li").on("touchstart", function(evt) {
+  $("#scroll").find("li").on("touchstart", function(evt) {
     evt.stopPropagation();
   });
 
-  $("#scroll li").on("touchmove", function(evt) {
+  $("#scroll").find("li").on("touchmove", function(evt) {
     evt.stopPropagation();
   });
 
-  $("#scroll button").on("touchstart", function(evt) {
+  $("#scroll").find("button").on("touchstart", function(evt) {
     evt.stopPropagation();
   });
 
-  $("#scroll button").on("touchmove", function(evt) {
+  $("#scroll").find("button").on("touchmove", function(evt) {
     evt.stopPropagation();
   });
 
@@ -773,18 +763,18 @@ function init() {
   $(".input-date.year").text(year);
 
   $("button").click(function() {
-    var button = this;
-    $(button).addClass("activeButton");
+    var button = $(this);
+    button.addClass("activeButton");
 
     window.setTimeout(function() {
-      $(button).removeClass("activeButton");
+      button.removeClass("activeButton");
     }, 200);
   });
 
-  $("#search input[name=search]").keypress(function(evt) {
+  $("#search").find("input[name=search]").keypress(function(evt) {
     var tecla = (evt.keyCode ? evt.keyCode : evt.which);
     if (tecla == 13) {
-      var typeSearch = $("#search input[name=funcSearch]").val();
+      var typeSearch = $("#search").find("input[name=funcSearch]").val();
 
       switch (typeSearch) {
 

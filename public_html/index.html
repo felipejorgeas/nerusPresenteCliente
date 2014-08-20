@@ -154,23 +154,22 @@
   </div>
 
   <!-- Inclusao das dependencias javascript -->
-  <script src="js/jquery-2.1.1.js"></script>
-  <script src="js/iscroll.js"></script>
-  <script src="js/fastclick.js"></script>
-  <script src="js/app.js"></script>
-  <script src="js/actions.js"></script>
+  <script src="js/LAB.min.js"></script>
 
   <!-- javascript inicial a ser executado ao carregar o aplicativo -->
   <script>
-
-    $(function() {
-
+    $LAB
+    .script("js/jquery-2.1.1.min.js")
+    .script("js/iscroll.min.js")
+    .script("js/fastclick.min.js")
+    .script("js/app.js")
+    .script("js/actions.js").wait(function(){
+    
       // Define as acoes dos botoes fisicos do android
       document.addEventListener("menubutton", onBackKeyMenu, false);
       document.addEventListener("backbutton", onBackKeyDown, false);
 
       init();
-
     });
   </script>
 
