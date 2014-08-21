@@ -323,9 +323,11 @@ button {
 }
 
 #login #popup-login input, #login #popup-login button{
-  padding-right: 20px;
   margin: 5px 0;
   width: 100%;
+}
+#login #popup-login input[type=password]{
+  padding-right: 20px;
 }
 
 #login #followingBallsG{
