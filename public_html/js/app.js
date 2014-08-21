@@ -22,9 +22,15 @@ function onBackKeyDown(e) {
 
 function getTranslateX(el) {
   var translateX = el.css("transform");
-  translateX = translateX.split("(")[1];
-  translateX = translateX.split(")")[0];
-  translateX = translateX.split(", ")[4];
+
+  if (translateX != "none") {
+    translateX = translateX.split("(")[1];
+    translateX = translateX.split(")")[0];
+    translateX = translateX.split(", ")[4];
+  }
+  else {
+    translateX = 0;
+  }
 
   return parseInt(translateX);
 }
@@ -68,19 +74,23 @@ function menuSec() {
 
 function hideMenuSec() {
   var menu = $("#navigator");
-  var newMenuLeft = -330;
+  var menuLeft = getTranslateX(menu);
 
-  menu.addClass("animate").css({
-    "-moz-transform": "translateX(" + newMenuLeft + "px)",
-    "-webkit-transform": "translateX(" + newMenuLeft + "px)",
-    "transform": "translateX(" + newMenuLeft + "px)",
-  });
+  if (menuLeft == 0) {
+    var newMenuLeft = -330;
 
-  window.setTimeout(function() {
-    menu.removeClass("animate");
-  }, 300);
+    menu.addClass("animate").css({
+      "-moz-transform": "translateX(" + newMenuLeft + "px)",
+      "-webkit-transform": "translateX(" + newMenuLeft + "px)",
+      "transform": "translateX(" + newMenuLeft + "px)",
+    });
 
-  hideDrawer();
+    window.setTimeout(function() {
+      menu.removeClass("animate");
+    }, 300);
+
+    hideDrawer();
+  }
 }
 
 function showDrawer() {
@@ -226,8 +236,7 @@ function loadPage(page, backButton, noPushPage) {
           data: {},
           success: function(response) {
             loadHeader(page);
-            element.html(response);
-            element.removeClass("inactivePage").addClass("activePage");
+            element.removeClass("inactivePage").addClass("activePage").html(response);
           }
         });
       }
@@ -258,21 +267,21 @@ function hideMaskFull() {
 }
 
 function showMaskShadow() {
-  $("#mask-shadow").fadeIn();
+  $("#mask-shadow").show();
 }
 
 function hideMaskShadow() {
-  $("#mask-shadow").fadeOut();
+  $("#mask-shadow").hide();
 }
 
 function showMask() {
-  $("#mask").fadeIn();
+  $("#mask").show();
 }
 
 function hideMask() {
   waitLoadPage = 0;
   clearInterval(waitLoadPageInterval);
-  $("#mask").fadeOut();
+  $("#mask").hide();
 }
 
 function verifyOnline(page, backButton) {
@@ -521,6 +530,9 @@ function hideLogin() {
 function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2) {
   showMaskFull();
 
+  if (onclickBt1 == null)
+    onclickBt1 = "hideDialog();";
+
   // oculta todos os botoes
   $("#popup-dialog").find("button").hide();
 
@@ -648,8 +660,9 @@ function resetFields(elem, type) {
 
 function init() {
 
+  hideLogin();
+
   $.ajaxSetup({cache: false});
-//  hideLogin();
 
   // Ativa algumas acoes ao clicar em determinados locais da tela
   clickOut();
@@ -755,10 +768,14 @@ function init() {
     evt.stopPropagation();
   });
 
-  var date = new Date();
-  var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
-  var month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
-  var year = date.getFullYear();
+//  var date = new Date();
+//  var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+//  var month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+//  var year = date.getFullYear();
+
+  var day = "00";
+  var month = "00";
+  var year = "0000";
 
   $(".input-date.day").text(day);
   $(".input-date.month").text(month);
@@ -790,6 +807,13 @@ function init() {
       }
     }
   });
+
+  $("#popup-login").find("input").keypress(function(evt) {
+    var tecla = (evt.keyCode ? evt.keyCode : evt.which);
+    if (tecla == 13) {
+      loginAction();
+    }
+  });
 }
 
 /*
@@ -801,12 +825,15 @@ function init() {
  */
 
 
-function loginAction(){
+function loginAction() {
   wsGetTipoDeLista();
   $("#login #followingBallsG").fadeIn();
   window.setTimeout(hideLogin, 2000);
 }
 
+function logoutAction() {
+  window.location.reload();
+}
 /**
  * wsGetTipoDeLista
  *
@@ -817,14 +844,14 @@ function loginAction(){
 function wsGetTipoDeLista() {
 
   // cria bloco de dados a serem enviados na requisicao
-  var dados = { wscallback: "wsResponseGetTipoDeLista" };
+  var dados = {wscallback: "wsResponseGetTipoDeLista"};
 
   // executa a requisicao via ajax
   $.ajax({
     url: configServerUrl + "/getTipoDeLista.php",
     type: "POST",
     dataType: "jsonp",
-    data: { dados: dados }
+    data: {dados: dados}
   });
 }
 
@@ -872,43 +899,43 @@ function wsResponseGetTipoDeLista(response) {
 function wsGetLista() {
   hideMenuSec();
   showMask();
-  
+
   var clienteCodigo = sessionStorage.getItem("clienteSelecionado");
-  
-  if(clienteCodigo > 0) {
-        var lista = {
-            codigo_cliente:  clienteCodigo
-        };
+
+  if (clienteCodigo != null && clienteCodigo > 0) {
+    var lista = {
+      codigo_cliente: clienteCodigo
+    };
   } else {
-  // obtem os dados para execucao da requisicao
-  var dia = $(".input-date.day").text();
-  var mes = $(".input-date.month").text();
-  var ano = $(".input-date.year").text();
-  var tipoListaCodigo = $(".input-select.tipoLista").attr("title");
+    // obtem os dados para execucao da requisicao
+    var dia = $(".input-date.day").text();
+    var mes = $(".input-date.month").text();
+    var ano = $(".input-date.year").text();
+    var tipoListaCodigo = $(".input-select.tipoLista").attr("title");
 
-  var cliente_nome = $("#search input[name=search]").val();
-  $("#search input[name=search]").val("");
+    var cliente_nome = $("#search input[name=search]").val();
+    $("#search input[name=search]").val("");
 
-  // preparacao dos dados
-  var dataEvento = "" + ano + mes + dia;
+    // preparacao dos dados
+    var dataEvento = "" + ano + mes + dia;
 
-  var lista = {
-    data_evento:  parseInt(dataEvento) > 0 ? dataEvento : "",
-    tipo:         tipoListaCodigo.length > 0 ? tipoListaCodigo : "",
-    nome_cliente: cliente_nome
-  };
-  
-}
+    var lista = {
+      data_evento: parseInt(dataEvento) > 0 ? dataEvento : "",
+      tipo: tipoListaCodigo.length > 0 ? tipoListaCodigo : "",
+      nome_cliente: cliente_nome
+    };
+
+  }
 
   // cria bloco de dados a serem enviados na requisicao
-  var dados = { wscallback: "wsResponseGetLista", lista: lista };
+  var dados = {wscallback: "wsResponseGetLista", lista: lista};
 
   // executa a requisicao via ajax
   $.ajax({
     url: configServerUrl + "/getLista.php",
     type: "POST",
     dataType: "jsonp",
-    data: { dados: dados }
+    data: {dados: dados}
   });
 }
 
@@ -936,8 +963,6 @@ function wsResponseGetLista(response) {
     $("#" + page).find(".content-response").hide();
     $("#" + page).find(".mark-agua").show();
 
-    hideMask();
-//    showDialog("Lista", msg, "Cancelar", "hideDialog()", "Ok", "hideDialog()");
     showDialog("Lista", msg, "Fechar", "hideDialog()");
   }
 
@@ -946,7 +971,7 @@ function wsResponseGetLista(response) {
 
     var listas = response.wsresult;
 
-    if(listas.length > 0){
+    if (listas.hasOwnProperty("0")) {
 
       // limpa a pagina a ser preenchida com os dados
       var page = $("#content").find(".page.activePage:last");
@@ -959,9 +984,9 @@ function wsResponseGetLista(response) {
       marcaDagua.hide();
       contentResponse.html("").scrollTop(0).show();
 
-      $.each(listas, function(i, lista){
+      $.each(listas, function(i, lista) {
         listasStorage.push(lista);
- 
+
         // tratamento dos dados retornados
         var clienteCodigo = lista.cliente_codigo;
         var clienteNome = lista.cliente_nome;
@@ -994,22 +1019,22 @@ function wsResponseGetLista(response) {
       });
 
       // ativa as acoes de cliques nos blocos inseridos
-      $(".card").removeClass("activeCard");
-      $(".card").click(function(){
-        if($(this).hasClass("activeCard")){
+      contentResponse.find(".card").removeClass("activeCard");
+      contentResponse.find(".card").click(function() {
+        if ($(this).hasClass("activeCard")) {
           var lista = listasStorage[this.id];
           sessionStorage.setItem("listaSelecionada", JSON.stringify(lista));
           loadPage("lista-produto");
         }
-        else{
-          $(".card").removeClass("activeCard");
+        else {
+          contentResponse.find(".card").removeClass("activeCard");
           $(this).addClass("activeCard");
         }
       });
     }
-    sessionStorage.removeItem("clienteSelecionado");
-    hideMask();
   }
+  sessionStorage.removeItem("clienteSelecionado");
+  hideMask();
 }
 
 /**
@@ -1021,30 +1046,35 @@ function wsResponseGetLista(response) {
  */
 function wsGetCliente() {
   hideMenuSec();
-  showMask();
 
   // obtem os dados para execucao da requisicao
   var cliente_nome = $("#search [name=search]").val();
   $("#search input[name=search]").val("");
 
-  if(cliente_nome.length == 0){
-    alert("Favor buscar algum nome")
+  if (cliente_nome.length == 0) {
+    showDialog("Cliente", "É necessário informar o nome do cliente", "Ok");
+    hideMask();
   }
 
-  var cliente = {
-    nome_cliente: cliente_nome
-  };
+  else {
 
-  // cria bloco de dados a serem enviados na requisicao
-  var dados = { wscallback: "wsResponseGetCliente", cliente: cliente };
+    showMask();
 
-  // executa a requisicao via ajax
-  $.ajax({
-    url: configServerUrl + "/getCliente.php",
-    type: "POST",
-    dataType: "jsonp",
-    data: { dados: dados }
-  });
+    var cliente = {
+      nome_cliente: cliente_nome
+    };
+
+    // cria bloco de dados a serem enviados na requisicao
+    var dados = {wscallback: "wsResponseGetCliente", cliente: cliente};
+
+    // executa a requisicao via ajax
+    $.ajax({
+      url: configServerUrl + "/getCliente.php",
+      type: "POST",
+      dataType: "jsonp",
+      data: {dados: dados}
+    });
+  }
 }
 
 /**
@@ -1081,7 +1111,7 @@ function wsResponseGetCliente(response) {
 
     var clientes = response.wsresult;
 
-    if(clientes.length > 0){
+    if (clientes.length > 0) {
 
       // limpa a pagina a ser preenchida com os dados
       var page = $("#content").find(".page.activePage:last");
@@ -1092,44 +1122,54 @@ function wsResponseGetCliente(response) {
       marcaDagua.hide();
       contentResponse.html("").scrollTop(0).show();
 
-      $.each(clientes, function(i, cliente){
+      var clientesLista = [];
+
+      $.each(clientes, function(i, cliente) {
         // tratamento dos dados retornados
         var clienteCodigo = cliente.cliente_codigo;
         var clienteName = cliente.cliente_nome;
 
-  //      // criacao dos objetos a serem inseridos na pagina
-  //      var card = $("<div>");
-  //      var title = $("<p>");
-  //      var desc = $("<p>");
-  //
-  //      // seta as informacoes
-  //      title.addClass("title").text(clienteName);
-  //      desc.addClass("desc").text(tipoName + " dia " + dataEvento);
-  //
-  //      // finaliza o bloco de informacoes
-  //      card.addClass("card").addClass("bradius");
-  //      card.append(title);
-  //      card.append(desc);
-  //
-        // insere o bloco na pagina
-  //      contentResponse.append(card);
-        contentResponse.append("<p class='cliente' id='" + clienteCodigo + "'>" + clienteCodigo + " - " + clienteName + "</p>");
+//        // criacao dos objetos a serem inseridos na pagina
+//        var box = $("<div>");
+//        var title = $("<p>");
+//
+//        // seta as informacoes
+//        title.addClass("title").text(clienteName);
+//
+//        // finaliza o bloco de informacoes
+//        box.attr("id", clienteCodigo).addClass("cliente").addClass("bradius");
+//        box.append(title);
+//
+//        //insere o bloco na pagina
+//        contentResponse.append(box);
+
+
+        // criacao dos objetos a serem inseridos na pagina
+        var box =
+                "<div id='" + clienteCodigo + "' class='cliente bradius'>" +
+                "<p class='title'>" + clienteName + "</p>" +
+                "</div>";
+
+        clientesLista.push(box);
       });
 
+      // insere os blocos na pagina
+      contentResponse.append(clientesLista);
+
       // ativa as acoes de cliques nos blocos inseridos
-      $(".cliente").removeClass("activeCard");
-      $(".cliente").click(function(){
-        if($(this).hasClass("activeCard")){
+      contentResponse.find(".cliente").removeClass("activeCliente");
+      contentResponse.find(".cliente").click(function() {
+        if ($(this).hasClass("activeCliente")) {
           sessionStorage.setItem("clienteSelecionado", this.id);
           loadPage("cliente-lista");
         }
-        else{
-          $(".card").removeClass("activeCard");
-          $(this).addClass("activeCard");
+        else {
+          contentResponse.find(".cliente").removeClass("activeCliente");
+          $(this).addClass("activeCliente");
         }
       });
+      hideMask();
     }
-    hideMask();
   }
 }
 
@@ -1147,7 +1187,7 @@ function wsSaveCliente() {
   var cliente_nome = $(".form [name=new_cliente_nome]").val();
   var cliente_cpf = $(".form [name=new_cliente_cpf]").val();
 
-  if(cliente_nome.length == 0 || cliente_cpf.length == 0){
+  if (cliente_nome.length == 0 || cliente_cpf.length == 0) {
     alert("Todos os campos são obrigatórios")
   }
 
@@ -1157,14 +1197,14 @@ function wsSaveCliente() {
   };
 
   // cria bloco de dados a serem enviados na requisicao
-  var dados = { wscallback: "wsResponseSaveCliente", cliente: cliente };
+  var dados = {wscallback: "wsResponseSaveCliente", cliente: cliente};
 
   // executa a requisicao via ajax
   $.ajax({
     url: configServerUrl + "/saveCliente.php",
     type: "POST",
     dataType: "jsonp",
-    data: { dados: dados }
+    data: {dados: dados}
   });
 }
 

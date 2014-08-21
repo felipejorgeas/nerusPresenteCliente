@@ -20,7 +20,7 @@
     "itens":
     [
       {
-        "onclick": "loadPage('cliente-cadastro');",
+        "onclick": "loadPage('lista-cadastro');",
         "icon": "new"
       }
     ]

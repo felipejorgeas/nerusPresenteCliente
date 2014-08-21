@@ -33,6 +33,10 @@
       {
         "onclick": "loadPage('configuracoes');",
         "label": "Configurações"
+      },
+      {
+        "onclick": "logoutAction();",
+        "label": "Sair"
       }
     ]
   }
