@@ -1,170 +1,177 @@
 <!DOCTYPE html>
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-    <title>SACI Presente</title>
-    <meta name="description" content="">
-    <meta name="viewport" content="width=device-width, user-scalable=no, user-scalable=no, initial-scale=1">
-    <link rel="stylesheet" href="css/style.css">
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <title>SACI Presente</title>
+  <meta name="description" content="">
+  <meta name="viewport" content="width=device-width, user-scalable=no, user-scalable=no, initial-scale=1">
+  <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- toast -->
-        <div id="toast"></div>
-        
-        <!-- Topo -->
-        <div id="header">
-            <div id="actions-left">
-                <a id="action" href="#">
-                    <div id="icons">
-                        <img id="ico-drawer" src="img/ico-drawer.png" />
-                        <img id="ico-back" src="img/ico-back.png" />
-                    </div>
-                    <!--<img id="ico-logo" src="img/logo-cliente.png" />-->
-                    <div id="title">
-                        <div class="logo"></div>
-                        <p id="desc-1" class="desc"></p>
-                        <p id="desc-2" class="desc"></p>
-                    </div>
-                </a>
-            </div>
-            <div id="actions-right">
-                <div id="search">
-                    <!--          <a id="action-0" class="actions" href="#">
-                                <img class="ico-actions" src="img/ico-barcode.png" />
-                              </a>-->
-                    <input type="text" name="search" placeholder="Cliente" />
-                    <input type="hidden" name="funcSearch" />
-                </div>
-                <div id="actions-aux">
-                    <a id="action-1" class="actions" href="javascript:void(0);"></a>
-                    <a id="action-2" class="actions" href="javascript:void(0);"></a>
-                </div>
-                <a id="exibMenu" href="#">
-                    <img id="ico-menu" src="img/ico-menu.png" />
-                </a>
-            </div>
+  <div class="container">
+    <!-- toast -->
+    <div id="toast"></div>
+
+    <!-- Topo -->
+    <div id="header">
+      <div id="actions-left">
+        <a id="action" href="#">
+          <div id="icons">
+            <img id="ico-drawer" src="img/ico-drawer.png" />
+            <img id="ico-back" src="img/ico-back.png" />
+          </div>
+          <!--<img id="ico-logo" src="img/logo-cliente.png" />-->
+          <div id="title">
+            <div class="logo"></div>
+            <p id="desc-1" class="desc"></p>
+            <p id="desc-2" class="desc"></p>
+          </div>
+        </a>
+      </div>
+      <div id="actions-right">
+        <div id="search">
+          <!--          <a id="action-0" class="actions" href="#">
+                      <img class="ico-actions" src="img/ico-barcode.png" />
+                    </a>-->
+          <input type="text" name="search" placeholder="Cliente" />
+          <input type="hidden" name="funcSearch" />
         </div>
-
-        <!-- Menu topo direito -->
-        <ul id="menu" class="animate"></ul>
-
-        <!-- Tela de login -->
-        <div id="login"  class="popup">
-            <div id="popup-login" class="bradius">
-                <p class="logo-cliente">
-                    <img src="img/logo-cliente.png" />
-                </p>
-                <input type="text" class="bradius" name="usuario" placeholder="Usuario" />
-                <input type="password" class="bradius" name="senha" placeholder="Senha" />
-                <button type="button" onclick="wsLogin()">Ok</button>
-
-                <!-- Loading em CSS3 -->
-                <div id="followingBallsG">
-                    <div id="followingBallsG_1" class="followingBallsG"></div>
-                    <div id="followingBallsG_2" class="followingBallsG"></div>
-                    <div id="followingBallsG_3" class="followingBallsG"></div>
-                    <div id="followingBallsG_4" class="followingBallsG"></div>
-                </div>
-            </div>
-            <p class="rodape">
-                SACI Presente - v0.01
-            </p>
+        <div id="actions-aux">
+          <a id="action-1" class="actions" href="javascript:void(0);"></a>
+          <a id="action-2" class="actions" href="javascript:void(0);"></a>
         </div>
-
-        <!-- popup para alert e promtps -->
-        <div id="popup-dialog" class="popup bradius">
-            <div class="dialog">
-                <p class="title"></p>
-                <p class="msg"></p>
-            </div>
-            <button></button>
-            <button></button>
-        </div>
-
-        <!-- popup para simular select field -->
-        <div id="popup-select" class="popup bradius"></div>
-
-        <!-- Menu lateral -->
-        <div id="navigator">
-            <div id="scroll">
-                <ul id="filter-lista-busca" class="nav-filter">
-                    <li class="category">Filtros</li>
-                    <li>
-                        Data do evento
-                        <p>
-                            <span class="input input-date day bradius" onclick="showSelect('day', this);">00</span>/
-                            <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>/
-                            <span class="input input-date year bradius" onclick="showSelect('year', this);">0000</span>
-                            <span class="reset-fields" onclick="resetFields(this, 'date');"></span>
-                        </p>
-                    </li>
-                    <li>
-                        Tipo de lista
-                        <p>
-                            <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this);" title="">Selecione</span>
-                            <span class="reset-fields" onclick="resetFields(this, 'select');"></span>
-                        </p>
-                    </li>
-                </ul>
-                <ul id="filter-index" class="nav-filter">
-                    <li>Acessar painel</li>
-                    <li>Configurações</li>
-                </ul>
-                <button type="button" class="filter-submit" onclick="wsGetLista();">Buscar</button>
-            </div>
-        </div>
-
-        <!-- Container onde as paginas serao carregadas -->
-        <div id="content">
-
-            <!-- Mascara exibida ate que a pagina termine de carregar -->
-            <div id="mask">
-                <!-- Loading em CSS3 -->
-                <div id="followingBallsG">
-                    <div id="followingBallsG_1" class="followingBallsG"></div>
-                    <div id="followingBallsG_2" class="followingBallsG"></div>
-                    <div id="followingBallsG_3" class="followingBallsG"></div>
-                    <div id="followingBallsG_4" class="followingBallsG"></div>
-                </div>
-            </div>
-
-            <!-- Mascara ativada ao exibir o menu lateral para bloquear o clique nos itens da pagina e tambem para ocultar o menu lateral -->
-            <div id="mask-shadow"></div>
-
-            <!-- Mascara ativada para bloquear todos os elementos no fundo da tela -->
-            <div id="mask-full"></div>
-
-            <!-- Todas as paginas do aplicativo devem ser predefinidas aqui abaixo-->
-            <div id="index" class="page animate"></div>
-            <div id="cliente-busca" class="page animate"></div>
-            <div id="cliente-cadastro" class="page animate"></div>
-            <div id="cliente-lista" class="page animate"></div>
-            <div id="lista-busca" class="page animate"></div>
-            <div id="lista-cadastro" class="page animate"></div>
-            <div id="lista-produto" class="page animate"></div>
-            <div id="configuracoes" class="page animate"></div>
-        </div>
+        <a id="exibMenu" href="#">
+          <img id="ico-menu" src="img/ico-menu.png" />
+        </a>
+      </div>
     </div>
 
-    <!-- Inclusao das dependencias javascript -->
-    <script src="js/LAB.min.js"></script>
+    <!-- Menu topo direito -->
+    <ul id="menu" class="animate"></ul>
 
-    <!-- javascript inicial a ser executado ao carregar o aplicativo -->
-    <script>
-                    $LAB
-                            .script("js/jquery-2.1.1.min.js")
-                            .script("js/iscroll.min.js")
-                            .script("js/fastclick.min.js")
-                            .script("js/app.js").wait(function() {
+    <!-- Tela de login -->
+    <div id="login"  class="popup">
+      <div id="popup-login" class="bradius">
+        <p class="logo-cliente">
+          <img src="img/logo-cliente.png" />
+        </p>
+        <p>
+          <input id="login-usuario" type="text" class="bradius" name="usuario" placeholder="Usuario" />
+        </p>
+        <p>
+          <input id="login-senha" type="password" class="bradius" name="senha" placeholder="Senha" />
+          <span class="show-pass" data-field="login-senha"></span>
+        </p>
+        <button type="button" onclick="loginAction();">Ok</button>
 
-                        // Define as acoes dos botoes fisicos do android
-                        document.addEventListener("menubutton", onBackKeyMenu, false);
-                        document.addEventListener("backbutton", onBackKeyDown, false);
+        <!-- Loading em CSS3 -->
+        <div id="followingBallsG">
+          <div id="followingBallsG_1" class="followingBallsG"></div>
+          <div id="followingBallsG_2" class="followingBallsG"></div>
+          <div id="followingBallsG_3" class="followingBallsG"></div>
+          <div id="followingBallsG_4" class="followingBallsG"></div>
+        </div>
+      </div>
+      <p class="rodape">
+        SACI Presente - v0.01
+      </p>
+    </div>
 
-                        init();
-                    });
-    </script>
+    <!-- popup para alert e promtps -->
+    <div id="popup-dialog" class="popup bradius">
+      <div class="dialog">
+        <p class="title"></p>
+        <p class="msg"></p>
+      </div>
+      <button></button>
+      <button></button>
+    </div>
+
+    <!-- popup para simular select field -->
+    <div id="popup-select" class="popup bradius"></div>
+
+    <!-- Menu lateral -->
+    <div id="navigator">
+      <div id="scroll">
+        <p>Felipe Jorge</p>
+        <p>felipe.jorge@eacsoftware.com.br</p>
+        <ul id="filter-lista-busca" class="nav-filter">
+          <li class="category">Filtros</li>
+          <li>
+            Data do evento
+            <p>
+              <span class="input input-date day bradius" onclick="showSelect('day', this);">00</span>/
+              <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>/
+              <span class="input input-date year bradius" onclick="showSelect('year', this);">0000</span>
+              <span class="reset-fields" onclick="resetFields(this, 'date');"></span>
+            </p>
+          </li>
+          <li>
+            Tipo de lista
+            <p>
+              <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this);" title="">Selecione</span>
+              <span class="reset-fields" onclick="resetFields(this, 'select');"></span>
+            </p>
+          </li>
+        </ul>
+        <ul id="filter-index" class="nav-filter">
+          <li>Acessar painel</li>
+          <li>Configurações</li>
+        </ul>
+        <button type="button" class="filter-submit" onclick="wsGetLista();">Buscar</button>
+      </div>
+    </div>
+
+    <!-- Container onde as paginas serao carregadas -->
+    <div id="content">
+
+      <!-- Mascara exibida ate que a pagina termine de carregar -->
+      <div id="mask">
+        <!-- Loading em CSS3 -->
+        <div id="followingBallsG">
+          <div id="followingBallsG_1" class="followingBallsG"></div>
+          <div id="followingBallsG_2" class="followingBallsG"></div>
+          <div id="followingBallsG_3" class="followingBallsG"></div>
+          <div id="followingBallsG_4" class="followingBallsG"></div>
+        </div>
+      </div>
+
+      <!-- Mascara ativada ao exibir o menu lateral para bloquear o clique nos itens da pagina e tambem para ocultar o menu lateral -->
+      <div id="mask-shadow"></div>
+
+      <!-- Mascara ativada para bloquear todos os elementos no fundo da tela -->
+      <div id="mask-full"></div>
+
+      <!-- Todas as paginas do aplicativo devem ser predefinidas aqui abaixo-->
+      <div id="index" class="page animate"></div>
+      <div id="cliente-busca" class="page animate"></div>
+      <div id="cliente-cadastro" class="page animate"></div>
+      <div id="cliente-lista" class="page animate"></div>
+      <div id="lista-busca" class="page animate"></div>
+      <div id="lista-cadastro" class="page animate"></div>
+      <div id="lista-produto" class="page animate"></div>
+      <div id="configuracoes" class="page animate"></div>
+    </div>
+  </div>
+
+  <!-- Inclusao das dependencias javascript -->
+  <script src="js/LAB.min.js"></script>
+
+  <!-- javascript inicial a ser executado ao carregar o aplicativo -->
+  <script>
+        $LAB
+        .script("js/jquery-2.1.1.min.js")
+        .script("js/iscroll.min.js")
+        .script("js/fastclick.min.js")
+        .script("js/app.js").wait(function() {
+
+          // Define as acoes dos botoes fisicos do android
+          document.addEventListener("menubutton", onBackKeyMenu, false);
+          document.addEventListener("backbutton", onBackKeyDown, false);
+
+          init();
+        });
+  </script>
 
 </body>
 </html>

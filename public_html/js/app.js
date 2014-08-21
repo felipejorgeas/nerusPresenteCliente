@@ -814,6 +814,22 @@ function init() {
             wsLogin();
         }
     });
+
+    $(".show-pass").click(function(){
+      var elem = $(this);
+      var fieldPass = $("#" + elem.attr("data-field"));
+      var type = fieldPass.attr("type");
+
+      if(type == "password"){
+        fieldPass.attr("type", "text");
+        elem.addClass("active");
+      }
+
+      else{
+        fieldPass.attr("type", "password");
+        elem.removeClass("active");
+      }
+    });
 }
 
 function toast(msg) {

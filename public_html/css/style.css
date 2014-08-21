@@ -176,7 +176,7 @@ button {
   position: relative;
 }
 
-#navigator .nav-filter .reset-fields{
+.reset-fields{
   position: absolute;
   top: 10px;
   right: 0;
@@ -185,6 +185,25 @@ button {
   background: url("../img/ico-cancel.png");
   background-size: 20px;
   display: inline-block;
+}
+
+.show-pass{
+  position: absolute;
+  top: 15px;
+  right: 0;
+  width: 15px;
+  height: 15px;
+  background: #FFF;
+  display: inline-block;
+  border: 2px solid #999;
+
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+}
+
+.show-pass.active{
+  background: #999;
 }
 
 #menu {
@@ -299,7 +318,12 @@ button {
   max-height: 100%;
 }
 
+#login #popup-login p{
+  position: relative;
+}
+
 #login #popup-login input, #login #popup-login button{
+  padding-right: 20px;
   margin: 5px 0;
   width: 100%;
 }

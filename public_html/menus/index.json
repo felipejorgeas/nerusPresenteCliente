@@ -32,11 +32,13 @@
     [
       {
         "onclick": "loadPage('configuracoes');",
-        "label": "Configurações"
+        "label": "Configurações",
+        "icon": "settings"
       },
       {
         "onclick": "logoutAction();",
-        "label": "Sair"
+        "label": "Sair",
+        "icon": "logout"
       }
     ]
   }
