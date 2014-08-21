@@ -935,8 +935,7 @@ function wsResponseGetTipoDeLista(response) {
         var error = response.wserror;
         if (error.length > 0)
             msg = error;
-//    showDialog("Produto", msg, null, null, "Fechar", "hideDialog()");
-//    showDialog("Autentica&ccedil;&atilde;o", msg, null, null, "Fechar", "goToPage('index.html')");
+        toast(msg);
     }
 
     // em caso de sucesso
@@ -1026,7 +1025,8 @@ function wsResponseGetLista(response) {
         $("#" + page).find(".content-response").hide();
         $("#" + page).find(".mark-agua").show();
 
-        showDialog("Lista", msg, "Fechar", "hideDialog()");
+        toast(msg);
+        hideMask();
     }
 
     // em caso de sucesso
@@ -1095,9 +1095,9 @@ function wsResponseGetLista(response) {
                 }
             });
         }
+        hideMask();
     }
-    sessionStorage.removeItem("clienteSelecionado");
-    hideMask();
+    sessionStorage.removeItem("clienteSelecionado");    
 }
 
 /**
@@ -1163,10 +1163,9 @@ function wsResponseGetCliente(response) {
 
         $("#" + page).find(".content-response").hide();
         $("#" + page).find(".mark-agua").show();
-
+        
+        toast(msg);
         hideMask();
-//    showDialog("Lista", msg, "Cancelar", "hideDialog()", "Ok", "hideDialog()");
-        showDialog("Cliente", msg, "Fechar", "hideDialog()");
     }
 
     // em caso de sucesso
@@ -1191,21 +1190,6 @@ function wsResponseGetCliente(response) {
                 // tratamento dos dados retornados
                 var clienteCodigo = cliente.cliente_codigo;
                 var clienteName = cliente.cliente_nome;
-
-//        // criacao dos objetos a serem inseridos na pagina
-//        var box = $("<div>");
-//        var title = $("<p>");
-//
-//        // seta as informacoes
-//        title.addClass("title").text(clienteName);
-//
-//        // finaliza o bloco de informacoes
-//        box.attr("id", clienteCodigo).addClass("cliente").addClass("bradius");
-//        box.append(title);
-//
-//        //insere o bloco na pagina
-//        contentResponse.append(box);
-
 
                 // criacao dos objetos a serem inseridos na pagina
                 var box =
@@ -1267,7 +1251,7 @@ function wsSaveCliente() {
         url: configServerUrl + "/saveCliente.php",
         type: "POST",
         dataType: "jsonp",
-        data: {dados: dados}
+        data: { dados: dados }
     });
 }
 
@@ -1288,19 +1272,15 @@ function wsResponseSaveCliente(response) {
         var error = response.wserror;
         if (error.length > 0)
             msg = error;
-
-        hideMask();
-        showDialog("Cliente", msg, "Fechar", "hideDialog()");
     }
 
     // em caso de sucesso
     else if (response.wsstatus == 1) {
 
         var cliente = response.wsresult;
-
-        var msg = "Cliente cadastrado com sucesso!";
-
-        hideMask();
-        showDialog("Cliente", msg, "Fechar", "hideDialog()");
+        var msg = "Cliente cadastrado com sucesso!";        
     }
+    
+    hideMask();
+    showDialog("Cliente", msg, "Fechar", "hideDialog()");
 }
