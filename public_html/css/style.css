@@ -101,7 +101,7 @@ button {
 
 #header {
   width: 100%;
-  height: 50px;
+  height: 60px;
   position: absolute;
   top: 0;
   left: 0;
@@ -209,7 +209,7 @@ button {
 #menu {
   min-width: 200px;
   position: absolute;
-  top: 50px;
+  top: 60px;
   right: 5px;
   list-style: none;
   padding: 0 10px;
@@ -451,7 +451,7 @@ button {
 
 .page {
   position: absolute;
-  top: 50px;
+  top: 60px;
   right: 0;
   bottom: 0;
   left: 0;
@@ -508,13 +508,14 @@ button {
 }
 
 #actions-left {
-  height: 50px;
+  height: 60px;
   float: left;
-  line-height: 50px;
+  line-height: 60px;  
 }
 
 #action {
   display: table;
+  padding: 6px;
 }
 
 .click {
@@ -564,11 +565,11 @@ button {
 #actions-left #action #title {
   display: table-cell;
   vertical-align: middle;
-  line-height: normal;
+  line-height: normal;  
 }
 
 #actions-left #action #title .logo{
-  display:none;
+  display: none;
 }
 
 #actions-left #action #title #desc-1 {
@@ -580,18 +581,18 @@ button {
 }
 
 #actions-left #action #title img{
-  max-height: 30px;
+  max-height: 60px;
 }
 
 #actions-right {
   float: right;
-  line-height: 50px;
+  line-height: 60px;
 }
 
 #search {
   float: left;
-  height: 50px;
-  line-height: 50px;
+  height: 60px;
+  line-height: 60px;
   display: none;
 }
 
@@ -600,7 +601,7 @@ button {
   max-width: 500px;
   float: right;
   height: 36px;
-  margin-top: 7px;
+  margin-top: 10px;
   padding: 0 5px 0 25px;
   border: none;
   background: url("../img/ico-search-mini.png") left center no-repeat;
@@ -620,22 +621,22 @@ button {
 }
 
 #actions-right .actions {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   float: left;
   text-align: center;
   display: none;
 }
 
 #actions-right .actions .ico-actions {
-  margin-top: 7px;
+  margin-top: 14px;
   width: 34px;
   height: 34px;
 }
 
 #exibMenu {
-  width: 50px;
-  height: 50px;
+  width: 60px;
+  height: 60px;
   float: left;
   text-align: center;
   padding-top: 4px;
@@ -706,9 +707,9 @@ button {
   margin-bottom: 20px;
   text-align: left;
 
-  -webkit-transition: all 0.2s;
-  -moz-transition: all 0.2s;
-  transition: all 0.3s ease-in-out;
+  /*  -webkit-transition: all 0.2s;
+    -moz-transition: all 0.2s;
+    transition: all 0.2s ease-in-out;*/
 }
 
 .card:last-child{
@@ -718,6 +719,7 @@ button {
 .card .title{
   width: 70%;
   font-size: large;
+  font-weight: bold;
   margin-bottom: 10px;
 }
 
@@ -749,9 +751,9 @@ button {
   text-align: left;
   float: left;
 
-  -webkit-transition: all 0.2s;
-  -moz-transition: all 0.2s;
-  transition: all 0.3s ease-in-out;
+  /*  -webkit-transition: all 0.2s;
+    -moz-transition: all 0.2s;
+    transition: all 0.2s ease-in-out;*/
 }
 
 .cliente:nth-child(even){
@@ -762,6 +764,7 @@ button {
 .cliente .title{
   width: 70%;
   font-size: large;
+  font-weight: bold;
   margin-bottom: 10px;
 }
 
@@ -773,6 +776,120 @@ button {
 }
 
 .cliente.activeCliente p{
+  color: #FFF;
+}
+
+.produto{
+  width: 100%;
+  background-size: 100px;
+  background-position: right;
+  background-repeat: no-repeat;
+  background-color: #EEE;
+  margin-bottom: 20px;
+  float: left;
+
+  /*  -webkit-transition: all 0.2s;
+    -moz-transition: all 0.2s;
+    transition: all 0.2s ease-in-out;*/
+}
+
+.produto:last-child{
+  margin-bottom: 50px;
+}
+
+.produto > div{
+  position: relative;
+  width: 100%;
+  float: left;
+  padding: 10px;
+}
+
+.prd-img{
+  width: 100px;
+  height: 100px;
+  background: #FFF;
+  text-align: center;
+  display: table-cell;
+  vertical-align: middle;
+  padding:10px; 
+  border: 1px solid #CCC;
+}
+
+.prd-img img{
+  max-width: 100%;
+  max-height: 100%;
+}
+
+.prd-desc{
+  position: absolute;    
+  width: 60%;
+  top: 0;
+  right: 0;
+  text-align: right;
+  margin: 10px 10px 10px 0;
+}
+
+.prd-name{
+  font-size: large;
+  font-weight: bold;
+}
+
+.prd-price{
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  font-size: medium;
+  color: #900;
+}
+
+
+.prd-price strong{
+  font-size: xx-large;
+  color: #900;
+}
+
+.prd-cat{
+  width: 100%;
+  text-align: center;    
+  color: #FFF;
+  background: #333;
+  padding: 7px 0;
+  font-weight: bold;
+  float: left;
+
+  -webkit-border-radius: 0 0 5px 5px;
+  -moz-border-radius: 0 0 5px 5px;
+  border-radius: 0 0 5px 5px;
+}
+
+#prd-total{
+  position: fixed;
+  width: 100%;
+  bottom: 0;
+  right: 0;
+  left: 0;
+  padding: 10px;
+  background: #333;
+}
+#prd-total span{
+  color: #FFF;
+  font-size: 24px;
+
+}
+
+#prd-total #qtty{
+  float: left;
+}
+
+#prd-total #price{
+  float: right;
+}
+
+.activeProduto{
+  background: #900;
+}
+
+.activeProduto p, .activeProduto strong{
   color: #FFF;
 }
 
@@ -865,49 +982,49 @@ button {
 
 @-moz-keyframes bounce_followingBallsG {
   0%{
-  left: 0px;
-  background-color: #5E5A5E;
-}
+    left: 0px;
+    background-color: #5E5A5E;
+  }
 
-50%{
-  left: 93px;
-  background-color: #FFFFFF;
-}
+  50%{
+    left: 93px;
+    background-color: #FFFFFF;
+  }
 
-100%{
-  left: 0px;
-  background-color: #5E5A5E;
-}
+  100%{
+    left: 0px;
+    background-color: #5E5A5E;
+  }
 }
 @-webkit-keyframes bounce_followingBallsG {
   0%{
-  left: 0px;
-  background-color: #5E5A5E;
-}
+    left: 0px;
+    background-color: #5E5A5E;
+  }
 
-50%{
-  left: 93px;
-  background-color: #FFFFFF;
-}
-100%{
-  left: 0px;
-  background-color: #5E5A5E;
-}
+  50%{
+    left: 93px;
+    background-color: #FFFFFF;
+  }
+  100%{
+    left: 0px;
+    background-color: #5E5A5E;
+  }
 }
 @keyframes bounce_followingBallsG {
   0%{
-  left: 0px;
-  background-color: #5E5A5E;
-}
+    left: 0px;
+    background-color: #5E5A5E;
+  }
 
-50%{
-  left: 93px;
-  background-color: #FFFFFF;
-}
-100%{
-  left: 0px;
-  background-color: #5E5A5E;
-}
+  50%{
+    left: 93px;
+    background-color: #FFFFFF;
+  }
+  100%{
+    left: 0px;
+    background-color: #5E5A5E;
+  }
 }
 
 .iScrollHorizontalScrollbar {
@@ -980,6 +1097,6 @@ and (max-width: 600px){
   }
 
   #search input {
-    max-width: 150px;
+    max-width: 140px;
   }
 }

@@ -451,6 +451,9 @@ function getIcon(type) {
     case "new":
       src = "img/ico-new.png";
       break;
+    case "accept":
+      src = "img/ico-accept.png";
+      break;
   }
 
   icon.attr("src", src).addClass("ico-actions");
@@ -660,7 +663,7 @@ function resetFields(elem, type) {
 
 function init() {
 
-//  hideLogin();
+  hideLogin();
 
   $.ajaxSetup({cache: false});
 
@@ -812,6 +815,21 @@ function init() {
     var tecla = (evt.keyCode ? evt.keyCode : evt.which);
     if (tecla == 13) {
       wsLogin();
+    }
+  });
+
+  $(".show-pass").click(function() {
+    var elem = $(this);
+    var fieldPass = $("#" + elem.attr("data-field"));
+    var type = fieldPass.attr("type");
+
+    if (type == "password") {
+      fieldPass.attr("type", "text");
+      elem.addClass("active");
+    }
+    else {
+      fieldPass.attr("type", "password");
+      elem.removeClass("active");
     }
   });
 }

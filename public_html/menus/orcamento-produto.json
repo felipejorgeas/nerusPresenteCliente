@@ -20,7 +20,7 @@
     "itens":
     [
       {
-        "onclick": "loadPage('orcamento-produto');",
+        "onclick": "wsSaveOrcamento();",
         "icon": "accept"
       }
     ]

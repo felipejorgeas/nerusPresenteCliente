@@ -1,5 +1,10 @@
 <div class="content-response"></div>
 
+<div id="prd-total">
+  <span id="qtty">Selecionados: <span>0</span></span>
+  <span id="price">R$ <span>0,00</span></span>
+</div>
+
 <script>
 
   $(function() {
@@ -7,41 +12,86 @@
     var lista = sessionStorage.getItem("listaSelecionada");
     lista = JSON.parse(lista);
 
-    var produtos = [];
+    if (lista.lista_produtos.hasOwnProperty("produto")) {
+      var produtos = [];
 
-    /**
-     * Verifica se veio apenas um produtos ou varios.
-     * Isto influencia na estrutura do array de produtos
-     *
-     * Ex.:
-     *      se vier apenas um produto o array retornado sera:
-     *      lista_produtos = array("codigo_produto", "grade", ...);
-     *
-     *      se vier varios produtos o array retornado sera:
-     *      lista_produtos = array(0 => array("codigo_produto", "grade", ...),
-     *                             1 => array("codigo_produto", "grade", ...));
-     *
-     * O tratamento abaixo garante que iremos manipular sempre
-     * um array multi-dimensional no each().
-     */
-    if (lista.lista_produtos.produto.hasOwnProperty("0")) {
-      produtos = lista.lista_produtos.produto;
-    } else {
-      produtos.push(lista.lista_produtos.produto);
+      /**
+       * Verifica se veio apenas um produtos ou varios.
+       * Isto influencia na estrutura do array de produtos
+       *
+       * Ex.:
+       *      se vier apenas um produto o array retornado sera:
+       *      lista_produtos = array("codigo_produto", "grade", ...);
+       *
+       *      se vier varios produtos o array retornado sera:
+       *      lista_produtos = array(0 => array("codigo_produto", "grade", ...),
+       *                             1 => array("codigo_produto", "grade", ...));
+       *
+       * O tratamento abaixo garante que iremos manipular sempre
+       * um array multi-dimensional no each().
+       */
+
+      if (lista.lista_produtos.produto.hasOwnProperty("0")) {
+        produtos = lista.lista_produtos.produto;
+      } else {
+        produtos.push(lista.lista_produtos.produto);
+      }
+
+      var page = $("#content").find(".page.activePage:last");
+      var pageId = "#" + page.attr("id");
+      var contentResponse = page.find(".content-response");
+
+      var produtosLista = "";
+      var box;
+      var produtoCodigo;
+      var produtoNome;
+
+      $.each(produtos, function(i, produto) {
+        // tratamento dos dados retornados
+        produtoCodigo = produto.codigo_produto;
+        produtoNome = produto.nome_produto;
+
+        // criacao dos objetos a serem inseridos na pagina
+        box =
+          "<div id='" + produtoCodigo + "' class='produto bradius'>" +
+          "<div>" +
+          "<div class='prd-img bradius'>" +
+          "<img src='" + "img/prd.png" + "' />" +
+          "</div>" +
+          "<div class='prd-desc'>" +
+          "<p class='prd-name'>" + produtoNome + "</p>" +
+          "<p class='prd-forn'>CONSUL</p>" +
+          "</div>" +
+          "<p class='prd-price'>R$ <strong>" + "3.231,23" + "</strong></p>" +
+          "</div>" +
+          "<p class='prd-cat'>" + "ELETRONICOS" + "</p>" +
+          "</div>";
+
+        produtosLista += box;
+
+      });
+      contentResponse.append(produtosLista);
+
+      // ativa as acoes de cliques nos blocos inseridos      
+      contentResponse.find(".produto").click(function() {
+        var item = $(this);
+        var price = item.find(".prd-price").find("strong");
+        
+        if (item.hasClass("activeProduto")) {          
+          
+          item.removeClass("activeProduto");
+        }
+        else {
+          
+          item.addClass("activeProduto");
+        }
+      });
     }
-
-    var page = $("#content").find(".page.activePage:last");
-    var pageId = "#" + page.attr("id");
-    var contentResponse = page.find(".content-response");
-
-    $.each(produtos, function(i, produto) {
-      // tratamento dos dados retornados
-      var produtoCodigo = produto.codigo_produto;
-      var produtoNome = produto.nome_produto;
-
-      contentResponse.append("<p class='produto' id='" + produtoCodigo +"'>" + produtoCodigo + " - " + produtoNome + "</p>");
-    });
-
+    else {
+      toast("Lista de presentes sem produtos");
+    }
     hideMask();
   });
+
+  hideMask();
 </script>
