@@ -114,7 +114,7 @@ button {
   position: absolute;
   width: 350px;
   padding-right: 20px;
-  top: 46px;
+  top: 60px;
   bottom: 0;
   -moz-transform: translateX(-330px);
   -webkit-transform: translateX(-330px);
@@ -447,6 +447,47 @@ button {
 .form button{
   width: 100%;
   max-width: 400px;
+}
+
+#abas{
+  position: absolute;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  overflow-x: auto;
+  white-space: nowrap;      
+  background: #EEE;
+  list-style: none;
+  display: none;
+  z-index: 5;
+}
+
+#abas li{
+  padding: 10px 0;
+  display: inline-block;
+  border-bottom: 6px solid #EEE;
+  font-weight: bold;
+}
+#abas li span{
+  padding: 2px 30px;
+  border-right: 1px solid #CCC;
+}
+
+#abas li.active{
+  border-bottom: 6px solid #900;
+}
+
+#abas .border-move{
+  position: absolute;
+  width: 0px;
+  height: 8px;
+  left: 0;
+  bottom: 0;
+  background: #900;
+  
+  -webkit-transition: all 0.2s;
+  -moz-transition: all 0.2s;
+  transition: all 0.2s;
 }
 
 .page {
@@ -852,7 +893,7 @@ button {
   width: 100%;
   text-align: center;    
   color: #FFF;
-  background: #333;
+  background: #999;
   padding: 7px 0;
   font-weight: bold;
   float: left;
@@ -863,13 +904,15 @@ button {
 }
 
 #prd-total{
-  position: fixed;
+  position: absolute;
   width: 100%;
   bottom: 0;
   right: 0;
   left: 0;
   padding: 10px;
   background: #333;
+  display: none;
+  z-index: 5;
 }
 #prd-total span{
   color: #FFF;
@@ -891,6 +934,10 @@ button {
 
 .activeProduto p, .activeProduto strong{
   color: #FFF;
+}
+
+.activeProduto .prd-cat{
+  background: #333;
 }
 
 .mark-agua{

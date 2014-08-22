@@ -335,6 +335,9 @@ function loadHeader(page) {
   var actionsHeader = actionsAux.find(".actions");
   var exibMenu = header.find("#exibMenu");
 
+  $("#abas").hide();
+  $("#prd-total").hide();
+
 //  hideMenuSec();
   back.hide();
   descs.hide().html("");
@@ -659,6 +662,47 @@ function resetFields(elem, type) {
       p.find(".input-date.year").text("0000");
       break;
   }
+}
+
+function text2Float(price) {
+  var decimais = "";
+  price = price.replace(/\./g, "");
+  price = price.replace(/\,/g, ".");
+  price = parseFloat(price);
+  
+  price = "" + price;
+  
+  if(price.split(".")[1].length)
+
+  
+  return price + decimais;
+}
+
+function formatMoney(price) {
+  var totalStr = "" + price;
+  
+  if (totalStr.length >= 7) {
+    var aux = totalStr.length - 6;
+    price = totalStr.substr(0, aux) + "." + totalStr.substr(-6, totalStr.length);
+  }
+
+  return price;
+}
+
+function calcTotalPrds(prds) {
+  var price = 0;
+  var total = 0;
+
+  prds.each(function(i, prd) {
+    price = $(prd).find(".prd-price").find("strong").text();
+    price = text2Float(price);
+    
+    total += price;
+  });
+
+  total = formatMoney(total);
+
+  return total;
 }
 
 function init() {
