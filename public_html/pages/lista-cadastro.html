@@ -1,0 +1,71 @@
+<style>
+  .form label{
+    width: 100%;
+    text-align: left;
+    display: block;
+  }
+  
+  .form .cliente, .form .input-select{
+    text-align: left;
+    width: 100%;
+  }
+  
+  .form .input{
+    margin-bottom: 20px;
+  }
+</style>
+
+<div class="form">
+  <p class="title">Cadastro de Lista de Presente</p>
+  <label>Cliente</label>
+  <p>
+    <span class="input cliente bradius" title=""></span>
+  </p>
+  <label>Tipo de Lista de Presente</label>
+  <p>
+    <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this);" data-value="">Selecione</span>
+  </p>
+  <label>Data do evento</label>
+  <p>
+    <span class="input input-date day bradius" onclick="showSelect('day', this);">00</span>/
+    <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>/
+    <span class="input input-date year bradius" onclick="showSelect('year', this);">0000</span>
+  </p>
+  <p>
+    <button type="button" onclick="setNewList();">Continuar</button>
+  </p>
+</div>
+
+<script>
+  function setNewList(){
+    var page = $("#content").find(".page.activePage:last");
+    var cliente = sessionStorage.getItem("clienteSelecionado");
+    var tipoLista = page.find(".form").find(".input.tipoLista").attr("data-value");
+    var dia = page.find(".form").find(".input.day").text();
+    var mes = page.find(".form").find(".input.month").text();
+    var ano = page.find(".form").find(".input.year").text();
+    
+    cliente = JSON.parse(cliente);
+    
+    var lista = {      
+      codigo_cliente: cliente.cliente_codigo,
+      codigo_nome: cliente.cliente_nome,
+      tipo_lista: tipoLista,
+      data_evento: ano + mes + dia
+    };
+    
+    sessionStorage.setItem("newLista", lista);
+    loadPage("produto-busca");
+  }
+  
+  $(function() {
+    
+    var page = $("#content").find(".page.activePage:last");
+    var cliente = sessionStorage.getItem("clienteSelecionado");    
+    cliente = JSON.parse(cliente);
+
+    page.find(".form").find(".input.cliente").text(cliente.cliente_nome);
+    
+    hideMask();
+  });
+</script>

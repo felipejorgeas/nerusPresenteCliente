@@ -53,7 +53,7 @@ function menuSec() {
   var menuLeft = getTranslateX(menu);
   var newMenuLeft = 0;
 
-  if (menuLeft <= 0)
+  if (menuLeft >= -1)
     newMenuLeft = -330;
 
   menu.addClass("animate").css({
@@ -76,7 +76,7 @@ function hideMenuSec() {
   var menu = $("#navigator");
   var menuLeft = getTranslateX(menu);
 
-  if (menuLeft <= 0) {
+  if (menuLeft >= -1) {
     var newMenuLeft = -330;
 
     menu.addClass("animate").css({
@@ -195,15 +195,17 @@ function hideSearch() {
 }
 
 function loadPage(page, backButton, noPushPage) {
+  $("#abas").hide();
+  $("#prd-total").hide();
 
   var menu = $("#navigator");
   var menuLeft = getTranslateX(menu);
-  
+
   if (backButton && $("#search").is(":visible")) {
     hideSearch();
   }
-  
-  else if(backButton && menuLeft == 0){
+
+  else if (backButton && menuLeft == 0) {
     hideMenuSec();
   }
 
@@ -342,9 +344,6 @@ function loadHeader(page) {
   var actionsHeader = actionsAux.find(".actions");
   var exibMenu = header.find("#exibMenu");
 
-  $("#abas").hide();
-  $("#prd-total").hide();
-
 //  hideMenuSec();
   back.hide();
   descs.hide().html("");
@@ -410,8 +409,19 @@ function loadHeader(page) {
           var icon = getIcon(item.icon);
           actionsHeader.eq(i).attr("onclick", item.onclick).html(icon).show();
           animateClick(actionsHeader.eq(i));
-          if (item.type)
+          if (item.type){
+            var type = "";
+            switch(item.type){
+              case "produto":
+                type = "Produto";
+                break;
+              default:
+                type = "Cliente";
+            }
+            
+            $("#search").find("input[name=search]").attr("placeholder", type);
             $("#search").find("input[name=funcSearch]").val(item.type);
+          }
         });
       }
 
@@ -637,14 +647,14 @@ function showSelect(type, elem) {
       var tiposListas = JSON.parse(tipos);
 
       $.each(tiposListas, function(i, tipo) {
-        lis += "<li title='" + tipo.tipo_lista_codigo + "'>" + tipo.tipo_lista_nome + "</li>";
+        lis += "<li data-value='" + tipo.tipo_lista_codigo + "'>" + tipo.tipo_lista_nome + "</li>";
       });
       ul.append(lis);
       $("#popup-select").html(ul);
       $("#popup-select").find("ul").find("li").click(function() {
         var tipo_name = $(this).text();
-        var tipo_codigo = $(this).attr("title");
-        $(elem).text(tipo_name).attr("title", tipo_codigo);
+        var tipo_codigo = $(this).attr("data-value");
+        $(elem).text(tipo_name).attr("data-value", tipo_codigo);
         hideMaskFull();
         $("#popup-select").hide();
       });
@@ -658,10 +668,10 @@ function showSelect(type, elem) {
 
 function resetFields(elem, type) {
   var p = $(elem).parent();
-  
+
   switch (type) {
     case "select":
-      p.find(".input-select").text("Selecione").attr("title", "");
+      p.find(".input-select").text("Selecione").attr("data-value", "");
       break;
     case "date":
       p.find(".input-date.day").text("00");
@@ -674,26 +684,28 @@ function resetFields(elem, type) {
 }
 
 function text2Float(price) {
-  var decimais = "";
   price = price.replace(/\./g, "");
   price = price.replace(/\,/g, ".");
   price = parseFloat(price);
-  
-  price = "" + price;
-  
-  if(price.split(".")[1].length)
-
-  
-  return price + decimais;
+  return price;
 }
 
 function formatMoney(price) {
   var totalStr = "" + price;
-  
+  var decimais = "";
+
+  totalStr = totalStr.replace(".", ",");
+
   if (totalStr.length >= 7) {
     var aux = totalStr.length - 6;
     price = totalStr.substr(0, aux) + "." + totalStr.substr(-6, totalStr.length);
   }
+
+  price = "" + price;
+  price = price.split(".");
+
+  if (price.hasOwnProperty(1) && price.split(".")[1].length == 1)
+    price += decimais;
 
   return price;
 }
@@ -705,7 +717,7 @@ function calcTotalPrds(prds) {
   prds.each(function(i, prd) {
     price = $(prd).find(".prd-price").find("strong").text();
     price = text2Float(price);
-    
+
     total += price;
   });
 
@@ -853,12 +865,16 @@ function init() {
 
       switch (typeSearch) {
 
-        case "cliente":
+        case "cliente":          
           wsGetCliente();
           break;
 
         case "lista":
           wsGetLista();
+          break;
+          
+        case "produto":
+          wsGetProduto();
           break;
       }
     }
@@ -885,6 +901,22 @@ function init() {
       elem.removeClass("active");
     }
   });
+
+  var sliderRange = $("#slider-range");
+  var priceMin = $("#price-min");
+  var priceMax = $("#price-max");
+  sliderRange.slider({
+    range: true,
+    min: 0,
+    max: 1000,
+    values: [0, 1000],
+    slide: function(event, ui) {
+      priceMin.text(ui.values[0]);
+      priceMax.text(ui.values[1]);
+    }
+  });
+  priceMin.text(sliderRange.slider("values", 0));
+  priceMax.text(sliderRange.slider("values", 1));
 }
 
 function toast(msg) {
@@ -894,6 +926,16 @@ function toast(msg) {
   setTimeout(function() {
     $('#toast').fadeOut();
   }, 3000);
+}
+
+function inArrayCl(key, arr) {
+  var existsOk = false
+  $.each(arr, function(i, reg) {
+    if (reg.centro_lucro == key) {
+      existsOk = true;
+    }
+  });
+  return existsOk;
 }
 
 /*
@@ -1033,12 +1075,10 @@ function wsResponseGetTipoDeLista(response) {
  *
  * @param {json} response
  */
-function wsGetLista() {
+function wsGetLista(clienteCodigo) {
   hideMenuSec();
   showMask();
-
-  var clienteCodigo = sessionStorage.getItem("clienteSelecionado");
-
+  
   if (clienteCodigo != null && clienteCodigo > 0) {
     var lista = {
       codigo_cliente: clienteCodigo
@@ -1148,7 +1188,7 @@ function wsResponseGetLista(response) {
         desc.addClass("desc").text(tipoNome + " dia " + dataEvento);
 
         // finaliza o bloco de informacoes
-        card.addClass("card").addClass("bradius").attr("id", i);
+        card.addClass("card").addClass("bradius").attr("id", "lista-" + i);
         card.append(title);
         card.append(desc);
 
@@ -1160,7 +1200,9 @@ function wsResponseGetLista(response) {
       contentResponse.find(".card").removeClass("activeCard");
       contentResponse.find(".card").click(function() {
         if ($(this).hasClass("activeCard")) {
-          var lista = listasStorage[this.id];
+          var listaId = this.id;
+          listaId = listaId.replace("lista-", "");
+          var lista = listasStorage[listaId];
           sessionStorage.setItem("listaSelecionada", JSON.stringify(lista));
           loadPage("lista-produto");
         }
@@ -1171,8 +1213,7 @@ function wsResponseGetLista(response) {
       });
     }
     hideMask();
-  }
-  sessionStorage.removeItem("clienteSelecionado");
+  }  
 }
 
 /**
@@ -1260,15 +1301,18 @@ function wsResponseGetCliente(response) {
       contentResponse.html("").scrollTop(0).show();
 
       var clientesLista = [];
+      var clientesStorage = [];
 
       $.each(clientes, function(i, cliente) {
+        clientesStorage.push(cliente);
+        
         // tratamento dos dados retornados
         var clienteCodigo = cliente.cliente_codigo;
         var clienteName = cliente.cliente_nome;
 
         // criacao dos objetos a serem inseridos na pagina
         var box =
-                "<div id='" + clienteCodigo + "' class='cliente bradius'>" +
+                "<div id='cliente-" + i + "' class='cliente bradius'>" +
                 "<p class='title'>" + clienteName + "</p>" +
                 "</div>";
 
@@ -1282,8 +1326,11 @@ function wsResponseGetCliente(response) {
       contentResponse.find(".cliente").removeClass("activeCliente");
       contentResponse.find(".cliente").click(function() {
         if ($(this).hasClass("activeCliente")) {
-          sessionStorage.setItem("clienteSelecionado", this.id);
-          loadPage("cliente-lista");
+          var clienteId = this.id;
+          clienteId = clienteId.replace("cliente-", "");
+          var cliente = clientesStorage[clienteId];
+          sessionStorage.setItem("clienteSelecionado", JSON.stringify(cliente));
+          loadPage("cliente-lista");          
         }
         else {
           contentResponse.find(".cliente").removeClass("activeCliente");

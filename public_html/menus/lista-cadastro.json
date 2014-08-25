@@ -16,33 +16,31 @@
   },
   "actions":
   {
-    "show": true,
+    "show": false,
     "itens":
     [
       {
-        "onclick": "loadPage('lista-cadastro');",
-        "icon": "new"
+        "onclick": "actionSearch();",
+        "icon": "search",
+        "type": "lista",
+        "barcode": true
       }
     ]
   },
   "menu":
   {
-    "show": true,
+    "show": false,
     "itens":
     [
       {
-        "onclick": "loadPage('lista-produto');",
-        "label": "Lista atual"
-      },
-      {
-        "onclick": "loadPage('orcamento-produto');",
-        "label": "Orçamento atual"
+        "onclick": "loadPage('configuracoes');",
+        "label": "Configurações"
       }
     ]
   },
   "nav":
   {
-    "show": true,
-    "type": "index"
+    "show": false,
+    "type": "lista-busca"
   }
 }

@@ -20,8 +20,10 @@
     "itens":
     [
       {
-        "onclick": "loadPage('lista-cadastro');",
-        "icon": "new"
+        "onclick": "actionSearch();",
+        "icon": "search",
+        "type": "produto",
+        "barcode": true
       }
     ]
   },
@@ -43,6 +45,6 @@
   "nav":
   {
     "show": true,
-    "type": "index"
+    "type": "produto-busca"
   }
 }

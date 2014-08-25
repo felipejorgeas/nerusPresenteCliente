@@ -32,18 +32,22 @@
   },
   "menu":
   {
-    "show": false,
+    "show": true,
     "itens":
     [
       {
-        "onclick": "loadPage('configuracoes');",
-        "label": "Configurações"
+        "onclick": "loadPage('lista-produto');",
+        "label": "Lista atual"
+      },
+      {
+        "onclick": "loadPage('orcamento-produto');",
+        "label": "Orçamento atual"
       }
     ]
   },
   "nav":
   {
-    "show": false,
-    "type": "lista-busca"
+    "show": true,
+    "type": "index"
   }
 }

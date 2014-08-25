@@ -9,7 +9,7 @@
   margin: 0;
   padding: 0;
   outline: none;
-  font-family: "Trebuchet MS",Helvetica,Jamrul,sans-serif;
+  font-family: "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
   font-size: medium;
 
   -webkit-box-sizing: border-box;
@@ -173,8 +173,7 @@ button {
   border-radius: 3px;
 }
 
-.ui-slider .ui-slider-handle {
-  margin-top: 2px;
+.ui-slider .ui-slider-handle {  
   border-radius: 3px;
   background: #666;
   border: 1px solid #EEE;
@@ -206,6 +205,8 @@ button {
   width: 80%;
   float: left;
   margin-top: 10px;
+  white-space: nowrap;
+  overflow: hidden;
 }
 
 #navigator #user-logged #user-info #user-name{
@@ -234,6 +235,10 @@ button {
 #navigator #nav-options li{
   padding: 10px;
   border-top: 1px solid #CCC;
+}
+
+#navigator #nav-options li:last-child{
+  border-bottom: 1px solid #CCC;
 }
 
 #navigator #nav-options .icon{
@@ -510,18 +515,22 @@ button {
 }
 
 .form{
+  max-width: 400px;
   text-align: center;
+  margin: 0 auto;
 }
 
-.form input{
+.form .title{
   width: 100%;
-  max-width: 400px;
+  text-align: center;
+  font-weight: bold;
+  font-size: large;
   margin-bottom: 20px;
 }
 
 .form button{
   width: 100%;
-  max-width: 400px;
+  width: 100%;
 }
 
 #abas{
@@ -636,7 +645,7 @@ button {
 
 #action {
   display: table;
-  padding: 6px;
+  padding: 6px 0;
 }
 
 .click {
@@ -702,6 +711,7 @@ button {
 }
 
 #actions-left #action #title img{
+  max-width: 200px;
   max-height: 60px;
 }
 
@@ -864,7 +874,7 @@ button {
   color: #FFF;
 }
 
-.cliente{
+.content-response .cliente{
   width: 48%;
   height: 80px;
   background-image: url("../img/ico-person-w.png");
@@ -882,26 +892,26 @@ button {
     transition: all 0.2s ease-in-out;*/
 }
 
-.cliente:nth-child(even){
+.content-response .cliente:nth-child(even){
   float: right;
   margin-right: 0;
 }
 
-.cliente .title{
+.content-response .cliente .title{
   width: 70%;
   font-size: large;
   font-weight: bold;
   margin-bottom: 10px;
 }
 
-.cliente.activeCliente{
+.content-response .cliente.activeCliente{
   background-color: #900;
   -webkit-box-shadow: inset 0 -10px 0 #CCC;
   -moz-box-shadow: inset 0 -10px 0 #CCC;
   box-shadow: inset 0 -10px 0 #333;
 }
 
-.cliente.activeCliente p{
+.content-response .cliente.activeCliente p{
   color: #FFF;
 }
 
@@ -997,7 +1007,7 @@ button {
   padding: 10px;
   background: #333;
   display: none;
-  z-index: 5;
+  z-index: 3;
 }
 #prd-total span{
   color: #FFF;
@@ -1238,17 +1248,19 @@ button {
   padding: 20px;
 }
 
-.page#lista-produto{
-  padding: 0;
-}
-
 @media only screen
 and (max-width: 600px){
-  .cliente{
+  
+  #actions-left #action #title img{
+    max-width: 130px;
+    max-height: 40px;
+  }
+  
+  .content-response .cliente{
     width: 100%;
   }
 
   #search input {
     max-width: 140px;
-  }
+  } 
 }

@@ -3,8 +3,11 @@
 <script>
 
     $(function() {
-        window.setTimeout(wsGetLista, 200);
-        //wsGetLista();
+        window.setTimeout(function(){
+          var cliente = sessionStorage.getItem("clienteSelecionado");
+          cliente = JSON.parse(cliente);          
+          wsGetLista(cliente.cliente_codigo);
+        }, 200);
         hideMask();
     });
 </script>

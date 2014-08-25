@@ -1,21 +1,17 @@
-<div class="content-response">
-  <div id="containers" class="swiper-container">
-    <div class="swiper-wrapper">
-      <div class="swiper-slide">
-        <div class="content-slide"></div>
-      </div>
-    </div>
-  </div>
-</div>
+<div class="content-response"></div>
 
 <script>
 
   $(function() {
-    
+       
     var produtosLista = "";
     var box;
+    
     var produtoCodigo;
     var produtoNome;
+    var produtoCentroLucroNome;
+    var produtoPreco;
+    
     var abas = $("#abas");
     var padding = 5;
     var page = $("#content").find(".page.activePage:last");
@@ -25,37 +21,60 @@
     var lista = sessionStorage.getItem("listaSelecionada");
     lista = JSON.parse(lista);
 
-    console.log(lista);
+    var produtos = [];
 
-    if (lista.lista_produtos.hasOwnProperty("produto")) {
-      var produtos = [];
+    /**
+     * Verifica se veio apenas um produtos ou varios.
+     * Isto influencia na estrutura do array de produtos
+     *
+     * Ex.:
+     *      se vier apenas um produto o array retornado sera:
+     *      lista_produtos = array("codigo_produto", "grade", ...);
+     *
+     *      se vier varios produtos o array retornado sera:
+     *      lista_produtos = array(0 => array("codigo_produto", "grade", ...),
+     *                             1 => array("codigo_produto", "grade", ...));
+     *
+     * O tratamento abaixo garante que iremos manipular sempre
+     * um array multi-dimensional no each().
+     */
+    if (lista.lista_produtos.hasOwnProperty("0")) {
+      produtos = lista.lista_produtos;
+    } else {
+      produtos.push(lista.lista_produtos);
+    }
+      
+    if(produtos.length > 0){
+      
+      var categorias = [];
+            
+      $.each(produtos, function(i, produto) {        
+        if(!inArrayCl(produto.centro_lucro, categorias)){
+          categorias.push({ centro_lucro: produto.centro_lucro, centro_lucro_nome: produto.centro_lucro_nome });
+        }        
+      });
+      
+      var abasLista = [];
+      $.each(categorias, function(i, cat) {
+        // tratamento dos dados retornados
+        var centroLucroCodigo = cat.centro_lucro;
+        var centroLucroNome = cat.centro_lucro_nome;
 
-      /**
-       * Verifica se veio apenas um produtos ou varios.
-       * Isto influencia na estrutura do array de produtos
-       *
-       * Ex.:
-       *      se vier apenas um produto o array retornado sera:
-       *      lista_produtos = array("codigo_produto", "grade", ...);
-       *
-       *      se vier varios produtos o array retornado sera:
-       *      lista_produtos = array(0 => array("codigo_produto", "grade", ...),
-       *                             1 => array("codigo_produto", "grade", ...));
-       *
-       * O tratamento abaixo garante que iremos manipular sempre
-       * um array multi-dimensional no each().
-       */
+        // criacao dos objetos a serem inseridos na pagina
+        var box = "<li id='" + centroLucroCodigo + "'><span>" + centroLucroNome + "</span></li>";
 
-      if (lista.lista_produtos.produto.hasOwnProperty("0")) {
-        produtos = lista.lista_produtos.produto;
-      } else {
-        produtos.push(lista.lista_produtos.produto);
-      }
-
+        abasLista.push(box);
+      });
+      
+      abasLista.push('<span class="border-move"></span>');
+      abas.html(abasLista);
+      
       $.each(produtos, function(i, produto) {
         // tratamento dos dados retornados
         produtoCodigo = produto.codigo_produto;
         produtoNome = produto.nome_produto;
+        produtoCentroLucroNome = produto.centro_lucro_nome;
+        produtoPreco = produto.preco;
 
         // criacao dos objetos a serem inseridos na pagina
         box =
@@ -68,9 +87,9 @@
                 "<p class='prd-name'>" + produtoNome + "</p>" +
                 "<p class='prd-forn'>CONSUL</p>" +
                 "</div>" +
-                "<p class='prd-price'>R$ <strong>" + "3.231,23" + "</strong></p>" +
+                "<p class='prd-price'>R$ <strong>" + produtoPreco + "</strong></p>" +
                 "</div>" +
-                "<p class='prd-cat'>" + "ELETRONICOS" + "</p>" +
+                "<p class='prd-cat'>" + produtoCentroLucroNome + "</p>" +
                 "</div>";
 
         produtosLista += box;
@@ -99,7 +118,7 @@
         totalPrds.find("#price").find("span").text(total);
       });
 
-//  $("#prd-total").show();
+      $("#prd-total").show();
 
       var containersSwiper = new Swiper('#containers', {
         speed: 200,
@@ -148,7 +167,7 @@
         "-webkit-transform": transform,
         "transform": transform
       });
-      abas.show();
+      //abas.show();
     }
     else {
       toast("Lista de presentes sem produtos");

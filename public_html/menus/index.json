@@ -6,7 +6,7 @@
   },
   "drawer":
   {
-    "show": false,
+    "show": true,
     "onclick": "menuSec();"
   },
   "back":
@@ -31,15 +31,18 @@
     "itens":
     [
       {
-        "onclick": "loadPage('configuracoes');",
-        "label": "Configurações",
-        "icon": "settings"
+        "onclick": "loadPage('lista-produto');",
+        "label": "Lista atual"
       },
       {
-        "onclick": "logoutAction();",
-        "label": "Sair",
-        "icon": "logout"
+        "onclick": "loadPage('orcamento-produto');",
+        "label": "Orçamento atual"
       }
     ]
+  },
+  "nav":
+  {
+    "show": true,
+    "type": "index"
   }
 }

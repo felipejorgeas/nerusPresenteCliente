@@ -20,6 +20,10 @@
     "itens":
     [
       {
+        "onclick": "loadPage('produto-busca');",
+        "icon": "new"
+      },
+      {
         "onclick": "loadPage('orcamento-produto');",
         "icon": "accept"
       }
@@ -38,7 +42,7 @@
   },
   "nav":
   {
-    "show": false,
-    "type": "lista-busca"
+    "show": true,
+    "type": "lista-produto"
   }
 }

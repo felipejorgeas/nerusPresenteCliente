@@ -118,7 +118,7 @@
           <li>
             Tipo de lista
             <p>
-              <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this);" title="">Selecione</span>
+              <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this);" data-value="">Selecione</span>
               <span class="reset-fields" onclick="resetFields(this, 'select');"></span>
             </p>
           </li>
@@ -126,7 +126,7 @@
             <button type="button" class="filter-submit" onclick="wsGetLista();">Buscar</button>
           </li>
         </ul>
-        <ul id="filter-index" class="nav-filter">
+        <ul id="filter-lista-produto" class="nav-filter">
           <li class="category">Filtros</li>
           <li>
             Produto:
@@ -188,14 +188,6 @@
       <div id="mask-full"></div>
 
       <ul id="abas">
-        <li><span>TODOS</span></li>
-        <li class="active"><span>MOVEIS</span></li>
-        <li><span>ELETRONICOS</span></li>
-        <li><span>FERRAMENTAS</span></li>
-        <li><span>ELETRODOMESTICOS</span></li>
-        <li><span>COZINHA</span></li>
-        <li><span>BANHO</span></li>
-        <li><span>TELEFONIA</span></li>
         <span class="border-move"></span>
       </ul>
 
@@ -205,9 +197,10 @@
       <div id="cliente-cadastro" class="page animate"></div>
       <div id="cliente-lista" class="page animate"></div>
       <div id="lista-busca" class="page animate"></div>
-      <div id="lista-cadastro" class="page animate"></div>
       <div id="lista-produto" class="page animate"></div>
+      <div id="lista-cadastro" class="page animate"></div>
       <div id="orcamento-produto" class="page animate"></div>
+      <div id="produto-busca" class="page animate"></div>
       <div id="configuracoes" class="page animate"></div>
 
       <div id="prd-total">
@@ -237,22 +230,6 @@
                 document.addEventListener("backbutton", onBackKeyDown, false);
 
                 init();
-
-                var sliderRange = $("#slider-range");
-                var priceMin = $("#price-min");
-                var priceMax = $("#price-max");
-                sliderRange.slider({
-                  range: true,
-                  min: 0,
-                  max: 1000,
-                  values: [0, 1000],
-                  slide: function(event, ui) {
-                    priceMin.text(ui.values[0]);
-                    priceMax.text(ui.values[1]);
-                  }
-                });
-                priceMin.text(sliderRange.slider("values", 0));
-                priceMax.text(sliderRange.slider("values", 1));
               });
   </script>
 
