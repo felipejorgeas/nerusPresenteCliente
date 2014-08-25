@@ -196,7 +196,7 @@ function hideSearch() {
 
 function loadPage(page, backButton, noPushPage) {
 
-  var menu = $("#navigator");console.log(menu);
+  var menu = $("#navigator");
   var menuLeft = getTranslateX(menu);
   
   if (backButton && $("#search").is(":visible")) {

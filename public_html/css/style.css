@@ -146,7 +146,6 @@ button {
   padding: 15px 10px;
   display: block;
   border-bottom: 1px solid #DDD;
-  background: #CCC;
 }
 
 #navigator ul li:last-child {
@@ -154,7 +153,7 @@ button {
 }
 
 #navigator .nav-filter{
-  
+
 }
 
 #navigator .nav-filter .category{
@@ -1221,6 +1220,26 @@ button {
   -webkit-box-shadow: 0px 0px 10px #000;
   -moz-box-shadow: 0px 0px 10px #000;
 
+}
+
+#containers.swiper-container {
+  margin-top: 40px;
+  background: #FFF;
+  width: 100%;
+  height: 100%;
+}
+
+#containers .swiper-slide {
+  width: 100%;
+  background: none;
+}
+
+#containers .content-slide {
+  padding: 20px;
+}
+
+.page#lista-produto{
+  padding: 0;
 }
 
 @media only screen
