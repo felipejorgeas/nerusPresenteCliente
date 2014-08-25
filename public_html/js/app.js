@@ -29,7 +29,7 @@ function getTranslateX(el) {
     translateX = translateX.split(", ")[4];
   }
   else {
-    translateX = 0;
+    translateX = -1;
   }
 
   return parseInt(translateX);
@@ -53,7 +53,7 @@ function menuSec() {
   var menuLeft = getTranslateX(menu);
   var newMenuLeft = 0;
 
-  if (menuLeft == 0)
+  if (menuLeft <= 0)
     newMenuLeft = -330;
 
   menu.addClass("animate").css({
@@ -76,7 +76,7 @@ function hideMenuSec() {
   var menu = $("#navigator");
   var menuLeft = getTranslateX(menu);
 
-  if (menuLeft == 0) {
+  if (menuLeft <= 0) {
     var newMenuLeft = -330;
 
     menu.addClass("animate").css({
@@ -196,7 +196,7 @@ function hideSearch() {
 
 function loadPage(page, backButton, noPushPage) {
 
-  var menu = $("#navigator");
+  var menu = $("#navigator");console.log(menu);
   var menuLeft = getTranslateX(menu);
   
   if (backButton && $("#search").is(":visible")) {
