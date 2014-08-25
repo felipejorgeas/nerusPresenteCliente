@@ -9,7 +9,7 @@
   margin: 0;
   padding: 0;
   outline: none;
-  font-family: Helvetica, Verdana, sans-serif;
+  font-family: "Trebuchet MS",Helvetica,Jamrul,sans-serif;
   font-size: medium;
 
   -webkit-box-sizing: border-box;
@@ -146,6 +146,7 @@ button {
   padding: 15px 10px;
   display: block;
   border-bottom: 1px solid #DDD;
+  background: #CCC;
 }
 
 #navigator ul li:last-child {
@@ -222,16 +223,17 @@ button {
 }
 
 #navigator #nav-options{
-  width: calc(100% + 10px);
+  width: 100%;
   background: #DDD;
   margin-top: -20px;
   margin-left: -10px;
   margin-bottom: 0;
   padding: 0;
+  float: right;
 }
 
 #navigator #nav-options li{
-  padding: 10px 20px;
+  padding: 10px;
   border-top: 1px solid #CCC;
 }
 
@@ -241,6 +243,13 @@ button {
   margin-top: -5px;
   margin-right: 10px;
   float: left;
+}
+
+#navigator #app{
+  width: 100%;
+  text-align: center;
+  line-height: 30px;
+  font-size: small;
 }
 
 .reset-fields{

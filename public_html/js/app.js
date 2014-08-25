@@ -196,8 +196,15 @@ function hideSearch() {
 
 function loadPage(page, backButton, noPushPage) {
 
+  var menu = $("#navigator");
+  var menuLeft = getTranslateX(menu);
+  
   if (backButton && $("#search").is(":visible")) {
     hideSearch();
+  }
+  
+  else if(backButton && menuLeft == 0){
+    hideMenuSec();
   }
 
   else {
