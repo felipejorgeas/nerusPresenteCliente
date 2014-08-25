@@ -6,6 +6,7 @@
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, user-scalable=no, user-scalable=no, initial-scale=1">
   <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/jquery-ui.css">
   <link rel="stylesheet" href="css/idangerous.swiper.css">
 </head>
 <body>
@@ -94,8 +95,15 @@
     <!-- Menu lateral -->
     <div id="navigator">
       <div id="scroll">
-        <p>Felipe Jorge</p>
-        <p>felipe.jorge@eacsoftware.com.br</p>
+        <div id="user-logged">
+          <div id="user-img">
+            <img src="img/ico-perfil.png" />
+          </div>
+          <div id="user-info">
+            <p id="user-name">Felipe Jorge</p>
+            <p id="user-email">felipe.jorge@eacsoftware.com.br</p>
+          </div>
+        </div>
         <ul id="filter-lista-busca" class="nav-filter">
           <li class="category">Filtros</li>
           <li>
@@ -114,12 +122,48 @@
               <span class="reset-fields" onclick="resetFields(this, 'select');"></span>
             </p>
           </li>
+          <li>
+            <button type="button" class="filter-submit" onclick="wsGetLista();">Buscar</button>
+          </li>
         </ul>
         <ul id="filter-index" class="nav-filter">
-          <li>Acessar painel</li>
-          <li>Configurações</li>
+          <li class="category">Filtros</li>
+          <li>
+            Produto:
+            <p>
+              <input type="text" class="input bradius no-text-center" />
+              <span class="reset-fields" onclick="resetFields(this);"></span>
+            </p>
+          </li>
+          <li>
+            Faixa de preço: R$ <span id="price-min"></span> até R$ <span id="price-max"></span>
+            <p>
+              <div id="slider-range"></div>
+            </p>
+          </li>
+          <li>
+            <button type="button" class="filter-submit" onclick="wsGetLista();">Filtrar na lista</button>
+          </li>
         </ul>
-        <button type="button" class="filter-submit" onclick="wsGetLista();">Buscar</button>
+        <ul id="nav-options">
+          <li>
+            <img class="icon" src="img/ico-list.png" />
+            Histórico
+          </li>
+          <li>
+            <img class="icon" src="img/ico-settings.png" />
+            Configurações
+          </li>
+          <li>
+            <img class="icon" src="img/ico-about.png" />
+            Sobre
+          </li>
+          <li>
+            <img class="icon" src="img/ico-arrowback.png" />
+            Sair
+          </li>
+        </ul>
+        <p>SACI Presente - v0.01</p>
       </div>
     </div>
 
@@ -178,20 +222,38 @@
 
   <!-- javascript inicial a ser executado ao carregar o aplicativo -->
   <script>
-          $LAB
-                  .script("js/jquery-2.1.1.min.js")
-                  .script("js/iscroll.min.js")
-                  .script("js/jquery.scrollTo.min.js")
-                  .script("js/fastclick.min.js")
-                  .script("js/idangerous.swiper.min.js")
-                  .script("js/app.js").wait(function() {
+              $LAB
+                      .script("js/jquery.min.js")
+                      .script("js/iscroll.min.js")
+                      .script("js/jquery-scrollTo.min.js")
+                      .script("js/jquery-ui.min.js")
+                      .script("js/jquery-ui-touch.min.js")
+                      .script("js/fastclick.min.js")
+                      .script("js/idangerous-swiper.min.js")
+                      .script("js/app.js").wait(function() {
 
-            // Define as acoes dos botoes fisicos do android
-            document.addEventListener("menubutton", onBackKeyMenu, false);
-            document.addEventListener("backbutton", onBackKeyDown, false);
+                // Define as acoes dos botoes fisicos do android
+                document.addEventListener("menubutton", onBackKeyMenu, false);
+                document.addEventListener("backbutton", onBackKeyDown, false);
 
-            init();
-          });
+                init();
+
+                var sliderRange = $("#slider-range");
+                var priceMin = $("#price-min");
+                var priceMax = $("#price-max");
+                sliderRange.slider({
+                  range: true,
+                  min: 0,
+                  max: 1000,
+                  values: [0, 1000],
+                  slide: function(event, ui) {
+                    priceMin.text(ui.values[0]);
+                    priceMax.text(ui.values[1]);
+                  }
+                });
+                priceMin.text(sliderRange.slider("values", 0));
+                priceMax.text(sliderRange.slider("values", 1));
+              });
   </script>
 
 </body>

@@ -138,6 +138,7 @@ button {
   width: 100%;
   padding: 0 10px;
   list-style: none;
+  margin-bottom: 20px;
 }
 
 #navigator ul li {
@@ -149,11 +150,10 @@ button {
 
 #navigator ul li:last-child {
   border-bottom: none;
-  margin-bottom: 20px;
 }
 
 #navigator .nav-filter{
-  background: none;
+  
 }
 
 #navigator .nav-filter .category{
@@ -164,7 +164,52 @@ button {
 
 #navigator .filter-submit{
   width: 290px;
-  margin: 0 0 10px 10px;
+  margin-left: -10px;
+}
+
+.ui-slider{
+  margin-top: 15px;
+  background: #CCC;
+  border-radius: 3px;
+}
+
+.ui-slider .ui-slider-handle {
+  margin-top: 2px;
+  border-radius: 3px;
+  background: #666;
+  border: 1px solid #EEE;
+}
+
+.ui-slider .ui-slider-range {
+  background: #900;
+}
+
+#navigator #user-logged{
+  width: 100%;
+  float: left;
+  margin-bottom: 15px;
+  background: #DDD;
+  border-bottom: 1px solid #CCC;
+}
+
+#navigator #user-logged #user-img{
+  width: 20%;
+  float: left;
+  padding: 10px;
+}
+
+#navigator #user-logged #user-img img{
+  max-width: 100%;
+}
+
+#navigator #user-logged #user-info{
+  width: 80%;
+  float: left;
+  margin-top: 10px;
+}
+
+#navigator #user-logged #user-info #user-name{
+  font-weight: bold;
 }
 
 #navigator .nav-filter input{
@@ -174,6 +219,28 @@ button {
 
 #navigator .nav-filter p{
   position: relative;
+}
+
+#navigator #nav-options{
+  width: calc(100% + 10px);
+  background: #DDD;
+  margin-top: -20px;
+  margin-left: -10px;
+  margin-bottom: 0;
+  padding: 0;
+}
+
+#navigator #nav-options li{
+  padding: 10px 20px;
+  border-top: 1px solid #CCC;
+}
+
+#navigator #nav-options .icon{
+  max-width: 10%;
+  max-height: 10%;
+  margin-top: -5px;
+  margin-right: 10px;
+  float: left;
 }
 
 .reset-fields{
@@ -455,7 +522,7 @@ button {
   left: 0;
   width: 100%;
   overflow-x: auto;
-  white-space: nowrap;      
+  white-space: nowrap;
   background: #EEE;
   list-style: none;
   display: none;
@@ -468,13 +535,18 @@ button {
   border-bottom: 6px solid #EEE;
   font-weight: bold;
 }
+
 #abas li span{
   padding: 2px 30px;
   border-right: 1px solid #CCC;
 }
 
+#abas li:last-child span{
+  border-right: none;
+}
+
 #abas li.active{
-  border-bottom: 6px solid #900;
+  /*border-bottom: 6px solid #900;*/
 }
 
 #abas .border-move{
@@ -484,7 +556,7 @@ button {
   left: 0;
   bottom: 0;
   background: #900;
-  
+
   -webkit-transition: all 0.2s;
   -moz-transition: all 0.2s;
   transition: all 0.2s;
@@ -643,10 +715,15 @@ button {
   float: right;
   height: 36px;
   margin-top: 10px;
-  padding: 0 5px 0 25px;
+  padding: 0 5px 0 30px;
   border: none;
-  background: url("../img/ico-search-mini.png") left center no-repeat;
+  background: url("../img/ico-search.png") left center no-repeat;
+  background-size: 30px;
   border-bottom: 1px solid #AAA;
+}
+
+.no-text-center{
+  text-align: left;
 }
 
 #search #action-0 {

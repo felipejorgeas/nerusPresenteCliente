@@ -207,7 +207,7 @@ function loadPage(page, backButton, noPushPage) {
       waitLoadPageInterval = window.setInterval(function() {
         verifyOnline(page, backButton);
         waitLoadPage = 1;
-      }, 1000);
+      }, 2000);
     }
 
     if (!noPushPage) {
@@ -651,7 +651,7 @@ function showSelect(type, elem) {
 
 function resetFields(elem, type) {
   var p = $(elem).parent();
-
+  
   switch (type) {
     case "select":
       p.find(".input-select").text("Selecione").attr("title", "");
@@ -661,6 +661,8 @@ function resetFields(elem, type) {
       p.find(".input-date.month").text("00");
       p.find(".input-date.year").text("0000");
       break;
+    default:
+      p.find(".input").val("");
   }
 }
 
