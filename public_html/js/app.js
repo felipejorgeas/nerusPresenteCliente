@@ -157,11 +157,11 @@ function showSearch() {
   var actions = actionsAux.find(".actions");
   var exibMenu = header.find("#exibMenu");
 
-  descs.hide();
+  descs.hide();  
   actions.hide();
   exibMenu.hide();
 
-  search.show().find(".actions").show();
+  search.show();
   searchInput.val("").focus();
 }
 
@@ -183,10 +183,6 @@ function hideSearch() {
    * itens right
    */
   var search = header.find("#search");
-  var searchField = search.find("input");
-  var actionsAux = header.find("#actions-aux");
-  var actions = actionsAux.find(".actions");
-  var exibMenu = header.find("#exibMenu");
 
   descs.show();
 
@@ -349,7 +345,7 @@ function loadHeader(page) {
   descs.hide().html("");
   actionsHeader.hide().html("");
 
-  search.hide();
+  search.hide();  
   menu.hide().html("");
   exibMenu.hide();
 
@@ -407,10 +403,10 @@ function loadHeader(page) {
       if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
         $.each(pageActions.itens, function(i, item) {
           var icon = getIcon(item.icon);
+          var type = "";
           actionsHeader.eq(i).attr("onclick", item.onclick).html(icon).show();
           animateClick(actionsHeader.eq(i));
           if (item.type){
-            var type = "";
             switch(item.type){
               case "produto":
                 type = "Produto";
@@ -418,7 +414,11 @@ function loadHeader(page) {
               default:
                 type = "Cliente";
             }
-            
+            if(item.hasOwnProperty("barcode") && item.barcode){
+              $("#search").find("#action-0").show();
+            }else{
+              $("#search").find("#action-0").hide();
+            }
             $("#search").find("input[name=search]").attr("placeholder", type);
             $("#search").find("input[name=funcSearch]").val(item.type);
           }
@@ -426,11 +426,11 @@ function loadHeader(page) {
       }
 
       if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
+        var options = "";
         $.each(pageMenu.itens, function(i, item) {
-          var op = $("<li>");
-          op.attr("onclick", item.onclick).text(item.label);
-          menu.append(op);
+          options += "<li onclick='" + item.onclick + "'>" + item.label + "</li>";
         });
+        menu.append(options);
         exibMenu.show();
         window.setTimeout(function() {
           menu.show();
@@ -450,12 +450,6 @@ function loadHeader(page) {
       else {
         nav.hide();
       }
-
-      /** FastClick
-       *
-       * Remove o delay do clique em qualquer item do documento
-       */
-      FastClick.attach(document.body);
     }
   });
 }
@@ -901,6 +895,12 @@ function init() {
       elem.removeClass("active");
     }
   });
+  
+  /** FastClick
+   *
+   * Remove o delay do clique em qualquer item do documento
+   */
+  FastClick.attach(document.body);
 
   var sliderRange = $("#slider-range");
   var priceMin = $("#price-min");
@@ -1088,7 +1088,7 @@ function wsGetLista(clienteCodigo) {
     var dia = $(".input-date.day").text();
     var mes = $(".input-date.month").text();
     var ano = $(".input-date.year").text();
-    var tipoListaCodigo = $(".input-select.tipoLista").attr("title");
+    var tipoListaCodigo = $(".input-select.tipoLista").attr("data-value");
 
     var cliente_nome = $("#search input[name=search]").val();
     $("#search input[name=search]").val("");

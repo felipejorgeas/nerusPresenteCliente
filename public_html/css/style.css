@@ -748,10 +748,6 @@ button {
   float: right;
 }
 
-#search .actions {
-
-}
-
 #actions-right #actions-aux {
   float: left;
 }
@@ -776,6 +772,7 @@ button {
   float: left;
   text-align: center;
   padding-top: 4px;
+  display: none;
 }
 
 #exibMenu #ico-menu {
