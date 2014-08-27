@@ -1,12 +1,50 @@
-<div class="mark-agua">
+<div class="mark-agua hidden">
   <img src='img/ico-lupa.png' />
   <p>Busque por um produto</p>
 </div>
 
-<div class="content-response"></div>
+<style>
+  #galeria-imagens{
+    width: 100%;
+    position: relative;
+    margin: 0 auto 20px;
+    height: 300px;
+    background: #333;
+    text-align: center;
+    overflow-x: auto;
+    white-space: nowrap;
+  }
+  #galeria-imagens .swiper-slide {
+    width: 280px;
+    margin: 10px 0;
+    display: inline-block;
+    background: #CCC;
+  }
+  #galeria-imagens .swiper-slide img{  
+    max-width: 100%;
+    max-height: 100%;
+  }
+</style>
+
+<div id="galeria-imagens">
+  <div class="swiper-slide">    
+    <img src="img/prd.png" />    
+  </div>
+  <div class="swiper-slide">    
+    <img src="img/prd.png" />    
+  </div>
+  <div class="swiper-slide">    
+    <img src="img/prd.png" />    
+  </div>
+  <div class="swiper-slide">    
+    <img src="img/prd.png" />    
+  </div>  
+</div>
 
 <script>
   $(function() {
+
     hideMask();
+
   });
 </script>

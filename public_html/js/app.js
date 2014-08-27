@@ -9,6 +9,7 @@
 var pageBack = [];
 var waitLoadPage = 0;
 var waitLoadPageInterval;
+var waitResponseAjax;
 
 var configServerUrl = "http://192.168.1.25/saciPresenteServidor";
 
@@ -91,6 +92,11 @@ function hideMenuSec() {
 
     hideDrawer();
   }
+  
+  else{
+    
+    hideSearch();
+  }
 }
 
 function showDrawer() {
@@ -157,7 +163,7 @@ function showSearch() {
   var actions = actionsAux.find(".actions");
   var exibMenu = header.find("#exibMenu");
 
-  descs.hide();  
+  descs.hide();
   actions.hide();
   exibMenu.hide();
 
@@ -166,27 +172,7 @@ function showSearch() {
 }
 
 function hideSearch() {
-
-  var page = $("#content").find(".page.activePage:last").attr("id");
-
-  // manipuladores dos itens do header
-  var header = $("#header");
-  var action = header.find("#action");
-  var icons = action.find("#icons");
-  var drawer = icons.find("#ico-drawer");
-  var back = icons.find("#ico-back");
-//  var logo = action.find("#ico-logo");
-  var title = action.find("#title");
-  var descs = title.find(".desc");
-
-  /**
-   * itens right
-   */
-  var search = header.find("#search");
-
-  descs.show();
-
-  search.hide();
+  var page = $("#content").find(".page.activePage:last").attr("id");  
   loadHeader(page);
 }
 
@@ -280,12 +266,18 @@ function hideMaskShadow() {
 }
 
 function showMask() {
+  clearInterval(waitResponseAjax);
+  waitResponseAjax = window.setInterval(function(){
+    toast("Não foi possível concluir a operação. Tente novamente!");
+    hideMask();
+  }, 10000);
   $("#mask").show();
 }
 
 function hideMask() {
   waitLoadPage = 0;
   clearInterval(waitLoadPageInterval);
+  clearInterval(waitResponseAjax);
   $("#mask").hide();
 }
 
@@ -345,7 +337,7 @@ function loadHeader(page) {
   descs.hide().html("");
   actionsHeader.hide().html("");
 
-  search.hide();  
+  search.hide();
   menu.hide().html("");
   exibMenu.hide();
 
@@ -406,17 +398,18 @@ function loadHeader(page) {
           var type = "";
           actionsHeader.eq(i).attr("onclick", item.onclick).html(icon).show();
           animateClick(actionsHeader.eq(i));
-          if (item.type){
-            switch(item.type){
+          if (item.type) {
+            switch (item.type) {
               case "produto":
                 type = "Produto";
                 break;
               default:
                 type = "Cliente";
             }
-            if(item.hasOwnProperty("barcode") && item.barcode){
+            if (item.hasOwnProperty("barcode") && item.barcode) {
               $("#search").find("#action-0").show();
-            }else{
+              animateClick($("#search").find("#action-0"));
+            } else {
               $("#search").find("#action-0").hide();
             }
             $("#search").find("input[name=search]").attr("placeholder", type);
@@ -859,14 +852,14 @@ function init() {
 
       switch (typeSearch) {
 
-        case "cliente":          
+        case "cliente":
           wsGetCliente();
           break;
 
         case "lista":
           wsGetLista();
           break;
-          
+
         case "produto":
           wsGetProduto();
           break;
@@ -895,7 +888,7 @@ function init() {
       elem.removeClass("active");
     }
   });
-  
+
   /** FastClick
    *
    * Remove o delay do clique em qualquer item do documento
@@ -947,8 +940,10 @@ function inArrayCl(key, arr) {
  */
 
 /**
- * wsLogar
+ * wsLogin
+ * 
  * Funcao para executar a requisicao de busca de usuario
+ * 
  */
 function wsLogin() {
   /* obtem os dados para execucao da requisicao */
@@ -979,8 +974,10 @@ function wsLogin() {
 }
 
 /**
- * wsResponseLogar
- * Funcao para tratar o retorno da funcao 'wsLogar'
+ * wsResponseLogin
+ * 
+ * Funcao para tratar o retorno da funcao 'wsLogin'
+ * 
  * @param {json} response
  */
 function wsResponseLogin(response) {
@@ -1019,7 +1016,6 @@ function logoutAction() {
  *
  * Funcao obter os tipos de listas de presentes via ajax
  *
- * @param {json} response
  */
 function wsGetTipoDeLista() {
 
@@ -1073,12 +1069,12 @@ function wsResponseGetTipoDeLista(response) {
  *
  * Funcao obter as listas de presentes via ajax
  *
- * @param {json} response
+ * @param {int} clienteCodigo
  */
 function wsGetLista(clienteCodigo) {
   hideMenuSec();
   showMask();
-  
+
   if (clienteCodigo != null && clienteCodigo > 0) {
     var lista = {
       codigo_cliente: clienteCodigo
@@ -1091,7 +1087,6 @@ function wsGetLista(clienteCodigo) {
     var tipoListaCodigo = $(".input-select.tipoLista").attr("data-value");
 
     var cliente_nome = $("#search input[name=search]").val();
-    $("#search input[name=search]").val("");
 
     // preparacao dos dados
     var dataEvento = "" + ano + mes + dia;
@@ -1123,7 +1118,7 @@ function wsGetLista(clienteCodigo) {
  *
  * @param {json} response
  */
-function wsResponseGetLista(response) {
+function wsResponseGetLista(response) {  
   // faz o parser do json
   response = JSON.parse(response);
 
@@ -1213,7 +1208,7 @@ function wsResponseGetLista(response) {
       });
     }
     hideMask();
-  }  
+  }
 }
 
 /**
@@ -1227,8 +1222,7 @@ function wsGetCliente() {
   hideMenuSec();
 
   // obtem os dados para execucao da requisicao
-  var cliente_nome = $("#search [name=search]").val();
-  $("#search input[name=search]").val("");
+  var cliente_nome = $("#search [name=search]").val();  
 
   if (cliente_nome.length == 0) {
     showDialog("Cliente", "É necessário informar o nome do cliente", "Ok");
@@ -1263,7 +1257,7 @@ function wsGetCliente() {
  *
  * @param {json} response
  */
-function wsResponseGetCliente(response) {
+function wsResponseGetCliente(response) {  
   // faz o parser do json
   response = JSON.parse(response);
 
@@ -1305,7 +1299,7 @@ function wsResponseGetCliente(response) {
 
       $.each(clientes, function(i, cliente) {
         clientesStorage.push(cliente);
-        
+
         // tratamento dos dados retornados
         var clienteCodigo = cliente.cliente_codigo;
         var clienteName = cliente.cliente_nome;
@@ -1320,7 +1314,7 @@ function wsResponseGetCliente(response) {
       });
 
       // insere os blocos na pagina
-      contentResponse.append(clientesLista);
+      contentResponse.html(clientesLista);
 
       // ativa as acoes de cliques nos blocos inseridos
       contentResponse.find(".cliente").removeClass("activeCliente");
@@ -1330,7 +1324,7 @@ function wsResponseGetCliente(response) {
           clienteId = clienteId.replace("cliente-", "");
           var cliente = clientesStorage[clienteId];
           sessionStorage.setItem("clienteSelecionado", JSON.stringify(cliente));
-          loadPage("cliente-lista");          
+          loadPage("cliente-lista");
         }
         else {
           contentResponse.find(".cliente").removeClass("activeCliente");
@@ -1347,7 +1341,6 @@ function wsResponseGetCliente(response) {
  *
  * Funcao salvar novos clientes via ajax
  *
- * @param {json} response
  */
 function wsSaveCliente() {
   showMask();
@@ -1405,4 +1398,243 @@ function wsResponseSaveCliente(response) {
 
   hideMask();
   showDialog("Cliente", msg, "Fechar", "hideDialog()");
+}
+
+/**
+ * wsGetProduto
+ *
+ * Funcao obter os produtos via ajax
+ *
+ */
+function wsGetProduto() {
+  var search = $("#search");
+  var searchField = search.find("input[name=search]");
+  
+  // obtem os dados para execucao da requisicao
+  var prd = searchField.val();
+  searchField.val("");
+
+  if (prd.length == 0) {
+    showDialog("Produto", "É necessário informar o código ou o nome do produto", "Ok");
+    hideMask();
+  }
+
+  else {
+
+    showMask();
+    
+    /* searchType
+     * 0 => numero
+     * 1 => texto
+     */
+    var searchType = 0;
+    
+    /* verifica se o campo foi preenchido com digito ou texto */
+    var num = new Number(prd);
+    if (!(num > 0))
+      searchType = 1;
+
+    var produto = {
+      produto: prd,
+      searchType: searchType
+    };
+
+    // cria bloco de dados a serem enviados na requisicao
+    var dados = {wscallback: "wsResponseGetProduto", produto: produto};
+
+    // executa a requisicao via ajax
+    $.ajax({
+      url: configServerUrl + "/getProduto.php",
+      type: "POST",
+      dataType: "jsonp",
+      data: {dados: dados}
+    });
+  }
+}
+
+/**
+ * wsResponseGetProduto
+ *
+ * Funcao para tratar o retorno da requisicao "wsGetProduto"
+ *
+ * @param {json} response
+ */
+function wsResponseGetProduto(response) {
+  /* faz o parser do json */
+  response = JSON.parse(response);
+
+  /* verifica se houve erro ou sucesso */
+  if (response.wsstatus == 0) {
+    var msg = 'Produto não encontrado!';
+    var error = response.wserror;
+    if (error.length > 0)
+      msg = error;
+    
+    toast(msg);
+  }
+
+  /* lista de produtos quando busca pelo nome */
+  else if (response.wsstatus == 2) {
+    var produtos = response.wsresult;
+    var ul = $("#list_prds");
+    ul.html("");
+    $.each(produtos, function(i, prd) {
+      var codigo = prd.codigo;
+      var descricao = prd.descricao;
+
+      var li = $("<li>");
+      var strong = $("<strong>");
+      var span = $("<span>");
+
+      strong.html(codigo);
+      span.html(descricao);
+      li.attr("id", codigo).append(strong).append(span);
+
+      ul.append(li);
+    });
+    $("#list_prds li").click(function() {
+      var codigo = $(this).attr("id");
+      $('input[name=codigo]').val(codigo);
+      wsGetProduto();
+    });
+    $("#list_prds").slideDown();
+    $(window).click(function() {
+      $('input[name=codigo]').val("");
+      $("#list_prds").slideUp();
+    });
+    $("#list_prds").click(function() {
+      return false;
+    });
+    $("input[name=codigo]").click(function() {
+      return false;
+    });
+    $(".bt").click(function() {
+      return false;
+    });
+  }
+
+  else {
+
+    /* obtem as informacoes do produto que veio no retorno */
+    var produto = response.wsresult;
+
+    var topoOk = false;
+    var grade_anterior = "";
+    var estoque = $('<table>');
+
+    if (produto.estoque.length > 0) {
+      /* percorre o array 'estoque' que contem as quantidades disponiveis do produto */
+      $.each(produto.estoque, function(i, stk) {
+        var grade = stk.grade;
+        var qtty = parseInt(stk.qtty) / 1000;
+
+        var loja_cod = stk.codigo_loja;
+        var loja = stk.nome_loja;
+
+        var td_button = '<td><button type="button" class="bt btshort bradius mask_red" onclick=\'exibeDialogQtty("' + grade + '");\'>+</button></td>';
+
+        var topo = '<tr class="header"><td>Loja</td><td>Qtde.</td>' + td_button + '</tr>';
+
+        /* monta a lista para exibir as grades e lojas */
+        if (grade_anterior != grade) {
+          var grd = $('<strong>');
+          $(grd).addClass("grade");
+          $(grd).html("Grade: " + grade);
+
+          /* quando muda de grade adiciona a tabela de estoque na tela */
+          if (grade_anterior.length > 0) {
+            $(".list_estoques").append(estoque);
+            estoque = $('<table>');
+          }
+
+          $(".list_estoques").append(grd);
+          grade_anterior = grade;
+
+          $(estoque).append(topo);
+        }
+        else if (!(grade.length > 0) && !topoOk) {
+          topoOk = true;
+          $(estoque).append(topo);
+        }
+
+        var td_loja = '<td>' + loja_cod + ' - ' + loja + '</td>';
+        var td_qtty = '<td>' + qtty + '</td>';
+
+        var tr = '<tr>' + td_loja + td_qtty + '<td></td></tr>';
+        $(estoque).append(tr);
+      });
+    }
+
+    $(".list_estoques").append(estoque);
+    grade_anterior = 0;
+
+    if (produto.img.length > 0) {
+      /* percorre o array 'img' que contem as imagens do produto */
+      var indiceImg = 0;
+      $.each(produto.img, function(i, img) {
+        var link = img.arquivo;
+        /* cria os elementos utilizados na galeria de fotos */
+        var galeriaSlide = $('<div>');
+        var galeriaSlideA = $('<a>');
+        var galeriaSlideImg = $('<img>');
+
+        /* define alguns atributos necessarios para o funcionamento da galeria */
+        $(galeriaSlideA).attr('href', 'javascript:gallery("' + produto.codigo + '", "' + link + '", "' + indiceImg + '")');
+        $(galeriaSlide).addClass('swiper-slide');
+        $(galeriaSlideImg).addClass('title');
+
+        /* acessando a miniatura da imagem no servidor */
+        var file = link.split('.');
+        var extensao = file[file.length - 1];
+        link = link.replace('.' + extensao, '_min.' + extensao);
+
+        /* define a imagem e adiciona na div slide */
+        $(galeriaSlideImg).attr('src', link);
+        $(galeriaSlideA).append(galeriaSlideImg);
+        $(galeriaSlide).append(galeriaSlideA);
+
+        /* adiciona a div slide com a imagem da galeria de fotos */
+        $('.swiper-container1 .swiper-wrapper').append(galeriaSlide);
+
+        indiceImg++;
+      });
+    }
+    else {
+      var link = 'img/logo_nophoto.jpg';
+
+      /* cria os elementos utilizados na galeria de fotos */
+      var galeriaSlide = $('<div>');
+      var galeriaSlideImg = $('<img>');
+
+      /* define alguns atributos necessarios para o funcionamento da galeria */
+      $(galeriaSlide).addClass('swiper-slide');
+      $(galeriaSlideImg).addClass('title');
+
+      /* define a imagem e adiciona na div slide */
+      $(galeriaSlideImg).attr('src', link);
+      $(galeriaSlide).append(galeriaSlideImg);
+
+      /* adiciona a div slide com a imagem da galeria de fotos */
+      $('.swiper-container1 .swiper-wrapper').append(galeriaSlide);
+    }
+
+    $('#conteudo #produto').html(produto.descricao);
+    $('#conteudo #codigo').html(produto.codigo);
+    $('#conteudo #preco').html("R$ " + produto.preco);
+    $('#conteudo #mult').html(produto.multiplicador / 1000);
+
+    /* adiciona a div slide com a imagem da galeria de fotos */
+    $('.swiper-container1 .swiper-wrapper').append(galeriaSlide);
+
+    /* remove o 'focus' do campo 'codigo' */
+    $('input[name=codigo]').blur();
+
+    /* recarrega as funcoes de javascript */
+    loadSwiper();
+    initialSlide = 0;
+    heigth = $('.swiper-container').height();
+    $('.swiper-container').css({'height': '200px'});
+    $("#list_prds").slideUp();
+  }
+  $('input[name=codigo]').val("");
 }
