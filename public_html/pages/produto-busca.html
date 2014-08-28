@@ -3,42 +3,102 @@
   <p>Busque por um produto</p>
 </div>
 
-<style>
-  #galeria-imagens{
-    width: 100%;
-    position: relative;
-    margin: 0 auto 20px;
-    height: 300px;
-    background: #333;
-    text-align: center;
-    overflow-x: auto;
-    white-space: nowrap;
-  }
-  #galeria-imagens .swiper-slide {
-    width: 280px;
-    margin: 10px 0;
-    display: inline-block;
-    background: #CCC;
-  }
-  #galeria-imagens .swiper-slide img{  
-    max-width: 100%;
-    max-height: 100%;
-  }
-</style>
-
 <div id="galeria-imagens">
-  <div class="swiper-slide">    
-    <img src="img/prd.png" />    
+  <div class="swiper-wrapper">
+    <div class="swiper-slide">
+      <div class="content-slide">
+        <img src="img/prd.png" />
+      </div>
+    </div>
+    <div class="swiper-slide">
+      <div class="content-slide">
+        <img src="img/c.jpg" />
+      </div>
+    </div>
+    <div class="swiper-slide">
+      <div class="content-slide">
+        <img src="img/i.png" />
+      </div>
+    </div>
+    <div class="swiper-slide">
+      <div class="content-slide">
+        <img src="img/prd.png" />
+      </div>
+    </div>
   </div>
-  <div class="swiper-slide">    
-    <img src="img/prd.png" />    
+</div>
+
+<div class="produto-info bradius">
+  <p class="produto-nome bradius">
+    GELADEIRA PLUS 3000
+  </p>
+  <p class="produto-detalhes">CÓD.: 123456</p>
+  <p class="produto-detalhes">CONSUL</p>
+  <p class="produto-detalhes">ELETRODOM/ELETROPORT/GELADEIRA</p>
+  <p class="produto-preco">R$ <span>3.253,21</span></p>
+</div>
+
+<div class="produto-grades">
+  <div class="produto-grade bradius">
+    <p class="produto-grade-title">BRA32...</p>
+    <p class="produto-grade-bt">
+      <span class="down bt">
+        <img src="img/ico-expand.png" />
+      </span>
+      <span class="qtty" onclick="showDialog('Quantidade', 'Digite a quantidade no campo abaixo:', 'Cancelar', 'hideDialog()', 'Ok', 'setPopupGradeQtty()', this, true);">0</span>
+      <span class="up bt">
+        <img src="img/ico-collapse.png" />
+      </span>
+    </p>
   </div>
-  <div class="swiper-slide">    
-    <img src="img/prd.png" />    
+  <div class="produto-grade bradius">
+    <p class="produto-grade-title">BRA32...</p>
+    <p class="produto-grade-bt">
+      <span class="down bt">
+        <img src="img/ico-expand.png" />
+      </span>
+      <span class="qtty" onclick="showDialog('Quantidade', 'Digite a quantidade no campo abaixo:', 'Cancelar', 'hideDialog()', 'Ok', 'setPopupGradeQtty()', this, true);">0</span>
+      <span class="up bt">
+        <img src="img/ico-collapse.png" />
+      </span>
+    </p>
   </div>
-  <div class="swiper-slide">    
-    <img src="img/prd.png" />    
-  </div>  
+  <div class="produto-grade bradius">
+    <p class="produto-grade-title">BRA32...</p>
+    <p class="produto-grade-bt">
+      <span class="down bt">
+        <img src="img/ico-expand.png" />
+      </span>
+      <span class="qtty" onclick="showDialog('Quantidade', 'Digite a quantidade no campo abaixo:', 'Cancelar', 'hideDialog()', 'Ok', 'setPopupGradeQtty()', this, true);">0</span>
+      <span class="up bt">
+        <img src="img/ico-collapse.png" />
+      </span>
+    </p>
+  </div>
+  <div class="produto-grade bradius">
+    <p class="produto-grade-title">BRA32...</p>
+    <p class="produto-grade-bt">
+      <span class="down bt">
+        <img src="img/ico-expand.png" />
+      </span>
+      <span class="qtty" onclick="showDialog('Quantidade', 'Digite a quantidade no campo abaixo:', 'Cancelar', 'hideDialog()', 'Ok', 'setPopupGradeQtty()', this, true);">0</span>
+      <span class="up bt">
+        <img src="img/ico-collapse.png" />
+      </span>
+    </p>
+  </div>
+  <div class="produto-grade bradius">
+    <p class="produto-grade-title">BRA32...</p>
+    <p class="produto-grade-bt">
+      <span class="down bt">
+        <img src="img/ico-expand.png" />
+      </span>
+      <span class="qtty" onclick="showDialog('Quantidade', 'Digite a quantidade no campo abaixo:', 'Cancelar', 'hideDialog()', 'Ok', 'setPopupGradeQtty()', this, true);">0</span>
+      <span class="up bt">
+        <img src="img/ico-collapse.png" />
+      </span>
+    </p>
+  </div>
 </div>
 
 <script>
@@ -46,5 +106,44 @@
 
     hideMask();
 
+    var gallerySwiper = new Swiper("#galeria-imagens", {
+      speed: 500
+    });
+
+    $(".content-slide").width($(".page").width() + 20);
+//    $(".content-slide").click(function() {
+//      showMaskFull();
+//      var img = $(this).find("img");
+//      var imgUrl = img.attr("src");
+//      var popupImg = $("#popup-img");
+//      popupImg.find("#imgLoad").html("<img src='" + imgUrl + "' />");
+//      popupImg.show().css({
+//        "margin-top": -(popupImg.height() / 2 + 20),
+//        "margin-left": -(popupImg.width() / 2 + 20),
+//      });
+//    });
+//    
+//    $("#popup-img").click(function() {
+//      $(this).hide();
+//      hideMaskFull();
+//    });
+    
+    $(".produto-grade-bt").find(".bt").click(function(){
+      var qtty = $(this).parent().find(".qtty");
+      var qttyVal = parseInt(qtty.text());
+      
+      if(isNaN(qttyVal))
+        qttyVal = 0;
+      
+      if($(this).hasClass("down")){
+        if(qttyVal > 0){
+          qttyVal--;
+        }
+      }
+      else{
+        qttyVal++;
+      }
+      qtty.text(qttyVal);
+    });
   });
 </script>

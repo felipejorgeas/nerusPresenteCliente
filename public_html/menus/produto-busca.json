@@ -24,6 +24,10 @@
         "icon": "search",
         "type": "produto",
         "barcode": true
+      },
+      {
+        "onclick": "loadPage('orcamento-produto');",
+        "icon": "accept"
       }
     ]
   },

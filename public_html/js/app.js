@@ -11,6 +11,8 @@ var waitLoadPage = 0;
 var waitLoadPageInterval;
 var waitResponseAjax;
 
+var setElementPopupVal;
+
 var configServerUrl = "http://192.168.1.25/saciPresenteServidor";
 
 function onBackKeyMenu(e) {
@@ -537,40 +539,70 @@ function hideLogin() {
   loadPage('index');
 }
 
-function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2) {
+function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2, elem, input) {
   showMaskFull();
+  
+  var popupDialog = $("#popup-dialog");
 
   if (onclickBt1 == null)
     onclickBt1 = "hideDialog();";
-
+  
   // oculta todos os botoes
-  $("#popup-dialog").find("button").hide();
+  popupDialog.find("button").hide();
 
   // seta o titulo e a mensagem no dialog
-  $("#popup-dialog").find(".dialog").find(".title").text(title);
-  $("#popup-dialog").find(".dialog").find(".msg").text(msg);
+  popupDialog.find(".dialog").find(".title").text(title);
+  popupDialog.find(".dialog").find(".msg").text(msg);
+  
+  if(input == true){
+    setElementPopupVal = elem;
+    popupDialog.find("input").show().val("").keypress(function(evt){
+      var tecla = (evt.keyCode ? evt.keyCode : evt.which);
+      if (tecla == 13) {
+        popupDialog.find("button").eq(1).click();
+      }
+    })
+  }
+  else{
+    popupDialog.find("input").hide();
+  }
 
   // seta o primeiro botao
-  $("#popup-dialog").find("button").eq(0).text(labelBt1).attr("onclick", onclickBt1).show();
+  popupDialog.find("button").eq(0).text(labelBt1).attr("onclick", onclickBt1).show();
 
   // caso o segundo botao esteja definido reduz o tamanho dos botoes para 50% e exibe o segundo botao
   if (labelBt2) {
-    $("#popup-dialog").find("button").eq(0).addClass("cancel").css("width", "50%");
-    $("#popup-dialog").find("button").eq(1).text(labelBt2).attr("onclick", onclickBt2).css("width", "50%").show();
+    popupDialog.find("button").eq(0).addClass("cancel").css("width", "50%");
+    popupDialog.find("button").eq(1).text(labelBt2).attr("onclick", onclickBt2).css("width", "50%").show();
   }
 
   // caso o segundo botao nao esteja definido aumenta o tamanho do primeiro botao para 100%
   else {
-    $("#popup-dialog").find("button").eq(0).css("width", "100%");
+    popupDialog.find("button").eq(0).css("width", "100%");
   }
 
-  var marginTop = -(parseInt($("#popup-dialog").css("height")) / 2);
-  $("#popup-dialog").css("margin-top", marginTop).show();
+  var marginTop = -(parseInt(popupDialog.css("height")) / 2);
+  popupDialog.css("margin-top", marginTop).show();
+  
+  if(input){
+    popupDialog.find("input").focus();
+  }
 }
 
 function hideDialog() {
   hidePopup();
   hideMaskFull();
+}
+
+function setPopupGradeQtty(){
+  var val = $("#popup-dialog").find("input").val();
+  
+  val = parseInt(val);
+  
+  if(!isNaN(val))
+    $(setElementPopupVal).text(val);
+  
+  hideDialog();
 }
 
 function showSelect(type, elem) {
@@ -715,7 +747,7 @@ function calcTotalPrds(prds) {
 
 function init() {
 
-  hideLogin();
+  //hideLogin();
 
   $.ajaxSetup({cache: false});
 

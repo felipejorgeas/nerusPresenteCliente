@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+  <head>
+    <title>TODO supply a title</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="user-scalable=yes, initial-scale=2.0">
+  </head>
+  <body>
+    <script src="../js/jquery.min.js"></script>
+    <script>
+      var url = window.location.href;
+      url = url.split('?');
+      var dados = url[1];
+      var imgUrl = dados.split("=")[1];
+      var img = $("<img>");
+      img.attr("src", "../" + imgUrl);
+      $("body").append(img);
+    </script>
+  </body>
+</html>
