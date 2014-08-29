@@ -985,9 +985,10 @@ function wsResponseLogin(response) {
     var error = response.wserror;
     if (error.length > 0)
       msg = error;
-
-    hideLogin();
-    toast('Login realizado com sucesso');
+    
+    $("#login #followingBallsG").fadeOut();
+    
+    toast(msg);
   }
   /* em caso de sucesso */
   else if (response.wsstatus == 1) {
