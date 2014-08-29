@@ -94,9 +94,9 @@ function hideMenuSec() {
 
     hideDrawer();
   }
-  
-  else{
-    
+
+  else {
+
     hideSearch();
   }
 }
@@ -174,7 +174,7 @@ function showSearch() {
 }
 
 function hideSearch() {
-  var page = $("#content").find(".page.activePage:last").attr("id");  
+  var page = $("#content").find(".page.activePage:last").attr("id");
   loadHeader(page);
 }
 
@@ -269,7 +269,7 @@ function hideMaskShadow() {
 
 function showMask() {
   clearInterval(waitResponseAjax);
-  waitResponseAjax = window.setInterval(function(){
+  waitResponseAjax = window.setInterval(function() {
     toast("Não foi possível concluir a operação. Tente novamente!");
     hideMask();
   }, 10000);
@@ -541,29 +541,29 @@ function hideLogin() {
 
 function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2, elem, input) {
   showMaskFull();
-  
+
   var popupDialog = $("#popup-dialog");
 
   if (onclickBt1 == null)
     onclickBt1 = "hideDialog();";
-  
+
   // oculta todos os botoes
   popupDialog.find("button").hide();
 
   // seta o titulo e a mensagem no dialog
   popupDialog.find(".dialog").find(".title").text(title);
   popupDialog.find(".dialog").find(".msg").text(msg);
-  
-  if(input == true){
+
+  if (input == true) {
     setElementPopupVal = elem;
-    popupDialog.find("input").show().val("").keypress(function(evt){
+    popupDialog.find("input").show().val("").keypress(function(evt) {
       var tecla = (evt.keyCode ? evt.keyCode : evt.which);
       if (tecla == 13) {
         popupDialog.find("button").eq(1).click();
       }
     })
   }
-  else{
+  else {
     popupDialog.find("input").hide();
   }
 
@@ -583,8 +583,8 @@ function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2, elem
 
   var marginTop = -(parseInt(popupDialog.css("height")) / 2);
   popupDialog.css("margin-top", marginTop).show();
-  
-  if(input){
+
+  if (input) {
     popupDialog.find("input").focus();
   }
 }
@@ -594,14 +594,14 @@ function hideDialog() {
   hideMaskFull();
 }
 
-function setPopupGradeQtty(){
+function setPopupGradeQtty() {
   var val = $("#popup-dialog").find("input").val();
-  
+
   val = parseInt(val);
-  
-  if(!isNaN(val))
+
+  if (!isNaN(val))
     $(setElementPopupVal).text(val);
-  
+
   hideDialog();
 }
 
@@ -702,45 +702,17 @@ function resetFields(elem, type) {
   }
 }
 
-function text2Float(price) {
-  price = price.replace(/\./g, "");
-  price = price.replace(/\,/g, ".");
-  price = parseFloat(price);
-  return price;
-}
-
-function formatMoney(price) {
-  var totalStr = "" + price;
-  var decimais = "";
-
-  totalStr = totalStr.replace(".", ",");
-
-  if (totalStr.length >= 7) {
-    var aux = totalStr.length - 6;
-    price = totalStr.substr(0, aux) + "." + totalStr.substr(-6, totalStr.length);
-  }
-
-  price = "" + price;
-  price = price.split(".");
-
-  if (price.hasOwnProperty(1) && price.split(".")[1].length == 1)
-    price += decimais;
-
-  return price;
-}
-
 function calcTotalPrds(prds) {
   var price = 0;
   var total = 0;
 
   prds.each(function(i, prd) {
-    price = $(prd).find(".prd-price").find("strong").text();
-    price = text2Float(price);
+    price = $(prd).find(".prd-price").find("span").text();
 
-    total += price;
+    total += parseInt(price);
   });
-
-  total = formatMoney(total);
+  console.log(total);
+  total = number_format(total/100, 2, ',', '.');
 
   return total;
 }
@@ -754,8 +726,7 @@ function init() {
   // Ativa algumas acoes ao clicar em determinados locais da tela
   clickOut();
 
-  // instancia algumas variaveis globais para auxiliar no controle do menu lateral
-  var currentPageX = 0;
+  // instancia algumas variaveis globais para auxiliar no controle do menu lateral   var currentPageX = 0;
   var currentPageY = 0;
   var touchStartPageX = 0;
   var touchStartPageY = 0;
@@ -776,9 +747,7 @@ function init() {
 
     touchStartPageX = touch.pageX;
     touchStartPageY = touch.pageY;
-
     touchStartMenuLeft = getTranslateX(menu);
-
     evt.preventDefault();
   });
 
@@ -819,7 +788,6 @@ function init() {
 
     var menuLeft = getTranslateX(menu);
     var newMenuLeft = 0;
-
     if (menuLeft < -(menu.width() / 2))
       newMenuLeft = -330;
 
@@ -855,15 +823,14 @@ function init() {
     evt.stopPropagation();
   });
 
-//  var date = new Date();
-//  var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
-//  var month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
-//  var year = date.getFullYear();
+  //  var date = new Date();
+  //  var day = date.getDate() < 10 ? "0" + date.getDate() : date.getDate();
+  //  var month = (date.getMonth() + 1) < 10 ? "0" + (date.getMonth() + 1) : date.getMonth() + 1;
+  //  var year = date.getFullYear();
 
   var day = "00";
   var month = "00";
   var year = "0000";
-
   $(".input-date.day").text(day);
   $(".input-date.month").text(month);
   $(".input-date.year").text(year);
@@ -898,7 +865,6 @@ function init() {
       }
     }
   });
-
   $("#popup-login").find("input").keypress(function(evt) {
     var tecla = (evt.keyCode ? evt.keyCode : evt.which);
     if (tecla == 13) {
@@ -910,7 +876,6 @@ function init() {
     var elem = $(this);
     var fieldPass = $("#" + elem.attr("data-field"));
     var type = fieldPass.attr("type");
-
     if (type == "password") {
       fieldPass.attr("type", "text");
       elem.addClass("active");
@@ -966,8 +931,7 @@ function inArrayCl(key, arr) {
 /*
  Document   : actions
  Created on : 24/06/2014, 17:00:09
- Author     : Felipe Jorge - felipejorgeas@gmail.com
- Description:
+ Author     : Felipe Jorge - felipejorgeas@gmail.com  Description:
  Comunicacao com o servidor
  */
 
@@ -992,9 +956,8 @@ function wsLogin() {
       senha: senha
     };
 
-    // cria bloco de dados a serem enviados na requisicao
+// cria bloco de dados a serem enviados na requisicao
     var dados = {wscallback: "wsResponseLogin", usuario: usuario};
-
     /* executa a requisicao via ajax */
     $.ajax({
       url: configServerUrl + '/getFuncionario.php',
@@ -1051,7 +1014,7 @@ function logoutAction() {
  */
 function wsGetTipoDeLista() {
 
-  // cria bloco de dados a serem enviados na requisicao
+// cria bloco de dados a serem enviados na requisicao
   var dados = {wscallback: "wsResponseGetTipoDeLista"};
 
   // executa a requisicao via ajax
@@ -1064,8 +1027,7 @@ function wsGetTipoDeLista() {
 }
 
 /**
- * wsResponseGetTipoDeLista
- *
+ * wsResponseGetTipoDeLista  *
  * Funcao para tratar o retorno da requisicao "wsGetTipoDeLista"
  *
  * @param {json} response
@@ -1088,8 +1050,7 @@ function wsResponseGetTipoDeLista(response) {
 
     var tiposListas = response.wsresult;
 
-    // limpa a pagina a ser preenchida com os dados
-    var page = $("#content").find(".page.activePage:last");
+    // limpa a pagina a ser preenchida com os dados     var page = $("#content").find(".page.activePage:last");
     page.html("");
 
     sessionStorage.setItem("tiposListas", JSON.stringify(tiposListas));
@@ -1122,7 +1083,6 @@ function wsGetLista(clienteCodigo) {
 
     // preparacao dos dados
     var dataEvento = "" + ano + mes + dia;
-
     var lista = {
       data_evento: parseInt(dataEvento) > 0 ? dataEvento : "",
       tipo: tipoListaCodigo.length > 0 ? tipoListaCodigo : "",
@@ -1131,14 +1091,13 @@ function wsGetLista(clienteCodigo) {
 
   }
 
-  // cria bloco de dados a serem enviados na requisicao
+// cria bloco de dados a serem enviados na requisicao
   var dados = {wscallback: "wsResponseGetLista", lista: lista};
 
   // executa a requisicao via ajax
   $.ajax({
     url: configServerUrl + "/getLista.php",
-    type: "POST",
-    dataType: "jsonp",
+    type: "POST", dataType: "jsonp",
     data: {dados: dados}
   });
 }
@@ -1150,7 +1109,7 @@ function wsGetLista(clienteCodigo) {
  *
  * @param {json} response
  */
-function wsResponseGetLista(response) {  
+function wsResponseGetLista(response) {
   // faz o parser do json
   response = JSON.parse(response);
 
@@ -1183,15 +1142,11 @@ function wsResponseGetLista(response) {
       var pageId = "#" + page.attr("id");
       var marcaDagua = $(pageId).find(".mark-agua");
       var contentResponse = $(pageId).find(".content-response");
-
       var listasStorage = [];
-
       marcaDagua.hide();
       contentResponse.html("").scrollTop(0).show();
-
       $.each(listas, function(i, lista) {
         listasStorage.push(lista);
-
         // tratamento dos dados retornados
         var clienteCodigo = lista.cliente_codigo;
         var clienteNome = lista.cliente_nome;
@@ -1218,7 +1173,6 @@ function wsResponseGetLista(response) {
         card.addClass("card").addClass("bradius").attr("id", "lista-" + i);
         card.append(title);
         card.append(desc);
-
         // insere o bloco na pagina
         contentResponse.append(card);
       });
@@ -1245,8 +1199,7 @@ function wsResponseGetLista(response) {
 
 /**
  * wsGetCliente
- *
- * Funcao obter os clientes via ajax
+ *  * Funcao obter os clientes via ajax
  *
  * @param {json} response
  */
@@ -1254,7 +1207,7 @@ function wsGetCliente() {
   hideMenuSec();
 
   // obtem os dados para execucao da requisicao
-  var cliente_nome = $("#search [name=search]").val();  
+  var cliente_nome = $("#search [name=search]").val();
 
   if (cliente_nome.length == 0) {
     showDialog("Cliente", "É necessário informar o nome do cliente", "Ok");
@@ -1269,19 +1222,17 @@ function wsGetCliente() {
       nome_cliente: cliente_nome
     };
 
-    // cria bloco de dados a serem enviados na requisicao
+// cria bloco de dados a serem enviados na requisicao
     var dados = {wscallback: "wsResponseGetCliente", cliente: cliente};
 
     // executa a requisicao via ajax
     $.ajax({
       url: configServerUrl + "/getCliente.php",
       type: "POST",
-      dataType: "jsonp",
-      data: {dados: dados}
+      dataType: "jsonp", data: {dados: dados}
     });
   }
 }
-
 /**
  * wsResponseGetCliente
  *
@@ -1289,7 +1240,7 @@ function wsGetCliente() {
  *
  * @param {json} response
  */
-function wsResponseGetCliente(response) {  
+function wsResponseGetCliente(response) {
   // faz o parser do json
   response = JSON.parse(response);
 
@@ -1299,7 +1250,6 @@ function wsResponseGetCliente(response) {
     var error = response.wserror;
     if (error.length > 0)
       msg = error;
-
     // limpa a pagina a ser preenchida com os dados
     var page = $("#content").find(".page.activePage:last").attr("id");
 
@@ -1369,16 +1319,14 @@ function wsResponseGetCliente(response) {
 }
 
 /**
- * wsSaveCliente
- *
+ * wsSaveCliente  *
  * Funcao salvar novos clientes via ajax
  *
  */
 function wsSaveCliente() {
   showMask();
 
-  // obtem os dados para execucao da requisicao
-  var cliente_nome = $(".form [name=new_cliente_nome]").val();
+  // obtem os dados para execucao da requisicao   var cliente_nome = $(".form [name=new_cliente_nome]").val();
   var cliente_cpf = $(".form [name=new_cliente_cpf]").val();
 
   if (cliente_nome.length == 0 || cliente_cpf.length == 0) {
@@ -1390,7 +1338,7 @@ function wsSaveCliente() {
     cliente_cpf: cliente_cpf
   };
 
-  // cria bloco de dados a serem enviados na requisicao
+// cria bloco de dados a serem enviados na requisicao
   var dados = {wscallback: "wsResponseSaveCliente", cliente: cliente};
 
   // executa a requisicao via ajax
@@ -1412,7 +1360,6 @@ function wsSaveCliente() {
 function wsResponseSaveCliente(response) {
   // faz o parser do json
   response = JSON.parse(response);
-
   // em caso de erro
   if (response.wsstatus == 0) {
     var msg = "Não foi possível cadastrar o cliente!";
@@ -1441,11 +1388,10 @@ function wsResponseSaveCliente(response) {
 function wsGetProduto() {
   var search = $("#search");
   var searchField = search.find("input[name=search]");
-  
+
   // obtem os dados para execucao da requisicao
   var prd = searchField.val();
   searchField.val("");
-
   if (prd.length == 0) {
     showDialog("Produto", "É necessário informar o código ou o nome do produto", "Ok");
     hideMask();
@@ -1454,13 +1400,13 @@ function wsGetProduto() {
   else {
 
     showMask();
-    
+
     /* searchType
      * 0 => numero
      * 1 => texto
      */
     var searchType = 0;
-    
+
     /* verifica se o campo foi preenchido com digito ou texto */
     var num = new Number(prd);
     if (!(num > 0))
@@ -1471,7 +1417,7 @@ function wsGetProduto() {
       searchType: searchType
     };
 
-    // cria bloco de dados a serem enviados na requisicao
+// cria bloco de dados a serem enviados na requisicao
     var dados = {wscallback: "wsResponseGetProduto", produto: produto};
 
     // executa a requisicao via ajax
@@ -1484,15 +1430,13 @@ function wsGetProduto() {
   }
 }
 
-/**
- * wsResponseGetProduto
+/**  * wsResponseGetProduto
  *
  * Funcao para tratar o retorno da requisicao "wsGetProduto"
  *
  * @param {json} response
  */
-function wsResponseGetProduto(response) {
-  /* faz o parser do json */
+function wsResponseGetProduto(response) {   /* faz o parser do json */
   response = JSON.parse(response);
 
   /* verifica se houve erro ou sucesso */
@@ -1501,7 +1445,7 @@ function wsResponseGetProduto(response) {
     var error = response.wserror;
     if (error.length > 0)
       msg = error;
-    
+
     toast(msg);
   }
 
@@ -1544,7 +1488,6 @@ function wsResponseGetProduto(response) {
       return false;
     });
   }
-
   else {
 
     /* obtem as informacoes do produto que veio no retorno */
@@ -1578,7 +1521,6 @@ function wsResponseGetProduto(response) {
             $(".list_estoques").append(estoque);
             estoque = $('<table>');
           }
-
           $(".list_estoques").append(grd);
           grade_anterior = grade;
 
@@ -1596,7 +1538,6 @@ function wsResponseGetProduto(response) {
         $(estoque).append(tr);
       });
     }
-
     $(".list_estoques").append(estoque);
     grade_anterior = 0;
 
@@ -1619,7 +1560,6 @@ function wsResponseGetProduto(response) {
         var file = link.split('.');
         var extensao = file[file.length - 1];
         link = link.replace('.' + extensao, '_min.' + extensao);
-
         /* define a imagem e adiciona na div slide */
         $(galeriaSlideImg).attr('src', link);
         $(galeriaSlideA).append(galeriaSlideImg);

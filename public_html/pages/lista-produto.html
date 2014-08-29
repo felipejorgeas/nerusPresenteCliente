@@ -3,15 +3,15 @@
 <script>
 
   $(function() {
-       
+
     var produtosLista = "";
     var box;
-    
+
     var produtoCodigo;
     var produtoNome;
     var produtoCentroLucroNome;
     var produtoPreco;
-    
+
     var abas = $("#abas");
     var padding = 5;
     var page = $("#content").find(".page.activePage:last");
@@ -43,17 +43,17 @@
     } else {
       produtos.push(lista.lista_produtos);
     }
-      
-    if(produtos.length > 0){
-      
+
+    if (produtos.length > 0) {
+
       var categorias = [];
-            
-      $.each(produtos, function(i, produto) {        
-        if(!inArrayCl(produto.centro_lucro, categorias)){
-          categorias.push({ centro_lucro: produto.centro_lucro, centro_lucro_nome: produto.centro_lucro_nome });
-        }        
+
+      $.each(produtos, function(i, produto) {
+        if (!inArrayCl(produto.centro_lucro, categorias)) {
+          categorias.push({centro_lucro: produto.centro_lucro, centro_lucro_nome: produto.centro_lucro_nome});
+        }
       });
-      
+
       var abasLista = [];
       $.each(categorias, function(i, cat) {
         // tratamento dos dados retornados
@@ -65,10 +65,10 @@
 
         abasLista.push(box);
       });
-      
+
       abasLista.push('<span class="border-move"></span>');
       abas.html(abasLista);
-      
+
       $.each(produtos, function(i, produto) {
         // tratamento dos dados retornados
         produtoCodigo = produto.codigo_produto;
@@ -87,7 +87,7 @@
                 "<p class='prd-name'>" + produtoNome + "</p>" +
                 "<p class='prd-forn'>CONSUL</p>" +
                 "</div>" +
-                "<p class='prd-price'>R$ <strong>" + produtoPreco + "</strong></p>" +
+                "<p class='prd-price'>R$ <strong>" + number_format(produtoPreco/100, 2, ',', '.') + "</strong><span class='hidden'>" + produtoPreco + "</span></p>" +
                 "</div>" +
                 "<p class='prd-cat'>" + produtoCentroLucroNome + "</p>" +
                 "</div>";
@@ -172,6 +172,14 @@
     else {
       toast("Lista de presentes sem produtos");
     }
+
+    var prds = $(".produto.activeProduto");
+    var total = calcTotalPrds(prds);
+    var totalPrds = $("#prd-total");
+    
+    totalPrds.find("#qtty").find("span").text(prds.length);
+    totalPrds.find("#price").find("span").text(total);
+
     hideMask();
   });
 </script>
