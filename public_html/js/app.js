@@ -544,6 +544,9 @@ function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2, elem
 
   var popupDialog = $("#popup-dialog");
 
+  if (labelBt1 == null)
+    labelBt1 = "Fechar";
+
   if (onclickBt1 == null)
     onclickBt1 = "hideDialog();";
 
@@ -606,6 +609,8 @@ function setPopupGradeQtty() {
 }
 
 function showSelect(type, elem) {
+  var popupSelect = $("#popup-select");
+  var marginTop = 0;
 
   switch (type) {
 
@@ -616,12 +621,12 @@ function showSelect(type, elem) {
         lis += "<li>" + (i < 10 ? "0" + i : i) + "</li>";
       }
       ul.append(lis);
-      $("#popup-select").html(ul);
-      $("#popup-select").find("ul").find("li").click(function() {
+      popupSelect.html(ul);
+      popupSelect.find("ul").find("li").click(function() {
         var value = $(this).text();
         $(elem).text(value);
         hideMaskFull();
-        $("#popup-select").hide();
+        popupSelect.hide();
       });
       break;
 
@@ -632,12 +637,12 @@ function showSelect(type, elem) {
         lis += "<li>" + (i < 10 ? "0" + i : i) + "</li>";
       }
       ul.append(lis);
-      $("#popup-select").html(ul);
-      $("#popup-select").find("ul").find("li").click(function() {
+      popupSelect.html(ul);
+      popupSelect.find("ul").find("li").click(function() {
         var value = $(this).text();
         $(elem).text(value);
         hideMaskFull();
-        $("#popup-select").hide();
+        popupSelect.hide();
       });
       break;
 
@@ -650,12 +655,12 @@ function showSelect(type, elem) {
         lis += "<li>" + (year + i) + "</li>";
       }
       ul.append(lis);
-      $("#popup-select").html(ul);
-      $("#popup-select").find("ul").find("li").click(function() {
+      popupSelect.html(ul);
+      popupSelect.find("ul").find("li").click(function() {
         var value = $(this).text();
         $(elem).text(value);
         hideMaskFull();
-        $("#popup-select").hide();
+        popupSelect.hide();
       });
       break;
 
@@ -669,20 +674,20 @@ function showSelect(type, elem) {
         lis += "<li data-value='" + tipo.tipo_lista_codigo + "'>" + tipo.tipo_lista_nome + "</li>";
       });
       ul.append(lis);
-      $("#popup-select").html(ul);
-      $("#popup-select").find("ul").find("li").click(function() {
+      popupSelect.html(ul);
+      popupSelect.find("ul").find("li").click(function() {
         var tipo_name = $(this).text();
         var tipo_codigo = $(this).attr("data-value");
         $(elem).text(tipo_name).attr("data-value", tipo_codigo);
         hideMaskFull();
-        $("#popup-select").hide();
+        popupSelect.hide();
       });
       break;
   }
   showMaskFull();
-  var marginTop = -(parseInt($("#popup-select").css("height")) / 2);
-  $("#popup-select").css("margin-top", marginTop);
-  $("#popup-select").show();
+  marginTop = -(parseInt(popupSelect.css("height")) / 2);
+  popupSelect.css("margin-top", marginTop);
+  popupSelect.show();
 }
 
 function resetFields(elem, type) {
@@ -712,7 +717,7 @@ function calcTotalPrds(prds) {
     total += parseInt(price);
   });
   console.log(total);
-  total = number_format(total/100, 2, ',', '.');
+  total = number_format(total / 100, 2, ',', '.');
 
   return total;
 }
@@ -985,9 +990,9 @@ function wsResponseLogin(response) {
     var error = response.wserror;
     if (error.length > 0)
       msg = error;
-    
+
     $("#login #followingBallsG").fadeOut();
-    
+
     toast(msg);
   }
   /* em caso de sucesso */
@@ -1051,9 +1056,6 @@ function wsResponseGetTipoDeLista(response) {
 
     var tiposListas = response.wsresult;
 
-    // limpa a pagina a ser preenchida com os dados     var page = $("#content").find(".page.activePage:last");
-    page.html("");
-
     sessionStorage.setItem("tiposListas", JSON.stringify(tiposListas));
   }
 }
@@ -1081,6 +1083,7 @@ function wsGetLista(clienteCodigo) {
     var tipoListaCodigo = $(".input-select.tipoLista").attr("data-value");
 
     var cliente_nome = $("#search input[name=search]").val();
+    cliente_nome = removerAcentos(cliente_nome);
 
     // preparacao dos dados
     var dataEvento = "" + ano + mes + dia;
@@ -1209,6 +1212,7 @@ function wsGetCliente() {
 
   // obtem os dados para execucao da requisicao
   var cliente_nome = $("#search [name=search]").val();
+  cliente_nome = removerAcentos(cliente_nome);
 
   if (cliente_nome.length == 0) {
     showDialog("Cliente", "É necessário informar o nome do cliente", "Ok");
@@ -1325,30 +1329,36 @@ function wsResponseGetCliente(response) {
  *
  */
 function wsSaveCliente() {
-  showMask();
-
-  // obtem os dados para execucao da requisicao   var cliente_nome = $(".form [name=new_cliente_nome]").val();
+  // obtem os dados para execucao da requisicao   
+  var cliente_nome = $(".form [name=new_cliente_nome]").val();
   var cliente_cpf = $(".form [name=new_cliente_cpf]").val();
 
   if (cliente_nome.length == 0 || cliente_cpf.length == 0) {
-    alert("Todos os campos são obrigatórios")
-  }
+    showDialog("Cadastro", "Todos os campos são obrigatórios");
+  } 
+  
+  else {
+    showMask();
+    
+    cliente_nome = removerAcentos(cliente_nome);
+    cliente_cpf = cliente_cpf.replace(/[^0-9]/g, "");
 
-  var cliente = {
-    cliente_nome: cliente_nome,
-    cliente_cpf: cliente_cpf
-  };
+    var cliente = {
+      cliente_nome: cliente_nome,
+      cliente_cpf: cliente_cpf
+    };
 
 // cria bloco de dados a serem enviados na requisicao
-  var dados = {wscallback: "wsResponseSaveCliente", cliente: cliente};
+    var dados = {wscallback: "wsResponseSaveCliente", cliente: cliente};
 
-  // executa a requisicao via ajax
-  $.ajax({
-    url: configServerUrl + "/saveCliente.php",
-    type: "POST",
-    dataType: "jsonp",
-    data: {dados: dados}
-  });
+    // executa a requisicao via ajax
+    $.ajax({
+      url: configServerUrl + "/saveCliente.php",
+      type: "POST",
+      dataType: "jsonp",
+      data: {dados: dados}
+    });
+  }
 }
 
 /**
@@ -1389,6 +1399,8 @@ function wsResponseSaveCliente(response) {
 function wsGetProduto() {
   var search = $("#search");
   var searchField = search.find("input[name=search]");
+
+  searchField = removerAcentos(searchField);
 
   // obtem os dados para execucao da requisicao
   var prd = searchField.val();

@@ -1236,7 +1236,7 @@ button {
 
 #toast{
   display: none;
-  padding: 10px 0;
+  padding: 10px;
   background: #444;
   color: #FFF;
   position: fixed;

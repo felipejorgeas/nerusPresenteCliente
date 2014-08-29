@@ -1,7 +1,8 @@
 <!DOCTYPE html>
 <head>
-  <meta charset="utf-8">
+
   <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+  <meta charset="UTF-8">
   <title>SACI Presente</title>
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, user-scalable=no, user-scalable=no, initial-scale=1">
@@ -92,7 +93,7 @@
 
     <!-- popup para simular select field -->
     <div id="popup-select" class="popup bradius"></div>
-    
+
     <!-- popup para exibir imagens de galerias -->
     <div id="popup-img" class="popup bradius hidden">
       <div id="imgLoad"></div>
@@ -223,6 +224,7 @@
   <!-- javascript inicial a ser executado ao carregar o aplicativo -->
   <script>
               $LAB
+                      .setOptions({AlwaysPreserveOrder:true})
                       .script("js/jquery.min.js")
                       .script("js/iscroll.min.js")
                       .script("js/jquery-scrollTo.min.js")
@@ -230,15 +232,23 @@
                       .script("js/jquery-ui-touch.min.js")
                       .script("js/fastclick.min.js")
                       .script("js/idangerous-swiper.min.js")
-                      .script("js/util.js")
-                      .script("js/app.js").wait(function() {
+                      .script({src: "js/util.js", charset: "UTF-8"})
+                      .script({src: "js/app.js", charset: "UTF-8"}).wait(function() {
 
                 // Define as acoes dos botoes fisicos do android
                 document.addEventListener("menubutton", onBackKeyMenu, false);
                 document.addEventListener("backbutton", onBackKeyDown, false);
 
                 init();
+                
               });
+
+              //Define as acoes dos botoes fisicos do android
+//              document.addEventListener("menubutton", onBackKeyMenu, false);
+//              document.addEventListener("backbutton", onBackKeyDown, false);
+//
+//              init();
+
   </script>
 
 </body>

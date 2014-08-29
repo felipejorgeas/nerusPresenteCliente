@@ -1,3 +1,23 @@
+function removerAcentos(newStringComAcento) {
+  var string = newStringComAcento;
+  var mapaAcentosHex = {
+    a: /[\xE0-\xE6]/g,
+    e: /[\xE8-\xEB]/g,
+    i: /[\xEC-\xEF]/g,
+    o: /[\xF2-\xF6]/g,
+    u: /[\xF9-\xFC]/g,
+    c: /\xE7/g,
+    n: /\xF1/g
+  };
+
+  for (var letra in mapaAcentosHex) {
+    var expressaoRegular = mapaAcentosHex[letra];
+    string = string.replace(expressaoRegular, letra);
+  }
+
+  return string;
+}
+
 function number_format(number, decimals, dec_point, thousands_sep) {
   //  discuss at: http://phpjs.org/functions/number_format/
   // original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
@@ -50,28 +70,28 @@ function number_format(number, decimals, dec_point, thousands_sep) {
   //  returns 14: '0.00000001'
 
   number = (number + '')
-    .replace(/[^0-9+\-Ee.]/g, '');
+          .replace(/[^0-9+\-Ee.]/g, '');
   var n = !isFinite(+number) ? 0 : +number,
-    prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
-    sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
-    dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
-    s = '',
-    toFixedFix = function (n, prec) {
-      var k = Math.pow(10, prec);
-      return '' + (Math.round(n * k) / k)
-        .toFixed(prec);
-    };
+          prec = !isFinite(+decimals) ? 0 : Math.abs(decimals),
+          sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
+          dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
+          s = '',
+          toFixedFix = function(n, prec) {
+            var k = Math.pow(10, prec);
+            return '' + (Math.round(n * k) / k)
+                    .toFixed(prec);
+          };
   // Fix for IE parseFloat(0.55).toFixed(0) = 0;
   s = (prec ? toFixedFix(n, prec) : '' + Math.round(n))
-    .split('.');
+          .split('.');
   if (s[0].length > 3) {
     s[0] = s[0].replace(/\B(?=(?:\d{3})+(?!\d))/g, sep);
   }
   if ((s[1] || '')
-    .length < prec) {
+          .length < prec) {
     s[1] = s[1] || '';
     s[1] += new Array(prec - s[1].length + 1)
-      .join('0');
+            .join('0');
   }
   return s.join(dec);
 }
