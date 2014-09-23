@@ -2,7 +2,8 @@
   "title":
   {
     "show": true,
-    "logo": "<img src='img/logo-cliente.png' />"
+    "logo": "<img src='img/logo-cliente.png' />",
+    "subtitle": "LISTAS DE PRESENTES"
   },
   "drawer":
   {
@@ -27,16 +28,12 @@
   },
   "menu":
   {
-    "show": true,
+    "show": false,
     "itens":
     [
       {
         "onclick": "loadPage('lista-produto');",
         "label": "Lista atual"
-      },
-      {
-        "onclick": "loadPage('orcamento-produto');",
-        "label": "Orçamento atual"
       }
     ]
   },

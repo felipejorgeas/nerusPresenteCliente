@@ -1,5 +1,4 @@
-<div class="form">
-  <p class="title">Cadastro de Lista de Presente</p>
+<div class="form">  
   <label>Cliente</label>
   <p>
     <span class="input input-input cliente bradius" title=""></span>
@@ -14,41 +13,77 @@
     <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>/
     <span class="input input-date year bradius" onclick="showSelect('year', this);">0000</span>
   </p>
-  <p>
+<!--  <p>
     <button type="button" onclick="setNewList();">Continuar</button>
-  </p>
+  </p>-->
 </div>
 
 <script>
   function setNewList(){
-    var page = $("#content").find(".page.activePage:last");
+    
     var cliente = sessionStorage.getItem("clienteSelecionado");
-    var tipoLista = page.find(".form").find(".input.tipoLista").attr("data-value");
+    var listaNew = sessionStorage.getItem("listaNew");
+    
+    var page = $("#content").find(".page.activePage:last");
+    
+    var tipoListaCodigo = page.find(".form").find(".input.tipoLista").attr("data-value");
+    var tipoListaNome = page.find(".form").find(".input.tipoLista").text();
+    var tipoLista = {tipoListaCodigo: tipoListaCodigo, tipoListaNome:tipoListaNome};
+    
     var dia = page.find(".form").find(".input.day").text();
     var mes = page.find(".form").find(".input.month").text();
     var ano = page.find(".form").find(".input.year").text();
     
     cliente = JSON.parse(cliente);
+    listaNew = JSON.parse(listaNew);
     
-    var lista = {      
-      codigo_cliente: cliente.cliente_codigo,
-      codigo_nome: cliente.cliente_nome,
-      tipo_lista: tipoLista,
-      data_evento: ano + mes + dia
-    };
+    /* caso ja exista uma lista apenas atualiza as informacoes do cabecalho */
+    if(listaNew == null){
+      var lista = {
+        clienteCodigo: cliente.cliente_codigo,
+        clienteNome: cliente.cliente_nome,
+        tipoLista: tipoLista,
+        dataEvento: ano + mes + dia,
+        produtos: []
+      };      
+      sessionStorage.setItem("listaNew", JSON.stringify(lista));
+    }
     
-    sessionStorage.setItem("newLista", lista);
-    loadPage("produto-busca");
+    else{
+      listaNew.clienteCodigo = cliente.cliente_codigo;
+      listaNew.clienteNome = cliente.cliente_nome;
+      listaNew.tipoLista = tipoLista;
+      listaNew.dataEvento = ano + mes + dia;      
+      sessionStorage.setItem("listaNew", JSON.stringify(listaNew));      
+    }
+    
+    loadPage("lista-produto-nova-lista");
   }
   
   $(function() {
     
     var page = $("#content").find(".page.activePage:last");
-    var cliente = sessionStorage.getItem("clienteSelecionado");    
+    var cliente = sessionStorage.getItem("clienteSelecionado");
+    var listaNew = sessionStorage.getItem("listaNew");
+    
     cliente = JSON.parse(cliente);
+    listaNew = JSON.parse(listaNew);
 
     page.find(".form").find(".input.cliente").text(cliente.cliente_nome);
     
+    if(listaNew != null){
+      var dataEvento = listaNew.dataEvento;
+      var day = dataEvento.substr(6, 2);
+      var month = dataEvento.substr(4, 2);
+      var year = dataEvento.substr(0, 4);
+      
+      page.find(".form").find(".input.tipoLista").attr("data-value", listaNew.tipoLista.tipoListaCodigo);
+      page.find(".form").find(".input.tipoLista").text(listaNew.tipoLista.tipoListaNome);
+      page.find(".form").find(".input.day").text(day);
+      page.find(".form").find(".input.month").text(month);
+      page.find(".form").find(".input.year").text(year);
+    }
+
     hideMask();
   });
 </script>

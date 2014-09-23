@@ -3,7 +3,7 @@
   {
     "show": true,
     "logo": "<img src='img/logo-cliente.png' />",
-    "subtitle": "BUSCA DE CLIENTES"
+    "subtitle": "PRODUTOS DA LISTA DE PRESENTES"
   },
   "drawer":
   {
@@ -19,15 +19,10 @@
   {
     "show": true,
     "itens":
-    [
+    [      
       {
-        "onclick": "actionSearch();",
-        "icon": "search",
-        "type": "cliente"
-      },
-      {
-        "onclick": "loadPage('cliente-cadastro');",
-        "icon": "new"
+        "onclick": "loadPage('pedido-produto');",
+        "icon": "arrowforward"
       }
     ]
   },
@@ -37,18 +32,14 @@
     "itens":
     [
       {
-        "onclick": "loadPage('lista-produto');",
-        "label": "Lista atual"
-      },
-      {
-        "onclick": "loadPage('orcamento-produto');",
-        "label": "Orçamento atual"
+        "onclick": "showSelect('tipoListaDefault');",
+        "label": "Listas Padrão"
       }
     ]
   },
   "nav":
   {
     "show": true,
-    "type": "index"
+    "type": "lista-produto"
   }
 }

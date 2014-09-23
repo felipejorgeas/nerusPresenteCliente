@@ -1,4 +1,4 @@
-<div class="box" title="cliente-busca">
+<div id="cliente" class="box" data-value="cliente-busca">
   <div class="back-img box-list bradius animate">
     <p>
       Listas de Presentes
@@ -6,7 +6,7 @@
   </div>
 </div>
 
-<div class="box" title="lista-busca">
+<div id="convidado" class="box" data-value="lista-busca">
   <div class="back-img box-gift bradius animate">
     <p>
       Convidados
@@ -19,13 +19,22 @@
 
     $(".box").click(function(){
       if($(this).hasClass("activeBox")){
-        var page = $(this).attr("title");
+        var box = $(this);
+        var page = box.attr("data-value");
+        var modulo = box.attr("id");
+        
+        sessionStorage.setItem("modulo", modulo);
         loadPage(page);
       }
       else{
         $(".box").removeClass("activeBox");
         $(this).addClass("activeBox");
       }
+      return false;
+    });
+    
+    $(window).click(function () {
+      $(".box").removeClass("activeBox");
     });
 
     hideMask();

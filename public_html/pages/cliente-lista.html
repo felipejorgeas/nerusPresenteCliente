@@ -1,13 +1,12 @@
 <div class="content-response"></div>
 
 <script>
-
-    $(function() {
-        window.setTimeout(function(){
-          var cliente = sessionStorage.getItem("clienteSelecionado");
-          cliente = JSON.parse(cliente);          
-          wsGetLista(cliente.cliente_codigo);
-        }, 200);
-        hideMask();
-    });
+  $(function () {
+    window.setTimeout(function () {
+      var cliente = sessionStorage.getItem("clienteSelecionado");
+      cliente = JSON.parse(cliente);
+      wsGetLista(cliente.cliente_codigo);
+    }, 200);
+    hideMask();
+  });
 </script>

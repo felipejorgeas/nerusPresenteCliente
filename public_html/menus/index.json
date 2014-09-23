@@ -2,7 +2,8 @@
   "title":
   {
     "show": true,
-    "logo": "<img src='img/logo-cliente.png' />"
+    "logo": "<img src='img/logo-cliente.png' />",
+    "subtitle": "MENU PRINCIPAL"
   },
   "drawer":
   {
@@ -27,7 +28,7 @@
   },
   "menu":
   {
-    "show": true,
+    "show": false,
     "itens":
     [
       {

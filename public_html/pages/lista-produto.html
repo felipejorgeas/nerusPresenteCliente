@@ -3,131 +3,156 @@
 <script>
 
   $(function() {
-
-    var produtosLista = "";
-    var box;
-
-    var produtoCodigo;
-    var produtoNome;
-    var produtoCentroLucroNome;
-    var produtoPreco;
-
-    var abas = $("#abas");
-    var padding = 5;
-    var page = $("#content").find(".page.activePage:last");
-    var pageId = "#" + page.attr("id");
-    var contentResponse = page.find(".content-response");
-
-    var lista = sessionStorage.getItem("listaSelecionada");
-    lista = JSON.parse(lista);
-
-    var produtos = [];
-
-    /**
-     * Verifica se veio apenas um produtos ou varios.
-     * Isto influencia na estrutura do array de produtos
-     *
-     * Ex.:
-     *      se vier apenas um produto o array retornado sera:
-     *      lista_produtos = array("codigo_produto", "grade", ...);
-     *
-     *      se vier varios produtos o array retornado sera:
-     *      lista_produtos = array(0 => array("codigo_produto", "grade", ...),
-     *                             1 => array("codigo_produto", "grade", ...));
-     *
-     * O tratamento abaixo garante que iremos manipular sempre
-     * um array multi-dimensional no each().
-     */
-    if (lista.lista_produtos.hasOwnProperty("0")) {
-      produtos = lista.lista_produtos;
-    } else {
-      produtos.push(lista.lista_produtos);
+    var lista = sessionStorage.getItem("listaNew");
+    
+    /* caso seja uma nova lista */
+    if(lista != null){
+      toast("Lista sem produtos!");
     }
+    
+    /* caso esteja visualizando uma lista para gerar um orcamento */
+    else{
 
-    if (produtos.length > 0) {
+      var produtosLista = "";
+      var box;
 
-      var categorias = [];
+      var produtoCodigo;
+      var produtoNome;
+      var produtoCentroLucroNome;
+      var produtoPreco;
 
-      $.each(produtos, function(i, produto) {
-        if (!inArrayCl(produto.centro_lucro, categorias)) {
-          categorias.push({centro_lucro: produto.centro_lucro, centro_lucro_nome: produto.centro_lucro_nome});
-        }
-      });
+      var abas = $("#abas");
+      var padding = 5;
+      var page = $("#content").find(".page.activePage:last");
+      var pageId = "#" + page.attr("id");
+      var contentResponse = page.find(".content-response");
 
-      var abasLista = [];
-      $.each(categorias, function(i, cat) {
-        // tratamento dos dados retornados
-        var centroLucroCodigo = cat.centro_lucro;
-        var centroLucroNome = cat.centro_lucro_nome;
+      var lista = sessionStorage.getItem("listaSelecionada");
+      lista = JSON.parse(lista);
 
-        // criacao dos objetos a serem inseridos na pagina
-        var box = "<li id='" + centroLucroCodigo + "'><span>" + centroLucroNome + "</span></li>";
+      var produtos = [];
 
-        abasLista.push(box);
-      });
+      /**
+       * Verifica se veio apenas um produtos ou varios.
+       * Isto influencia na estrutura do array de produtos
+       *
+       * Ex.:
+       *      se vier apenas um produto o array retornado sera:
+       *      lista_produtos = array("codigo_produto", "grade", ...);
+       *
+       *      se vier varios produtos o array retornado sera:
+       *      lista_produtos = array(0 => array("codigo_produto", "grade", ...),
+       *                             1 => array("codigo_produto", "grade", ...));
+       *
+       * O tratamento abaixo garante que iremos manipular sempre
+       * um array multi-dimensional no each().
+       */
+      if (lista.lista_produtos.hasOwnProperty("0")) {
+        produtos = lista.lista_produtos;
+      } else {
+        produtos.push(lista.lista_produtos);
+      }
 
-      abasLista.push('<span class="border-move"></span>');
-      abas.html(abasLista);
+      if (produtos.length > 0) {
 
-      $.each(produtos, function(i, produto) {
-        // tratamento dos dados retornados
-        produtoCodigo = produto.codigo_produto;
-        produtoNome = produto.nome_produto;
-        produtoCentroLucroNome = produto.centro_lucro_nome;
-        produtoPreco = produto.preco;
+        var categorias = [];
 
-        // criacao dos objetos a serem inseridos na pagina
-        box =
-                "<div id='" + produtoCodigo + "' class='produto bradius'>" +
-                "<div>" +
-                "<div class='prd-img bradius'>" +
-                "<img src='" + "img/prd.png" + "' />" +
-                "</div>" +
-                "<div class='prd-desc'>" +
-                "<p class='prd-name'>" + produtoNome + "</p>" +
-                "<p class='prd-forn'>CONSUL</p>" +
-                "</div>" +
-                "<p class='prd-price'>R$ <strong>" + number_format(produtoPreco/100, 2, ',', '.') + "</strong><span class='hidden'>" + produtoPreco + "</span></p>" +
-                "</div>" +
-                "<p class='prd-cat'>" + produtoCentroLucroNome + "</p>" +
-                "</div>";
+        $.each(produtos, function(i, produto) {
+          if (!inArrayCl(produto.centro_lucro, categorias)) {
+            categorias.push({centro_lucro: produto.centro_lucro, centro_lucro_nome: produto.centro_lucro_nome});
+          }
+        });
 
-        produtosLista += box;
+        var abasLista = [];
+        $.each(categorias, function(i, cat) {
+          // tratamento dos dados retornados
+          var centroLucroCodigo = cat.centro_lucro;
+          var centroLucroNome = cat.centro_lucro_nome;
 
-      });
-      contentResponse.append(produtosLista);
+          // criacao dos objetos a serem inseridos na pagina
+          var box = "<li id='" + centroLucroCodigo + "'><span>" + centroLucroNome + "</span></li>";
 
-      // ativa as acoes de cliques nos blocos inseridos      
-      contentResponse.find(".produto").click(function() {
-        var item = $(this);
-        var prds;
-        var total = 0;
-        var totalPrds = $("#prd-total");
+          abasLista.push(box);
+        });
 
-        if (item.hasClass("activeProduto")) {
-          item.removeClass("activeProduto");
-        }
-        else {
-          item.addClass("activeProduto");
-        }
+        abasLista.push('<span class="border-move"></span>');
+        abas.html(abasLista);
 
-        prds = $(".produto.activeProduto");
-        total = calcTotalPrds(prds);
+        $.each(produtos, function(i, produto) {
+          // tratamento dos dados retornados
+          produtoCodigo = produto.codigo_produto;
+          produtoNome = produto.nome_produto;
+          produtoCentroLucroNome = produto.centro_lucro_nome;
+          produtoPreco = produto.preco;
 
-        totalPrds.find("#qtty").find("span").text(prds.length);
-        totalPrds.find("#price").find("span").text(total);
-      });
+          // criacao dos objetos a serem inseridos na pagina
+          box =
+                  "<div id='" + produtoCodigo + "' class='produto bradius'>" +
+                  "<div>" +
+                  "<div class='prd-img bradius'>" +
+                  "<img src='" + "img/prd.png" + "' />" +
+                  "</div>" +
+                  "<div class='prd-desc'>" +
+                  "<p class='prd-name'>" + produtoNome + "</p>" +
+                  "<p class='prd-forn'>CONSUL</p>" +
+                  "</div>" +
+                  "<p class='prd-price'>R$ <strong>" + number_format(produtoPreco/100, 2, ',', '.') + "</strong><span class='hidden'>" + produtoPreco + "</span></p>" +
+                  "</div>" +
+                  "<p class='prd-cat'>" + produtoCentroLucroNome + "</p>" +
+                  "</div>";
 
-      $("#prd-total").show();
+          produtosLista += box;
 
-      var containersSwiper = new Swiper('#containers', {
-        speed: 200,
-        onSlideChangeStart: function() {
+        });
+        contentResponse.append(produtosLista);
+
+        // ativa as acoes de cliques nos blocos inseridos      
+        contentResponse.find(".produto").click(function() {
+          var item = $(this);
+          var prds;
+          var total = 0;
+          var totalPrds = $("#prd-total");
+
+          if (item.hasClass("activeProduto")) {
+            item.removeClass("activeProduto");
+          }
+          else {
+            item.addClass("activeProduto");
+          }
+
+          prds = $(".produto.activeProduto");
+          total = calcTotalPrds(prds);
+
+          totalPrds.find("#qtty").find("span").text(prds.length);
+          totalPrds.find("#price").find("span").text(total);
+        });
+
+        $("#prd-total").show();
+
+        var containersSwiper = new Swiper('#containers', {
+          speed: 200,
+          onSlideChangeStart: function() {
+            abas.find(".active").removeClass('active');
+            abas.find("li").eq(containersSwiper.activeIndex).addClass('active');
+            abas.stop().scrollTo(abas.find("li").eq(containersSwiper.activeIndex), 200, {offset: {left: -20}});
+
+            var elem = abas.find("li").eq(containersSwiper.activeIndex);
+            var width = elem.width() + padding;
+            var transform = "translateX(" + (abas.scrollLeft() + elem.offset().left - padding) + "px)";
+            abas.find(".border-move").css({
+              "width": width,
+              "-moz-transform": transform,
+              "-webkit-transform": transform,
+              "transform": transform
+            });
+          }
+        });
+
+        abas.find("li").click(function() {
+          var elem = $(this);
           abas.find(".active").removeClass('active');
-          abas.find("li").eq(containersSwiper.activeIndex).addClass('active');
-          abas.stop().scrollTo(abas.find("li").eq(containersSwiper.activeIndex), 200, {offset: {left: -20}});
-
-          var elem = abas.find("li").eq(containersSwiper.activeIndex);
+          elem.addClass('active');
+          abas.stop().scrollTo(elem, 200, {offset: {left: -20}});
           var width = elem.width() + padding;
           var transform = "translateX(" + (abas.scrollLeft() + elem.offset().left - padding) + "px)";
           abas.find(".border-move").css({
@@ -136,50 +161,35 @@
             "-webkit-transform": transform,
             "transform": transform
           });
-        }
-      });
+          containersSwiper.swipeTo(elem.index());
+        });
 
-      abas.find("li").click(function() {
-        var elem = $(this);
-        abas.find(".active").removeClass('active');
-        elem.addClass('active');
-        abas.stop().scrollTo(elem, 200, {offset: {left: -20}});
+        abas.stop().scrollTo(abas.find("li").eq(0), 200, {offset: {left: -20}});
+
+        var elem = abas.find("li").eq(0);
         var width = elem.width() + padding;
         var transform = "translateX(" + (abas.scrollLeft() + elem.offset().left - padding) + "px)";
+
         abas.find(".border-move").css({
           "width": width,
           "-moz-transform": transform,
           "-webkit-transform": transform,
           "transform": transform
         });
-        containersSwiper.swipeTo(elem.index());
-      });
+        //abas.show();
+      }
+      
+      else
+        toast("Lista de presentes sem produtos");  
 
-      abas.stop().scrollTo(abas.find("li").eq(0), 200, {offset: {left: -20}});
+      var prds = $(".produto.activeProduto");
+      var total = calcTotalPrds(prds);
+      var totalPrds = $("#prd-total");
 
-      var elem = abas.find("li").eq(0);
-      var width = elem.width() + padding;
-      var transform = "translateX(" + (abas.scrollLeft() + elem.offset().left - padding) + "px)";
-
-      abas.find(".border-move").css({
-        "width": width,
-        "-moz-transform": transform,
-        "-webkit-transform": transform,
-        "transform": transform
-      });
-      //abas.show();
+      totalPrds.find("#qtty").find("span").text(prds.length);
+      totalPrds.find("#price").find("span").text(total);
     }
-    else {
-      toast("Lista de presentes sem produtos");
-    }
-
-    var prds = $(".produto.activeProduto");
-    var total = calcTotalPrds(prds);
-    var totalPrds = $("#prd-total");
     
-    totalPrds.find("#qtty").find("span").text(prds.length);
-    totalPrds.find("#price").find("span").text(total);
-
     hideMask();
   });
 </script>

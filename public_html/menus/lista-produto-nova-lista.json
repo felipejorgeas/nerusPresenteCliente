@@ -3,7 +3,7 @@
   {
     "show": true,
     "logo": "<img src='img/logo-cliente.png' />",
-    "subtitle": "BUSCA DE PRODUTOS"
+    "subtitle": "PRODUTOS DA LISTA"
   },
   "drawer":
   {
@@ -21,31 +21,33 @@
     "itens":
     [
       {
-        "onclick": "actionSearch();",
-        "icon": "search",
-        "type": "produto",
-        "barcode": true
+        "onclick": "loadPage('produto-busca');",
+        "icon": "new"
       },
       {
-        "onclick": "prdAddList();",
+        "onclick": "exibeDialogSaveLista();",
         "icon": "accept"
+      },
+      {
+        "onclick": "exibeDialogClearList();",
+        "icon": "cancel"
       }
     ]
   },
   "menu":
   {
-    "show": false,
+    "show": true,
     "itens":
     [
       {
-        "onclick": "loadPage('lista-produto');",
-        "label": "Lista atual"
+        "onclick": "showSelect('tipoListaDefault');",
+        "label": "Listas Padrão"
       }
     ]
   },
   "nav":
   {
     "show": true,
-    "type": "produto-busca"
+    "type": "lista-produto"
   }
 }

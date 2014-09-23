@@ -2,7 +2,8 @@
   "title":
   {
     "show": true,
-    "logo": "<img src='img/logo-cliente.png' />"
+    "logo": "<img src='img/logo-cliente.png' />",
+    "subtitle": "LISTA DE PRESENTES"
   },
   "drawer":
   {
@@ -16,11 +17,15 @@
   },
   "actions":
   {
-    "show": true,
+    "show": false,
     "itens":
     [
       {
-        "onclick": "wsSaveOrcamento();",
+        "onclick": "loadPage('produto-busca');",
+        "icon": "new"
+      },
+      {
+        "onclick": "saveList();",
         "icon": "accept"
       }
     ]
@@ -31,14 +36,14 @@
     "itens":
     [
       {
-        "onclick": "loadPage('configuracoes');",
-        "label": "Configurações"
+        "onclick": "showSelect('tipoListaDefault');",
+        "label": "Listas Padrão"
       }
     ]
   },
   "nav":
   {
-    "show": false,
-    "type": "lista-busca"
+    "show": true,
+    "type": "lista-produto"
   }
 }

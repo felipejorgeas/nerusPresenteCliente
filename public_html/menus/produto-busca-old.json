@@ -2,8 +2,7 @@
   "title":
   {
     "show": true,
-    "logo": "<img src='img/logo-cliente.png' />",
-    "subtitle": "BUSCA DE CLIENTES"
+    "logo": "<img src='img/logo-cliente.png' />"
   },
   "drawer":
   {
@@ -23,32 +22,29 @@
       {
         "onclick": "actionSearch();",
         "icon": "search",
-        "type": "cliente"
+        "type": "produto",
+        "barcode": true
       },
       {
-        "onclick": "loadPage('cliente-cadastro');",
-        "icon": "new"
+        "onclick": "newListPrdAdd();",
+        "icon": "accept"
       }
     ]
   },
   "menu":
   {
-    "show": false,
+    "show": true,
     "itens":
     [
       {
         "onclick": "loadPage('lista-produto');",
         "label": "Lista atual"
-      },
-      {
-        "onclick": "loadPage('orcamento-produto');",
-        "label": "Orçamento atual"
       }
     ]
   },
   "nav":
   {
     "show": true,
-    "type": "index"
+    "type": "produto-busca"
   }
 }

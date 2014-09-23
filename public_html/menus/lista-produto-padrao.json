@@ -3,7 +3,7 @@
   {
     "show": true,
     "logo": "<img src='img/logo-cliente.png' />",
-    "subtitle": "DADOS DA LISTA"
+    "subtitle": "LISTA DE PRESENTES PADRÃO"
   },
   "drawer":
   {
@@ -13,15 +13,19 @@
   "back":
   {
     "show": true,
-    "onclick": "loadPage('', true);"
+    "onclick": "loadPage('', true, true);"
   },
   "actions":
   {
-    "show": true,
+    "show": false,
     "itens":
     [
       {
-        "onclick": "setNewList();",
+        "onclick": "loadPage('produto-busca');",
+        "icon": "new"
+      },
+      {
+        "onclick": "loadPage('orcamento-produto');",
         "icon": "accept"
       }
     ]
@@ -39,7 +43,7 @@
   },
   "nav":
   {
-    "show": false,
-    "type": "lista-busca"
+    "show": true,
+    "type": "lista-produto"
   }
 }

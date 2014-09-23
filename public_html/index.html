@@ -1,255 +1,264 @@
 <!DOCTYPE html>
-<head>
+<html lang="pt-br">
+  <head>
+    <meta charset="utf-8">
+    <title>SACI Presente</title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, user-scalable=no, user-scalable=no, initial-scale=1">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/jquery-ui.css">
+    <link rel="stylesheet" href="css/idangerous.swiper.css">
+  </head>
+  <body>
+    <div class="container">
+      <!-- toast -->
+      <div id="toast"></div>
 
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta charset="UTF-8">
-  <title>SACI Presente</title>
-  <meta name="description" content="">
-  <meta name="viewport" content="width=device-width, user-scalable=no, user-scalable=no, initial-scale=1">
-  <link rel="stylesheet" href="css/style.css">
-  <link rel="stylesheet" href="css/jquery-ui.css">
-  <link rel="stylesheet" href="css/idangerous.swiper.css">
-</head>
-<body>
-  <div class="container">
-    <!-- toast -->
-    <div id="toast"></div>
-
-    <!-- Topo -->
-    <div id="header">
-      <div id="actions-left">
-        <a id="action" href="#">
-          <div id="icons">
-            <img id="ico-drawer" src="img/ico-drawer.png" />
-            <img id="ico-back" src="img/ico-back.png" />
-          </div>
-          <!--<img id="ico-logo" src="img/logo-cliente.png" />-->
-          <div id="title">
-            <div class="logo"></div>
-            <p id="desc-1" class="desc"></p>
-            <p id="desc-2" class="desc"></p>
-          </div>
-        </a>
-      </div>
-      <div id="actions-right">
-        <div id="search">
-          <a id="action-0" class="actions" href="javascript:void(0);">
-            <img class="ico-actions" src="img/ico-barcode.png" />
+      <!-- Topo -->
+      <div id="header">
+        <div id="actions-left">
+          <a id="action" href="javascript:void(0);">
+            <div id="icons">
+              <img id="ico-drawer" src="img/ico-drawer.png" />
+              <img id="ico-back" src="img/ico-back.png" />
+            </div>
+            <!--<img id="ico-logo" src="img/logo-cliente.png" />-->
+            <div id="title">
+              <div class="logo"></div>
+              <p id="desc-1" class="desc"></p>
+              <p id="desc-2" class="desc"></p>              
+            </div>
           </a>
-          <input type="text" name="search" />
-          <input type="hidden" name="funcSearch" />
         </div>
-        <div id="actions-aux">
-          <a id="action-1" class="actions" href="javascript:void(0);"></a>
-          <a id="action-2" class="actions" href="javascript:void(0);"></a>
-        </div>
-        <a id="exibMenu" href="#">
-          <img id="ico-menu" src="img/ico-menu.png" />
-        </a>
-      </div>
-    </div>
-
-    <!-- Menu topo direito -->
-    <ul id="menu" class="animate"></ul>
-
-    <!-- Tela de login -->
-    <div id="login"  class="popup">
-      <div id="popup-login" class="bradius">
-        <p class="logo-cliente">
-          <img src="img/logo-cliente.png" />
-        </p>
-        <p>
-          <input id="login-usuario" type="text" class="bradius" name="usuario" placeholder="Usuario" />
-        </p>
-        <p>
-          <input id="login-senha" type="password" class="bradius" name="senha" placeholder="Senha" />
-          <span class="show-pass" data-field="login-senha"></span>
-        </p>
-        <button type="button" onclick="wsLogin();">Ok</button>
-
-        <!-- Loading em CSS3 -->
-        <div id="followingBallsG">
-          <div id="followingBallsG_1" class="followingBallsG"></div>
-          <div id="followingBallsG_2" class="followingBallsG"></div>
-          <div id="followingBallsG_3" class="followingBallsG"></div>
-          <div id="followingBallsG_4" class="followingBallsG"></div>
-        </div>
-      </div>
-      <p class="rodape">
-        SACI Presente - v0.01
-      </p>
-    </div>
-
-    <!-- popup para alert e promtps -->
-    <div id="popup-dialog" class="popup bradius">
-      <div class="dialog">
-        <p class="title"></p>
-        <p class="msg"></p>
-        <input class="bradius" type="text" name="field" placeholder="Digite" />
-      </div>
-      <button></button>
-      <button></button>
-    </div>
-
-    <!-- popup para simular select field -->
-    <div id="popup-select" class="popup bradius"></div>
-
-    <!-- popup para exibir imagens de galerias -->
-    <div id="popup-img" class="popup bradius hidden">
-      <div id="imgLoad"></div>
-      <p id="zoom"><span id="menos">-</span> zoom <span id="mais">+</span></p>
-    </div>
-
-    <!-- Menu lateral -->
-    <div id="navigator">
-      <div id="scroll">
-        <div id="user-logged">
-          <div id="user-img">
-            <img src="img/ico-perfil.png" />
+        <div id="actions-right">
+          <div id="search">
+            <a id="action-0" class="actions" href="javascript:void(0);">
+              <img class="ico-actions" src="img/ico-barcode.png" />
+            </a>
+            <input type="text" name="search" />
+            <input type="hidden" name="funcSearch" />
           </div>
-          <div id="user-info">
-            <p id="user-name">Felipe Jorge</p>
-            <p id="user-email">felipe.jorge@eacsoftware.com.br</p>
+          <div id="actions-aux">
+            <a id="action-1" class="actions" href="javascript:void(0);"></a>
+            <a id="action-2" class="actions" href="javascript:void(0);"></a>
+            <a id="action-3" class="actions" href="javascript:void(0);"></a>
+          </div>
+          <a id="exibMenu" href="#">
+            <img id="ico-menu" src="img/ico-menu.png" />
+          </a>
+        </div>
+      </div>
+
+      <!-- Menu topo direito -->
+      <ul id="menu" class="animate"></ul>
+
+      <!-- Tela de login -->
+      <div id="login"  class="popup">
+        <div id="popup-login" class="bradius">
+          <p class="logo-cliente">
+            <img src="img/logo-cliente.png" />
+          </p>
+          <p>
+            <input id="login-usuario" type="text" class="bradius" name="usuario" placeholder="Usuário" />
+          </p>
+          <p>
+            <input id="login-senha" type="password" class="bradius" name="senha" placeholder="Senha" />
+            <span class="show-pass" data-field="login-senha"></span>
+          </p>
+          <button type="button" onclick="wsLogin();">Ok</button>
+
+          <!-- Loading em CSS3 -->
+          <div id="followingBallsG">
+            <div id="followingBallsG_1" class="followingBallsG"></div>
+            <div id="followingBallsG_2" class="followingBallsG"></div>
+            <div id="followingBallsG_3" class="followingBallsG"></div>
+            <div id="followingBallsG_4" class="followingBallsG"></div>
           </div>
         </div>
-        <ul id="filter-lista-busca" class="nav-filter">
-          <li class="category">Filtros</li>
-          <li>
-            Data do evento
-            <p>
-              <span class="input input-date day bradius" onclick="showSelect('day', this);">00</span>/
-              <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>/
-              <span class="input input-date year bradius" onclick="showSelect('year', this);">0000</span>
-              <span class="reset-fields" onclick="resetFields(this, 'date');"></span>
-            </p>
-          </li>
-          <li>
-            Tipo de lista
-            <p>
-              <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this);" data-value="">Selecione</span>
-              <span class="reset-fields" onclick="resetFields(this, 'select');"></span>
-            </p>
-          </li>
-          <li>
-            <button type="button" class="filter-submit" onclick="wsGetLista();">Buscar</button>
-          </li>
-        </ul>
-        <ul id="filter-lista-produto" class="nav-filter">
-          <li class="category">Filtros</li>
-          <li>
-            Produto:
-            <p>
-              <input type="text" class="input bradius no-text-center" />
-              <span class="reset-fields" onclick="resetFields(this);"></span>
-            </p>
-          </li>
-          <li>
-            Faixa de preço: R$ <span id="price-min"></span> até R$ <span id="price-max"></span>
-            <p>
-            <div id="slider-range"></div>
-            </p>
-          </li>
-          <li>
-            <button type="button" class="filter-submit" onclick="wsGetLista();">Filtrar na lista</button>
-          </li>
-        </ul>
-        <ul id="nav-options">
-          <li>
-            <img class="icon" src="img/ico-list.png" />
-            Histórico
-          </li>
-          <li>
-            <img class="icon" src="img/ico-settings.png" />
-            Configurações
-          </li>
-          <li>
-            <img class="icon" src="img/ico-about.png" />
-            Sobre
-          </li>
-          <li>
-            <img class="icon" src="img/ico-arrowback.png" />
-            Sair
-          </li>
-        </ul>
-        <p id="app">SACI Presente - v0.01</p>
+        <p class="rodape">
+          SACI Presente - v0.01
+        </p>
       </div>
-    </div>
 
-    <!-- Container onde as paginas serao carregadas -->
-    <div id="content">
+      <!-- popup para alert e promtps -->
+      <div id="popup-dialog" class="popup bradius">
+        <div class="dialog">
+          <p class="title"></p>
+          <p class="msg"></p>
+          <input class="bradius" type="text" name="field" placeholder="Digite" />
+        </div>
+        <button></button>
+        <button></button>
+      </div>
 
-      <!-- Mascara exibida ate que a pagina termine de carregar -->
-      <div id="mask">
-        <!-- Loading em CSS3 -->
-        <div id="followingBallsG">
-          <div id="followingBallsG_1" class="followingBallsG"></div>
-          <div id="followingBallsG_2" class="followingBallsG"></div>
-          <div id="followingBallsG_3" class="followingBallsG"></div>
-          <div id="followingBallsG_4" class="followingBallsG"></div>
+      <!-- popup para simular select field -->
+      <div id="popup-select" class="popup bradius"></div>
+
+      <!-- popup para exibir imagens de galerias -->
+      <div id="popup-img" class="popup bradius hidden">
+        <div id="imgLoad"></div>
+        <p id="zoom"><span id="menos">-</span> zoom <span id="mais">+</span></p>
+      </div>
+
+      <!-- Menu lateral -->
+      <div id="navigator">
+        <div id="scroll">
+          <div id="user-logged">
+            <div id="user-img">
+              <img src="img/ico-perfil.png" />
+            </div>
+            <div id="user-info">
+              <p id="user-name">Felipe Jorge</p>
+              <p id="user-email">felipe.jorge@eacsoftware.com.br</p>
+            </div>
+          </div>
+          <ul id="filter-lista-busca" class="nav-filter">
+            <li class="category">Filtros</li>
+            <li>
+              Data do evento
+              <p>
+                <span class="input input-date day bradius" onclick="showSelect('day', this);">00</span>/
+                <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>/
+                <span class="input input-date year bradius" onclick="showSelect('year', this);">0000</span>
+                <span class="reset-fields" onclick="resetFields(this, 'date');"></span>
+              </p>
+            </li>
+            <li>
+              Tipo de lista
+              <p>
+                <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this);" data-value="">Selecione</span>
+                <span class="reset-fields" onclick="resetFields(this, 'select');"></span>
+              </p>
+            </li>
+            <li>
+              <button type="button" class="filter-submit" onclick="wsGetLista();">Buscar</button>
+            </li>
+          </ul>
+          <ul id="filter-lista-produto" class="nav-filter">
+            <li class="category">Filtros</li>
+            <li>
+              Produto:
+              <p>
+                <input type="text" class="input bradius no-text-center" />
+                <span class="reset-fields" onclick="resetFields(this);"></span>
+              </p>
+            </li>
+            <li>
+              Faixa de preço: R$ <span id="price-min"></span> até R$ <span id="price-max"></span>
+              <p>
+              <div id="slider-range"></div>
+              </p>
+            </li>
+            <li>
+              <button type="button" class="filter-submit" onclick="wsGetLista();">Filtrar na lista</button>
+            </li>
+          </ul>
+          <ul id="nav-options">
+            <li onclick="loadPage('historico');">
+              <img class="icon" src="img/ico-list.png" />
+              Histórico
+            </li>
+            <li onclick="loadPage('configuracoes');">
+              <img class="icon" src="img/ico-settings.png" />
+              Configurações
+            </li>
+            <li onclick="loadPage('sobre');">
+              <img class="icon" src="img/ico-about.png" />
+              Sobre
+            </li>
+            <li onclick="close();">
+              <img class="icon" src="img/ico-arrowback.png" />
+              Fechar
+            </li>
+          </ul>
+          <p id="app">SACI Presente - v0.01</p>
         </div>
       </div>
 
-      <!-- Mascara ativada ao exibir o menu lateral para bloquear o clique nos itens da pagina e tambem para ocultar o menu lateral -->
-      <div id="mask-shadow"></div>
+      <!-- Container onde as paginas serao carregadas -->
+      <div id="content">
 
-      <!-- Mascara ativada para bloquear todos os elementos no fundo da tela -->
-      <div id="mask-full"></div>
+        <!-- Mascara exibida ate que a pagina termine de carregar -->
+        <div id="mask">
+          <!-- Loading em CSS3 -->
+          <div id="followingBallsG">
+            <div id="followingBallsG_1" class="followingBallsG"></div>
+            <div id="followingBallsG_2" class="followingBallsG"></div>
+            <div id="followingBallsG_3" class="followingBallsG"></div>
+            <div id="followingBallsG_4" class="followingBallsG"></div>
+          </div>
+        </div>
 
-      <ul id="abas">
-        <span class="border-move"></span>
-      </ul>
+        <!-- Mascara ativada ao exibir o menu lateral para bloquear o clique nos itens da pagina e tambem para ocultar o menu lateral -->
+        <div id="mask-shadow"></div>
 
-      <!-- Todas as paginas do aplicativo devem ser predefinidas aqui abaixo-->
-      <div id="index" class="page animate"></div>
-      <div id="cliente-busca" class="page animate"></div>
-      <div id="cliente-cadastro" class="page animate"></div>
-      <div id="cliente-lista" class="page animate"></div>
-      <div id="lista-busca" class="page animate"></div>
-      <div id="lista-produto" class="page animate"></div>
-      <div id="lista-cadastro" class="page animate"></div>
-      <div id="orcamento-produto" class="page animate"></div>
-      <div id="produto-busca" class="page animate no-padding"></div>
-      <div id="configuracoes" class="page animate"></div>
+        <!-- Mascara ativada para bloquear todos os elementos no fundo da tela -->
+        <div id="mask-full"></div>
 
-      <div id="prd-total">
-        <span id="qtty">Selecionados: <span>0</span></span>
-        <span id="price">R$ <span>0,00</span></span>
+        <ul id="abas">
+          <span class="border-move"></span>
+        </ul>
+        
+        <div id="sub-title-page"></div>
+        
+        <!-- Todas as paginas do aplicativo devem ser predefinidas aqui abaixo-->
+        <div id="index" class="page animate"></div>
+        <div id="cliente-busca" class="page animate"></div>
+        <div id="cliente-cadastro" class="page animate"></div>
+        <div id="cliente-lista" class="page animate"></div>
+        <div id="lista-busca" class="page animate"></div>
+        <div id="lista-produto" class="page animate"></div>
+        <div id="lista-produto-nova-lista" class="page animate"></div>
+        <div id="lista-produto-visualizacao-lista" class="page animate"></div>
+        <div id="lista-produto-visualizacao-convidado" class="page animate"></div>
+        <div id="lista-produto-padrao" class="page animate"></div>
+        <div id="lista-cadastro" class="page animate"></div>
+        <div id="pedido-produto" class="page animate"></div>
+        <div id="produto-busca" class="page animate no-padding"></div>
+        <div id="produto-visualizacao" class="page animate no-padding"></div>
+        <div id="historico" class="page animate"></div>
+        <div id="configuracoes" class="page animate no-padding"></div>
+        <div id="sobre" class="page animate"></div>
+        
+        <div id="prd-total">
+          <span id="qtty">Selecionados: <span>0</span></span>
+          <span id="price">R$ <span>0,00</span></span>
+        </div>
       </div>
     </div>
-  </div>
 
-  <!-- Inclusao das dependencias javascript -->
-  <script src="js/LAB.min.js"></script>
+    <!-- Inclusao das dependencias javascript -->
+    <script src="js/LAB.min.js"></script>
 
-  <!-- javascript inicial a ser executado ao carregar o aplicativo -->
-  <script>
-              $LAB
-                      .setOptions({AlwaysPreserveOrder:true})
-                      .script("js/jquery.min.js")
-                      .script("js/iscroll.min.js")
-                      .script("js/jquery-scrollTo.min.js")
-                      .script("js/jquery-ui.min.js")
-                      .script("js/jquery-ui-touch.min.js")
-                      .script("js/fastclick.min.js")
-                      .script("js/idangerous-swiper.min.js")
-                      .script({src: "js/util.js", charset: "UTF-8"})
-                      .script({src: "js/app.js", charset: "UTF-8"}).wait(function() {
+    <!-- javascript inicial a ser executado ao carregar o aplicativo -->
+    <script>
+                $LAB
+                        .setOptions({AlwaysPreserveOrder: true})
+                        .script("js/jquery.min.js")
+                        .script("js/iscroll.min.js")
+                        .script("js/jquery-scrollTo.min.js")
+                        .script("js/jquery-ui.min.js")
+                        .script("js/jquery-ui-touch.min.js")
+                        .script("js/fastclick.min.js")
+                        .script("js/idangerous-swiper.min.js")
+                        .script({src: "js/util.js", charset: "UTF-8"})
+                        .script({src: "js/app.js", charset: "UTF-8"}).wait(function () {
 
-                // Define as acoes dos botoes fisicos do android
-                document.addEventListener("menubutton", onBackKeyMenu, false);
-                document.addEventListener("backbutton", onBackKeyDown, false);
+                  // Define as acoes dos botoes fisicos do android
+                  document.addEventListener("menubutton", onBackKeyMenu, false);
+                  document.addEventListener("backbutton", onBackKeyDown, false);
 
-                init();
-                
-              });
+                  init();
 
-              //Define as acoes dos botoes fisicos do android
-//              document.addEventListener("menubutton", onBackKeyMenu, false);
-//              document.addEventListener("backbutton", onBackKeyDown, false);
-//
-//              init();
+                });
 
-  </script>
+                //Define as acoes dos botoes fisicos do android
+                //              document.addEventListener("menubutton", onBackKeyMenu, false);
+                //              document.addEventListener("backbutton", onBackKeyDown, false);
+                //
+                //              init();
 
-</body>
+    </script>
+
+  </body>
 </html>

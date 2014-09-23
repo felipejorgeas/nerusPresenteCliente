@@ -1,0 +1,99 @@
+<div class="mark-agua">
+  <img src='img/ico-novo.png' />
+  <p>Adicione os produtos</p>
+</div>
+
+<div class="content-response"></div>
+
+<script>
+
+  $(function () {
+    var lista = sessionStorage.getItem("listaNew");
+    lista = JSON.parse(lista);
+
+    var page = $("#content").find(".page.activePage:last");
+    var pageId = "#" + page.attr("id");
+    var marcaDagua = $(pageId).find(".mark-agua");
+    var contentResponse = $(pageId).find(".content-response");
+
+    sessionStorage.setItem("listaName", "listaNew");
+
+    if (lista.produtos.hasOwnProperty(0)) {
+
+      var produtosLista = [];
+      var grade;
+      var box;
+
+      marcaDagua.hide();
+      contentResponse.scrollTop(0).show();
+
+      if (lista.produtos.length > 0) {
+
+        $.each(lista.produtos, function (i, prd) {
+          grade = "";
+
+          if (prd.grade.gradeNome.length > 0)
+            grade = " - Grade: " + prd.grade.gradeNome;
+
+          // criacao dos objetos a serem inseridos na pagina
+          box =
+                  "<div id='produto-" + i + "' class='produto bradius'>" +
+                  "<div class='options animate'>" +
+                  "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
+                  "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\");' />" +
+                  "</div>" +
+                  "<div>" +
+                  "<div class='prd-img bradius'>" +
+                  "<img src='" + "img/prd.png" + "' />" +
+                  "</div>" +
+                  "<div class='prd-desc'>" +
+                  "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
+                  "<p class='prd-cod'>Cód.: " + prd.produto.codigo + grade + "</p>" +
+                  "<p class='prd-forn'>" + prd.produto.fornecedor.nome_fantasia + "</p>" +
+                  "</div>" +
+                  "<p class='prd-price'>R$ <strong>" + number_format(prd.produto.preco / 100, 2, ',', '.') + "</strong><span class='hidden'>" + prd.produto.preco + "</span></p>" +
+                  "</div>" +
+                  "<p class='prd-cat'>" + prd.produto.centrolucro.nome_categoria + "</p>" +
+                  "</div>";
+
+          produtosLista += box;
+
+        });
+
+        contentResponse.append(produtosLista);
+
+        // ativa as acoes de cliques nos blocos inseridos      
+        contentResponse.find(".produto").click(function () {
+          var item = $(this);
+          var prds = contentResponse.find(".produto");
+
+          if (!item.hasClass("activeProduto")) {
+            prds.removeClass("activeProduto").find(".options").removeClass('activeOption');
+            item.addClass("activeProduto").find(".options").addClass('activeOption');
+          }
+
+          else {
+            item.removeClass("activeProduto").find(".options").removeClass('activeOption');
+          }
+
+          return false;
+        });
+      }
+
+      var prds = contentResponse.find(".produto");
+      var total = calcTotalPrds(prds);
+      var totalPrds = $("#prd-total");
+
+      totalPrds.find("#qtty").hide();
+      totalPrds.find("#price").find("span").text(total);
+
+      totalPrds.show();
+
+      $(window).click(function () {
+        prds.removeClass("activeProduto").find(".options").removeClass('activeOption');
+      });
+    }
+
+    hideMask();
+  });
+</script>

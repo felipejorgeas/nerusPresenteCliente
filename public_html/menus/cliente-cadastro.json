@@ -2,7 +2,8 @@
   "title":
   {
     "show": true,
-    "logo": "<img src='img/logo-cliente.png' />"
+    "logo": "<img src='img/logo-cliente.png' />",
+    "subtitle": "CADASTRO DE CLIENTES"
   },
   "drawer":
   {
@@ -16,14 +17,12 @@
   },
   "actions":
   {
-    "show": false,
+    "show": true,
     "itens":
     [
       {
-        "onclick": "actionSearch();",
-        "icon": "search",
-        "type": "lista",
-        "barcode": true
+        "onclick": "exibeDialogSaveCliente();",
+        "icon": "accept"
       }
     ]
   },
