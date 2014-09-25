@@ -14,17 +14,17 @@ var waitToastMsg;
 
 var setElementPopupVal;
 
-var configServerUrl = "http://192.168.1.13/saciPresenteServidor";
+var configServerUrl = "http://eac-gvt.eacsoftware.com.br:8086/saciPresenteServidor";
 
 var fileSplit;
 var limitSplitPrds = 10;
 
 function onBackKeyMenu(e) {
-  //e.preventDefault();
+  e.preventDefault();
 }
 
 function onBackKeyDown(e) {
-  //e.preventDefault();
+  e.preventDefault();
 }
 
 function getTranslateX(el) {
@@ -321,7 +321,7 @@ function generateLink(options) {
 }
 
 function loadHeader(page) {
-  if(page != undefined){
+  if (page != undefined) {
     var header = $("#header");
     var menu = $("#menu");
     var nav = $("#navigator");
@@ -333,7 +333,7 @@ function loadHeader(page) {
     var icons = action.find("#icons");
     var drawer = icons.find("#ico-drawer");
     var back = icons.find("#ico-back");
-  //  var logo = action.find("#ico-logo");
+    //  var logo = action.find("#ico-logo");
     var title = action.find("#title");
     var descs = title.find(".desc");
 
@@ -345,12 +345,12 @@ function loadHeader(page) {
     var actionsHeader = actionsAux.find(".actions");
     var exibMenu = header.find("#exibMenu");
 
-  //  hideMenuSec();
+    //  hideMenuSec();
     back.hide();
     descs.hide().html("");
     actionsHeader.hide().html("");
 
-    search.hide();  
+    search.hide();
     menu.hide().html("");
     exibMenu.hide();
 
@@ -360,7 +360,7 @@ function loadHeader(page) {
       type: "GET",
       dataType: "json",
       success: function (response) {
-        
+
         var pageTitle = response.hasOwnProperty("title") ? response.title : false;
         var pageDrawer = response.hasOwnProperty("drawer") ? response.drawer : false;
         var pageBack = response.hasOwnProperty("back") ? response.back : false;
@@ -529,14 +529,14 @@ function clickOut() {
     hidePopup();
     hideMaskFull();
   });
-  
-  $("#nav-options").find("li").click(function(){
+
+  $("#nav-options").find("li").click(function () {
     hideMenuSec();
   });
 }
 
 function hideLogin() {
-  $("#login").fadeOut();
+  $("#login").hide();
   loadPage('index');
 }
 
@@ -571,7 +571,7 @@ function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2, elem
     popupDialog.find("input").hide();
   }
 
-  var marginTop = -(parseInt(popupDialog.css("height")) / 2);
+  var marginTop = -(50 + (parseInt(popupDialog.css("height")) / 2));
   popupDialog.css("margin-top", marginTop);
 
   // seta o primeiro botao
@@ -706,7 +706,7 @@ function showSelect(type, elem) {
         wsGetListaDefault(tipoCodigo);
 
         hideMaskFull();
-        popupSelect.hide();        
+        popupSelect.hide();
       });
       break;
   }
@@ -837,6 +837,14 @@ function init() {
       hideDrawer();
   });
 
+  $("#user-logged").on("touchstart", function (evt) {
+    evt.stopPropagation();
+  });
+  
+  $("#user-logged").on("touchmove", function (evt) {
+    evt.stopPropagation();
+  });
+  
   $("#scroll").find("li").on("touchstart", function (evt) {
     evt.stopPropagation();
   });
@@ -985,7 +993,11 @@ function wsLogin() {
   var usuario = $("#popup-login").find("input[name=usuario]").val();
   var senha = $("#popup-login").find("input[name=senha]").val();
 
-  if ((usuario.length > 0) && (senha.length > 0)) {
+  if ((usuario.length == 0) || (senha.length == 0)) {
+    toast("É necessário informar usuário e senha!");
+  }
+
+  else {
 
     /* ativa a tela de loading */
     $("#login #followingBallsG").fadeIn();
@@ -1211,7 +1223,7 @@ function wsResponseGetLista(response) {
         // insere o bloco na pagina
         contentResponse.append(card);
       });
- 
+
       // ativa as acoes de cliques nos blocos inseridos
       contentResponse.find(".card").removeClass("activeCard");
       contentResponse.find(".card").click(function () {
@@ -1220,7 +1232,7 @@ function wsResponseGetLista(response) {
           var listaId = this.id;
           listaId = listaId.replace("lista-", "");
           var lista = listasStorage[listaId];
-          
+
           var prd;
 
           var listaOk = {
@@ -1247,7 +1259,7 @@ function wsResponseGetLista(response) {
             }
             listaOk.produtos.push(prd);
           });
-          
+
           sessionStorage.setItem("listaName", "listaSelecionada");
           sessionStorage.setItem("listaSelecionada", JSON.stringify(listaOk));
 
@@ -1255,22 +1267,22 @@ function wsResponseGetLista(response) {
             case "cliente":
               loadPage("lista-produto-visualizacao-lista");
               break;
-              
+
             case "convidado":
               loadPage("lista-produto-visualizacao-convidado");
               break;
           }
 
         }
-        
+
         else {
           contentResponse.find(".card").removeClass("activeCard");
           $(this).addClass("activeCard");
         }
-        
+
         return false;
       });
-      
+
       $(window).click(function () {
         $(".card").removeClass("activeCard");
       });
@@ -1361,9 +1373,9 @@ function wsResponseGetListaDefault(response) {
   else if (response.wsstatus == 1) {
 
     var lista = response.wsresult;
-    
+
     var prd;
-    
+
     var listaOk = {
       clienteCodigo: lista.cliente_codigo,
       clienteNome: lista.cliente_nome,
@@ -1387,8 +1399,8 @@ function wsResponseGetListaDefault(response) {
         grade: {gradeNome: produto.grade, gradeQtty: produto.quantidade_listada / 1000}
       }
       listaOk.produtos.push(prd);
-    });    
-    
+    });
+
     sessionStorage.setItem("listaDefault", JSON.stringify(listaOk));
     loadPage("lista-produto-padrao");
   }
@@ -1408,7 +1420,7 @@ function wsGetCliente() {
   clienteNome = removerAcentos(clienteNome);
 
   if (clienteNome.length == 0) {
-    showDialog("Cliente", "É necessário informar o nome do cliente", "Ok");
+    showDialog("Cliente", "É necessário informar o nome do cliente!");
     hideMask();
   }
 
@@ -1513,11 +1525,11 @@ function wsResponseGetCliente(response) {
         }
         return false;
       });
-      
+
       $(window).click(function () {
         $(".cliente").removeClass("activeCliente");
       });
-      
+
       hideMask();
     }
   }
@@ -1529,7 +1541,7 @@ function exibeDialogSaveCliente() {
   var clienteCpf = $(".form [name=new_cliente_cpf]").val();
 
   if (clienteNome.length == 0 || clienteCpf.length == 0) {
-    showDialog("Cadastro", "Todos os campos são obrigatórios");
+    toast("Todos os campos são obrigatórios");
   }
 
   else {
@@ -1537,11 +1549,11 @@ function exibeDialogSaveCliente() {
       clienteNome: clienteNome,
       clienteCpf: clienteCpf
     }
-    
+
     sessionStorage.setItem("clienteInfo", JSON.stringify(clienteInfo));
 
     showDialog("Cliente", "Salvar este cliente no SACI?", "Cancel", "hideDialog()", "Ok", "wsSaveCliente()");
-  } 
+  }
 }
 
 /**
@@ -1549,7 +1561,7 @@ function exibeDialogSaveCliente() {
  * Funcao salvar novos clientes via ajax
  *
  */
-function wsSaveCliente() {  
+function wsSaveCliente() {
   showMask();
 
   var clienteInfo = sessionStorage.getItem("clienteInfo");
@@ -1569,7 +1581,7 @@ function wsSaveCliente() {
     type: "POST",
     dataType: "jsonp",
     data: {dados: dados}
-  });  
+  });
 }
 
 /**
@@ -1580,9 +1592,9 @@ function wsSaveCliente() {
  * @param {json} response
  */
 function wsResponseSaveCliente(response) {
-  
+
   hideDialog();
-  
+
   // faz o parser do json
   response = JSON.parse(response);
   // em caso de erro
@@ -1600,8 +1612,10 @@ function wsResponseSaveCliente(response) {
 
     var cliente = response.wsresult;
     sessionStorage.removeItem("clienteInfo");
-    
+
     toast("Cliente salvo no SACI!");
+
+    loadPage("index");
   }
 
   hideMask();
@@ -1622,7 +1636,7 @@ function wsGetProduto() {
   prd = removerAcentos(prd);
 
   if (prd.length == 0) {
-    showDialog("Produto", "É necessário informar o código ou o nome do produto", "Ok");
+    toast("É necessário informar o código ou o nome do produto!");
     hideMask();
   }
 
@@ -1765,22 +1779,21 @@ function wsResponseGetProduto(response) {
     var modulo = sessionStorage.getItem("modulo");
 
     var lista;
-    
+
     /* obtem a lista atual para preencher as quantidades na tela caso o produto 
-     * ja esteja na lista */     
-    if(modulo == "cliente"){
+     * ja esteja na lista */
+    if (modulo == "cliente") {
       lista = sessionStorage.getItem(listaName);
     }
-    else if(modulo == "convidado" && listaName == "listaSelecionada"){
+    else if (modulo == "convidado" && listaName == "listaSelecionada") {
       lista = sessionStorage.getItem("pedidoNew");
     }
-    
+
     lista = JSON.parse(lista);
 
-    var galeria = $("<div id='galeria-imagens'>");
-    var galeriaWrapper = $("<div class='swiper-wrapper'>");
+    var galeria = $("<div id='galeria-imagens'> class='container'");
+    var galeriaWrapper = $("<div id='slides'>");
     var imagensLista = [];
-    var gallerySwiper;
 
     var grades = $("<div id='produto-grades'>");
     var gradesLista = [];
@@ -1796,45 +1809,72 @@ function wsResponseGetProduto(response) {
 
     // Galeria de fotos
     if (produto.img.length > 0) {
-      $.each(produto.img, function (i, img) {
-        var imgUrl = img.arquivo;
 
-        /* acessando a miniatura da imagem no servidor */
-        var file = imgUrl.split('.');
-        var extensao = file[file.length - 1];
-        imgUrl = imgUrl.replace('.' + extensao, '_min.' + extensao);
+      if (produto.img.length > 2) {
+        $.each(produto.img, function (i, img) {
+          var imgUrl = img.arquivo;
 
-        box =
-                "<div class='swiper-slide'>" +
-                "<div class='content-slide'>" +
-                "<img src='" + imgUrl + "' />" +
-                "</div>" +
-                "</div>";
+          //          /* acessando a miniatura da imagem no servidor */
+          //          var file = imgUrl.split('.');
+          //          var extensao = file[file.length - 1];
+          //          imgUrl = imgUrl.replace('.' + extensao, '_min.' + extensao);
 
-        imagensLista.push(box);
-      });
+          box = "<img u='image' src='" + imgUrl + "' />";
+
+          imagensLista.push(box);
+        });
+      }
+      else {
+        for (var i = 0; i < 3; i++) {
+          var imgUrl = "";
+          if (produto.img.hasOwnProperty(i))
+            imgUrl = produto.img[i].arquivo;
+          else
+            imgUrl = produto.img[0].arquivo;
+
+          //          /* acessando a miniatura da imagem no servidor */
+          //          var file = imgUrl.split('.');
+          //          var extensao = file[file.length - 1];
+          //          imgUrl = imgUrl.replace('.' + extensao, '_min.' + extensao);
+
+          box = "<img u='image' src='" + imgUrl + "' />";
+          imagensLista.push(box);
+        }
+      }
     }
     else {
-      box =
-              "<div class='swiper-slide'>" +
-              "<div class='content-slide'>" +
-              "<img src='img/nophoto.jpg' />" +
-              "</div>" +
-              "</div>";
-      imagensLista.push(box);
+      for (var i = 0; i < 3; i++) {
+        box = "<img u='image' src='img/nophoto.jpg' />";
+        imagensLista.push(box);
+      }
     }
 
     galeriaWrapper.html(imagensLista);
-    galeria.append(galeriaWrapper);
+    galeria.html(galeriaWrapper);
     contentResponse.append(galeria);
 
-    // ativa a galeria
-    gallerySwiper = new Swiper("#galeria-imagens", {
-      speed: 500
+    $('#slides').slidesjs({
+      width: 360,
+      height: 240,
+      navigation: {
+        active: false,
+      },
+      pagination: {
+        active: true,
+      },
+      callback: {
+        loaded: function (number) {
+          var pagination = $(".slidesjs-pagination");
+//            pagination.css({
+//              "margin-left": -(pagination.width() / 2)
+//            });
+        },
+        start: function (number) {
+        },
+        complete: function (number) {
+        }
+      }
     });
-
-    // ajusta as dimensoes da galeria
-    $(".content-slide").width(page.width() + 20);
 
     // Informações do produto
     var centrolucro = produto.centrolucro.nome_categoria;
@@ -1873,7 +1913,7 @@ function wsResponseGetProduto(response) {
         if (gradeQtty > 0)
           activeGrade = "activeGrade";
 
-        if(listaName == "listaSelecionada" && modulo == "cliente"){
+        if (listaName == "listaSelecionada" && modulo == "cliente") {
           box =
                   "<div class='produto-grade bradius " + activeGrade + "'>" +
                   "<p class='produto-grade-title'>" + grade + "</p>" +
@@ -1888,7 +1928,7 @@ function wsResponseGetProduto(response) {
                   "</p>" +
                   "</div>";
         }
-        else{
+        else {
           box =
                   "<div class='produto-grade bradius " + activeGrade + "'>" +
                   "<p class='produto-grade-title'>" + grade + "</p>" +
@@ -1901,7 +1941,7 @@ function wsResponseGetProduto(response) {
                   "<img src='img/ico-collapse.png' />" +
                   "</span>" +
                   "</p>" +
-                  "</div>";                 
+                  "</div>";
         }
 
         gradesLista.push(box);
@@ -1925,7 +1965,7 @@ function wsResponseGetProduto(response) {
       if (gradeQtty > 0)
         activeGrade = "activeGrade";
 
-      if(listaName == "listaSelecionada" && modulo == "cliente"){
+      if (listaName == "listaSelecionada" && modulo == "cliente") {
         box =
                 "<div class='produto-grade bradius " + activeGrade + "' style='width: 100%;'>" +
                 "<p class='produto-grade-title'>Quantidade</p>" +
@@ -1940,8 +1980,8 @@ function wsResponseGetProduto(response) {
                 "</p>" +
                 "</div>";
       }
-      
-      else{
+
+      else {
         box =
                 "<div class='produto-grade bradius " + activeGrade + "' style='width: 100%;'>" +
                 "<p class='produto-grade-title'>Quantidade</p>" +
@@ -1994,15 +2034,15 @@ function wsResponseGetProduto(response) {
 
 function prdAddList() {
   var modulo = sessionStorage.getItem("modulo");
-  var listaName = sessionStorage.getItem("listaName");  
+  var listaName = sessionStorage.getItem("listaName");
   var produtoLoad = sessionStorage.getItem("produtoLoad");
   var lista;
   var prd;
-  
-  if(modulo == "convidado" && listaName == "listaSelecionada"){
+
+  if (modulo == "convidado" && listaName == "listaSelecionada") {
     listaName = "pedidoNew";
   }
-  
+
   lista = sessionStorage.getItem(listaName);
 
   var page = $("#content").find(".page.activePage:last");
@@ -2146,7 +2186,7 @@ function wsSaveLista() {
 
     listaOk.cabecalho = cabecalho;
     listaOk.produtos = produtos;
-    
+
     sessionStorage.setItem("listaOk", JSON.stringify(listaOk));
   }
 
@@ -2337,7 +2377,7 @@ function wsSavePedido() {
 
     pedidoOk.cabecalho = cabecalho;
     pedidoOk.produtos = produtos;
-    
+
     sessionStorage.setItem("pedidoOk", JSON.stringify(pedidoOk));
   }
 
@@ -2481,46 +2521,46 @@ function wsResponseSavePedido(response) {
 }
 
 function exibeDialogClearList() {
-  var page = $("#content").find(".page.activePage:last");  
+  var page = $("#content").find(".page.activePage:last");
   var contentResponse = page.find(".content-response");
-  
-  if(contentResponse.find(".produto").length == 0){
+
+  if (contentResponse.find(".produto").length == 0) {
     toast("Não há produtos a serem removidos!");
   }
-  
+
   else
-    showDialog("Produto", "Excluir todos os produto?", "Cancel", "hideDialog()", "Ok", "clearList()");  
+    showDialog("Produto", "Excluir todos os produto?", "Cancel", "hideDialog()", "Ok", "clearList()");
 }
 
-function clearList(){
-  
+function clearList() {
+
   hideDialog();
-  
+
   var modulo = sessionStorage.getItem("modulo");
   var listaName = sessionStorage.getItem("listaName");
-  
+
   var lista;
-  
+
   var page = $("#content").find(".page.activePage:last");
   var pageId = "#" + page.attr("id");
   var marcaDagua = $(pageId).find(".mark-agua");
   var contentResponse = $(pageId).find(".content-response");
   var totalPrds = $("#prd-total");
-  
-  if(modulo == "convidado" && listaName == "listaSelecionada"){
+
+  if (modulo == "convidado" && listaName == "listaSelecionada") {
     listaName = "pedidoNew";
   }
   lista = sessionStorage.getItem(listaName);
   lista = JSON.parse(lista);
-  
+
   lista.produtos = [];
-  
+
   sessionStorage.setItem(listaName, JSON.stringify(lista));
-  
+
   contentResponse.find(".produto").remove();
   contentResponse.hide();
   marcaDagua.show();
-  totalPrds.hide();  
+  totalPrds.hide();
 }
 
 function exibeDialogPrdDel(produtoId, produtoCodigo, produtoGrade) {
@@ -2558,7 +2598,7 @@ function prdDel() {
 
   prd.slideUp(function () {
 
-    if(modulo == "convidado" && listaName == "listaSelecionada"){
+    if (modulo == "convidado" && listaName == "listaSelecionada") {
       listaName = "pedidoNew";
     }
     lista = sessionStorage.getItem(listaName);
@@ -2595,19 +2635,19 @@ function prdLoad(produtoCodigo) {
   var listaName = sessionStorage.getItem("listaName");
   var modulo = sessionStorage.getItem("modulo");
   sessionStorage.setItem("produtoLoadInfo", produtoCodigo);
-  
-  switch(listaName){
-    
+
+  switch (listaName) {
+
     case "listaSelecionada":
-      if(modulo == "cliente")
+      if (modulo == "cliente")
         loadPage("produto-visualizacao");
       else
         loadPage("produto-busca");
       break;
-      
+
     default:
       loadPage("produto-busca");
-  }  
+  }
 }
 
 function exibeDialogSaveLista() {
@@ -2629,8 +2669,51 @@ function exibeDialogSavePedido() {
 
   /* caso nao haja um pedido ou o mesmo esteja sem produtos nao salva o pedido */
   if (pedido == null || !pedido.produtos.hasOwnProperty(0))
-    toast("É necessário adicionar produtos na pedido!");
+    toast("É necessário adicionar produtos no pedido!");
 
   else
     showDialog('Concluir', 'Salvar este pedido no SACI?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSavePedido()');
+}
+
+function barcodeScan() {
+  var scanner = cordova.plugins.barcodeScanner;
+  scanner.scan(
+          function (result) {
+            var search = $("#header").find("#search");
+            var searchInput = search.find("input[name=search]");
+            searchInput.val(result.text);
+            wsGetProduto();
+          },
+          function (error) {
+            toast("Erro ao tentar ler o código de barras!");
+          }
+  );
+}
+
+function exibeDialogAppClose() {
+  showDialog('Aplicativo', 'Deseja fechar o aplicativo?', 'Cancelar', 'hideDialog()', 'Ok', 'appClose()');
+}
+
+/**
+ * appClose
+ * Funcao para fechar o aplicativo
+ */
+function appClose() {
+  /* 'mata' o aplicativo */
+  if (navigator.app) {
+    navigator.app.exitApp();
+  }
+
+  else if (navigator.device) {
+    navigator.device.exitApp();
+  }
+}
+
+function logout() {
+  sessionStorage.clear();
+  window.location.reload();
+}
+
+function exibeDialogLogout() {
+  showDialog('Usuário', 'Deseja sair deste usuário?', 'Cancelar', 'hideDialog()', 'Ok', 'logout()');
 }

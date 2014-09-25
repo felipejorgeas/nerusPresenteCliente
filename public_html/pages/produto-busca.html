@@ -10,17 +10,16 @@
 <script>
   $(function () {
     var produtoLoadInfo = sessionStorage.getItem("produtoLoadInfo");
-    
+
     sessionStorage.removeItem("produtoLoad");
-    
-    if(produtoLoadInfo > 0){
+
+    if (produtoLoadInfo > 0) {
       window.setTimeout(showMask, 1);
       var search = $("#search");
       search.find("input[name=search]").val(produtoLoadInfo);
       wsGetProduto();
       sessionStorage.removeItem("produtoLoadInfo");
     }
-      
     hideMask();
   });
 </script>

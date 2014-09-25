@@ -33,7 +33,7 @@
         <div id="actions-right">
           <div id="search">
             <a id="action-0" class="actions" href="javascript:void(0);">
-              <img class="ico-actions" src="img/ico-barcode.png" />
+              <img class="ico-actions" src="img/ico-barcode.png" onclick="barcodeScan();" />
             </a>
             <input type="text" name="search" />
             <input type="hidden" name="funcSearch" />
@@ -103,7 +103,7 @@
       <!-- Menu lateral -->
       <div id="navigator">
         <div id="scroll">
-          <div id="user-logged">
+          <div id="user-logged" onclick="exibeDialogLogout();">
             <div id="user-img">
               <img src="img/ico-perfil.png" />
             </div>
@@ -166,7 +166,7 @@
               <img class="icon" src="img/ico-about.png" />
               Sobre
             </li>
-            <li onclick="close();">
+            <li onclick="exibeDialogAppClose();">
               <img class="icon" src="img/ico-arrowback.png" />
               Fechar
             </li>
@@ -232,32 +232,26 @@
 
     <!-- javascript inicial a ser executado ao carregar o aplicativo -->
     <script>
-                $LAB
-                        .setOptions({AlwaysPreserveOrder: true})
-                        .script("js/jquery.min.js")
-                        .script("js/iscroll.min.js")
-                        .script("js/jquery-scrollTo.min.js")
-                        .script("js/jquery-ui.min.js")
-                        .script("js/jquery-ui-touch.min.js")
-                        .script("js/fastclick.min.js")
-                        .script("js/idangerous-swiper.min.js")
-                        .script({src: "js/util.js", charset: "UTF-8"})
-                        .script({src: "js/app.js", charset: "UTF-8"}).wait(function () {
+      $LAB.setOptions({AlwaysPreserveOrder: true})
+        .script("cordova.js")
+        .script("barcodescanner.js")
+        .script("js/jquery.min.js")
+        .script("js/iscroll.min.js")
+        .script("js/jquery-scrollTo.min.js")
+        .script("js/jquery-ui.min.js")
+        .script("js/jquery-ui-touch.min.js")
+        .script("js/fastclick.min.js")
+        .script("js/idangerous-swiper.min.js")
+        .script("js/slidesjs.min.js")
+        .script({src: "js/util.js", charset: "UTF-8"})
+        .script({src: "js/app.js", charset: "UTF-8"}).wait(function () {
 
-                  // Define as acoes dos botoes fisicos do android
-                  document.addEventListener("menubutton", onBackKeyMenu, false);
-                  document.addEventListener("backbutton", onBackKeyDown, false);
+          // Define as acoes dos botoes fisicos do android
+          document.addEventListener("menubutton", onBackKeyMenu, false);
+          document.addEventListener("backbutton", onBackKeyDown, false);
 
-                  init();
-
-                });
-
-                //Define as acoes dos botoes fisicos do android
-                //              document.addEventListener("menubutton", onBackKeyMenu, false);
-                //              document.addEventListener("backbutton", onBackKeyDown, false);
-                //
-                //              init();
-
+          init();
+      });
     </script>
 
   </body>
