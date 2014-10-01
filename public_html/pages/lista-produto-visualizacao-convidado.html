@@ -1,6 +1,104 @@
 <div class="content-response"></div>
 
 <script>
+  function ajustRangePrice(min, max){
+    var sliderRange = $("#slider-range");
+    var priceMin = $("#price-min");
+    var priceMax = $("#price-max");
+    
+    min /= 100;
+    max /= 100;
+    
+    sliderRange.slider({
+      range: true,
+      min: min,
+      max: max,
+      values: [min, max],
+      slide: function (event, ui) {
+        var min = number_format(ui.values[0], 2, ",", ".");
+        var max = number_format(ui.values[1], 2, ",", ".");
+        priceMin.text(min);
+        priceMax.text(max);
+      }
+    });
+    priceMin.text(number_format(min, 2, ",", "."));
+    priceMax.text(number_format(max, 2, ",", "."));
+  }
+  
+  function inArray(key, arr){
+    var existsOk = false;
+    $.each(arr, function(i, item){
+      if(item == key)
+        existsOk = true;
+    });
+    return existsOk;
+  }
+  
+  function filterListPrds(){
+    hideMenuSec();
+    
+    var page = $("#content").find(".page.activePage:last");
+    var contentResponse = page.find(".content-response");    
+    var filtros = $("#filter-lista-produto");
+    
+    var produtos = contentResponse.find(".produto");
+    var visibleOk = false;
+    var prd;
+    var produtoNome;
+    var produtoPreco;
+    var produtoCentroLucro;
+    
+    var search;
+    var filtroProdutoNome = filtros.find(".produtoNome").eq(0).val();
+    var filtroPrecoMin = filtros.find("#price-min").text();
+    var filtroPrecoMax = filtros.find("#price-max").text();
+    var filtroPrecoMax = filtros.find("#price-max").text();
+    var filtroCentrosLucro = filtros.find(".accordionCentroLucro").find(".checkbox.active");
+    var cls = [];
+    
+    filtroProdutoNome = filtroProdutoNome.toUpperCase();
+    filtroPrecoMin = filtroPrecoMin.replace(/[^0-9]/g, "");
+    filtroPrecoMax = filtroPrecoMax.replace(/[^0-9]/g, "");
+
+    $.each(filtroCentrosLucro, function (i, item) {
+      cls.push(parseInt($(item).attr("data-value")));
+    });
+    
+    produtos.hide();
+    
+    $.each(produtos, function(i, item){
+      visibleOk = false;
+      prd = $(item);
+      
+      produtoNome = prd.find(".prd-name").text();
+      search = new RegExp(filtroProdutoNome);
+      
+      produtoPreco = prd.find(".prd-price").eq(0).find("span").text();
+      produtoPreco = parseInt(produtoPreco);
+      
+      produtoCentroLucro = parseInt(prd.find(".prd-catname").eq(0).text());
+      
+      if(search.test(produtoNome))
+        visibleOk = true;
+      else
+        visibleOk = false;
+
+      if(visibleOk == true && (produtoPreco >= filtroPrecoMin && produtoPreco <= filtroPrecoMax))
+        visibleOk = true;
+      else
+        visibleOk = false;
+            
+      if(cls.length > 0){
+        if(visibleOk == true && inArray(produtoCentroLucro, cls))
+          visibleOk = true;
+        else
+          visibleOk = false;
+      }
+      
+      if(visibleOk)
+        prd.fadeIn();
+    });
+  }
 
   $(function () {
     var lista = sessionStorage.getItem("listaSelecionada");
@@ -15,10 +113,20 @@
     var grade;
     var box;
 
+    var priceMin = parseInt(lista.produtos[0].produto.preco);
+    var priceMax = parseInt(lista.produtos[0].produto.preco);
+
     marcaDagua.hide();
     contentResponse.scrollTop(0).show();
 
     $.each(lista.produtos, function (i, prd) {
+      
+      if(parseInt(prd.produto.preco) < priceMin)
+        priceMin = prd.produto.preco;
+      
+      else if(parseInt(prd.produto.preco) > priceMax)
+        priceMax = prd.produto.preco;
+      
       grade = "";
 
       if (prd.grade.gradeNome.length > 0)
@@ -29,7 +137,7 @@
               "<div id='produto-" + i + "' class='produto bradius'>" +
               "<div class='options animate'>" +
 //              "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
-              "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\");' />" +
+              "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\",\"" + prd.grade.gradeNome + "\");' />" +
               "</div>" +
               "<div>" +
               "<div class='prd-img bradius'>" +
@@ -43,6 +151,7 @@
               "<p class='prd-price'>R$ <strong>" + number_format(prd.produto.preco / 100, 2, ',', '.') + "</strong><span class='hidden'>" + prd.produto.preco + "</span></p>" +
               "</div>" +
               "<p class='prd-cat'>" + prd.produto.centrolucro.nome_categoria + "</p>" +
+              "<p class='prd-catname hidden'>" + prd.produto.centrolucro.codigo_categoria + "</p>" +
               "</div>";
 
       produtosLista += box;
@@ -61,9 +170,8 @@
         item.addClass("activeProduto").find(".options").addClass('activeOption');
       }
 
-      else {
+      else
         item.removeClass("activeProduto").find(".options").removeClass('activeOption');
-      }
 
       return false;
     });
@@ -83,8 +191,10 @@
 
     totalPrds.find("#qtty").hide();
     totalPrds.find("#price").find("span").text(total);
-
     totalPrds.hide();
+    
+    $("#filter-lista-produto").find(".produtoNome").eq(0).val("");
+    ajustRangePrice(priceMin, priceMax);
 
     hideMask();
   });

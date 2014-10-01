@@ -13,7 +13,7 @@
   "back":
   {
     "show": true,
-    "onclick": "loadPage('', true);"
+    "onclick": "loadPage('', true, true);"
   },
   "actions":
   {

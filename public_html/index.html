@@ -2,7 +2,7 @@
 <html lang="pt-br">
   <head>
     <meta charset="utf-8">
-    <title>SACI Presente</title>
+    <title>NÉRUS Presente</title>
     <meta name="description" content="">
     <meta name="viewport" content="width=device-width, user-scalable=no, user-scalable=no, initial-scale=1">
     <link rel="stylesheet" href="css/style.css">
@@ -13,6 +13,9 @@
     <div class="container">
       <!-- toast -->
       <div id="toast"></div>
+      
+      <!--  -->
+      <!--<button id="execFunction" class="hidden" type="button"></button>-->
 
       <!-- Topo -->
       <div id="header">
@@ -53,7 +56,7 @@
       <ul id="menu" class="animate"></ul>
 
       <!-- Tela de login -->
-      <div id="login"  class="popup">
+      <div id="login" class="popup">
         <div id="popup-login" class="bradius">
           <p class="logo-cliente">
             <img src="img/logo-cliente.png" />
@@ -63,7 +66,7 @@
           </p>
           <p>
             <input id="login-senha" type="password" class="bradius" name="senha" placeholder="Senha" />
-            <span class="show-pass" data-field="login-senha"></span>
+            <span class="show-pass checkbox" data-field="login-senha"><span></span></span>
           </p>
           <button type="button" onclick="wsLogin();">Ok</button>
 
@@ -76,7 +79,7 @@
           </div>
         </div>
         <p class="rodape">
-          SACI Presente - v0.01
+          NÉRUS Presente - v0.01
         </p>
       </div>
 
@@ -93,12 +96,6 @@
 
       <!-- popup para simular select field -->
       <div id="popup-select" class="popup bradius"></div>
-
-      <!-- popup para exibir imagens de galerias -->
-      <div id="popup-img" class="popup bradius hidden">
-        <div id="imgLoad"></div>
-        <p id="zoom"><span id="menos">-</span> zoom <span id="mais">+</span></p>
-      </div>
 
       <!-- Menu lateral -->
       <div id="navigator">
@@ -117,8 +114,8 @@
             <li>
               Data do evento
               <p>
-                <span class="input input-date day bradius" onclick="showSelect('day', this);">00</span>/
-                <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>/
+                <span class="input input-date day bradius" onclick="showSelect('day', this);">00</span>
+                <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>
                 <span class="input input-date year bradius" onclick="showSelect('year', this);">0000</span>
                 <span class="reset-fields" onclick="resetFields(this, 'date');"></span>
               </p>
@@ -131,26 +128,59 @@
               </p>
             </li>
             <li>
-              <button type="button" class="filter-submit" onclick="wsGetLista();">Buscar</button>
+              <button type="button" class="filter-submit" onclick="wsGetLista();">Buscar Listas de Presentes</button>
             </li>
           </ul>
           <ul id="filter-lista-produto" class="nav-filter">
             <li class="category">Filtros</li>
             <li>
-              Produto:
+              Produto
               <p>
-                <input type="text" class="input bradius no-text-center" />
+                <input type="text" class="input produtoNome bradius no-text-center" />
                 <span class="reset-fields" onclick="resetFields(this);"></span>
               </p>
             </li>
             <li>
-              Faixa de preço: R$ <span id="price-min"></span> até R$ <span id="price-max"></span>
+              Faixa de Preço <br />
+              R$ <span id="price-min" class="price"></span> - R$ <span id="price-max" class="price"></span>
               <p>
-              <div id="slider-range"></div>
+                <div id="slider-range"></div>
               </p>
             </li>
             <li>
-              <button type="button" class="filter-submit" onclick="wsGetLista();">Filtrar na lista</button>
+              Centro de Lucro
+              <p>
+                <div class="accordionCentroLucro accordion"></div>
+              </p>
+            </li>
+            <li>
+              <button type="button" class="filter-submit" onclick="filterListPrds();">Filtrar Produtos</button>
+            </li>
+          </ul>
+          <ul id="filter-produto-busca" class="nav-filter">
+            <li class="category">Filtros</li>
+            <li>
+              Fabricante
+              <p>
+                <span class="input input-select fabricante bradius" onclick="showSelect('fabricante', this);" data-value="">Selecione</span>
+                <span class="reset-fields" onclick="resetFields(this, 'select');"></span>
+              </p>
+            </li>
+            <li>
+              Tipo de Produto
+              <p>
+                <span class="input input-select tipoProduto bradius" onclick="showSelect('tipoProduto', this);" data-value="">Selecione</span>
+                <span class="reset-fields" onclick="resetFields(this, 'select');"></span>
+              </p>
+            </li>
+            <li>
+              Centro de Lucro
+              <p>
+                <div class="accordionCentroLucro accordion"></div>
+              </p>
+            </li>
+            <li>
+              <button type="button" class="filter-submit" onclick="wsGetProduto();">Buscar Produto</button>
             </li>
           </ul>
           <ul id="nav-options">
@@ -171,7 +201,7 @@
               Fechar
             </li>
           </ul>
-          <p id="app">SACI Presente - v0.01</p>
+          <p id="app">NÉRUS Presente - v0.01</p>
         </div>
       </div>
 
@@ -195,9 +225,9 @@
         <!-- Mascara ativada para bloquear todos os elementos no fundo da tela -->
         <div id="mask-full"></div>
 
-        <ul id="abas">
+<!--        <ul id="abas">
           <span class="border-move"></span>
-        </ul>
+        </ul>-->
         
         <div id="sub-title-page"></div>
         
@@ -209,14 +239,14 @@
         <div id="lista-busca" class="page animate"></div>
         <div id="lista-produto" class="page animate"></div>
         <div id="lista-produto-nova-lista" class="page animate"></div>
-        <div id="lista-produto-visualizacao-lista" class="page animate"></div>
+        <div id="lista-produto-edicao-lista" class="page animate"></div>
         <div id="lista-produto-visualizacao-convidado" class="page animate"></div>
         <div id="lista-produto-padrao" class="page animate"></div>
         <div id="lista-cadastro" class="page animate"></div>
-        <div id="pedido-produto" class="page animate"></div>
+        <div id="pedido-produto" class="page animate padding-top"></div>
         <div id="produto-busca" class="page animate no-padding"></div>
         <div id="produto-visualizacao" class="page animate no-padding"></div>
-        <div id="historico" class="page animate"></div>
+        <div id="historico" class="page animate no-padding"></div>
         <div id="configuracoes" class="page animate no-padding"></div>
         <div id="sobre" class="page animate"></div>
         
@@ -233,8 +263,8 @@
     <!-- javascript inicial a ser executado ao carregar o aplicativo -->
     <script>
       $LAB.setOptions({AlwaysPreserveOrder: true})
-        .script("cordova.js")
-        .script("barcodescanner.js")
+//        .script("cordova.js")
+//        .script("barcodescanner.js")
         .script("js/jquery.min.js")
         .script("js/iscroll.min.js")
         .script("js/jquery-scrollTo.min.js")

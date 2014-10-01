@@ -8,15 +8,15 @@
 <script>
 
   $(function () {
-    var lista = sessionStorage.getItem("listaNew");
+    var lista = sessionStorage.getItem("listaSelecionada");
     lista = JSON.parse(lista);
-
+    
+    console.log(lista);
+    
     var page = $("#content").find(".page.activePage:last");
     var pageId = "#" + page.attr("id");
     var marcaDagua = $(pageId).find(".mark-agua");
     var contentResponse = $(pageId).find(".content-response");
-
-    sessionStorage.setItem("listaName", "listaNew");
 
     if (lista.produtos.hasOwnProperty(0)) {
 

@@ -3,7 +3,7 @@
   {
     "show": true,
     "logo": "<img src='img/logo-cliente.png' />",
-    "subtitle": "LISTA DE PRESENTES"
+    "subtitle": "PRODUTOS DA LISTA"
   },
   "drawer":
   {
@@ -17,7 +17,7 @@
   },
   "actions":
   {
-    "show": false,
+    "show": true,
     "itens":
     [
       {
@@ -25,14 +25,18 @@
         "icon": "new"
       },
       {
-        "onclick": "saveList();",
+        "onclick": "exibeDialogSaveLista();",
         "icon": "accept"
+      },
+      {
+        "onclick": "exibeDialogClearList();",
+        "icon": "cancel"
       }
     ]
   },
   "menu":
   {
-    "show": false,
+    "show": true,
     "itens":
     [
       {
@@ -43,7 +47,7 @@
   },
   "nav":
   {
-    "show": true,
+    "show": false,
     "type": "lista-produto"
   }
 }

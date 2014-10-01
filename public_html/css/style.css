@@ -134,7 +134,7 @@ button {
   bottom: 0;
   background: #EEE;
   border-right: 1px solid #CCC;
-  overflow: scroll;
+  overflow: auto;
   -webkit-overflow-scrolling: touch;
 }
 
@@ -157,13 +157,17 @@ button {
 }
 
 #navigator .nav-filter{
-
+  display: none;
 }
 
 #navigator .nav-filter .category{
   font-weight: bold;
   color: #900;
   padding-left: 0;
+}
+
+#navigator .nav-filter .price{
+  font-size: x-large;
 }
 
 #navigator .filter-submit{
@@ -177,10 +181,13 @@ button {
   border-radius: 3px;
 }
 
-.ui-slider .ui-slider-handle {  
-  border-radius: 3px;
+.ui-slider .ui-slider-handle {
+  width: 30px;
+  height: 30px;
+  margin-top: -5px;
+  border-radius: 50%;
   background: #666;
-  border: 1px solid #EEE;
+  border: 2px solid #EEE;
 }
 
 .ui-slider .ui-slider-range {
@@ -220,6 +227,9 @@ button {
 #navigator .nav-filter input{
   width: 100%;
   background: none;
+  overflow-x: auto;
+  white-space: nowrap;
+  text-transform: uppercase;
 }
 
 #navigator .nav-filter p{
@@ -271,23 +281,41 @@ button {
   display: inline-block;
 }
 
-.show-pass{
-  position: absolute;
-  top: 10px;
-  right: 0;
-  width: 20px;
-  height: 20px;
+.checkbox{
+  position: absolute;  
+  width: 25px;
+  height: 25px;
   background: #FFF;
   display: inline-block;
   border: 2px solid #999;
-
+  top: 50%;
+  margin-top: -13px;
+  right: 20px;
   -moz-border-radius: 50%;
   -webkit-border-radius: 50%;
   border-radius: 50%;
 }
 
-.show-pass.active{
-  background: #999;
+.checkbox span{
+  width: 13px;
+  height: 13px;
+  margin: 4px;
+  background: #FFF;
+  display: block;
+  -moz-border-radius: 50%;
+  -webkit-border-radius: 50%;
+  border-radius: 50%;
+}
+
+.checkbox.active span{  
+  background: #900;  
+  -webkit-box-shadow: 0 0 3px 0 #900;
+  -moz-box-shadow: 0 0 3px 0 #900;
+  box-shadow: 0 0 3px 0 #900;
+}
+
+.show-pass{  
+  right: 0;
 }
 
 #menu {
@@ -406,6 +434,10 @@ button {
   position: relative;
 }
 
+#login #popup-login input{
+  font-size: large;
+}
+
 #login #popup-login input, #login #popup-login button{
   margin: 5px 0;
   width: 100%;
@@ -430,10 +462,10 @@ button {
 
 #popup-dialog{
   position: absolute;
-  width: 300px;
   top: 50%;
   left: 50%;
-  margin-left: -150px;
+  width: 400px;
+  margin-left: -200px;
   background: #FFF;
   border: 1px solid #CCC;
   display: none;
@@ -452,12 +484,14 @@ button {
 }
 
 .dialog .msg{
+  font-size: large;
   margin: 10px 0 0 0;
   padding-bottom: 10px;
   border-bottom: 1px solid #CCC;
 }
 
 #popup-dialog input{
+  font-size: large;
   width: 100%;
 }
 
@@ -506,15 +540,18 @@ button {
 .input{
   height: 40px;
   line-height: 40px;
-  text-align: center;
-  padding: 0 5px;
+  padding: 0 20px 0 5px;
   border-bottom: 1px solid #444;
   display: inline-block;
   font-size: x-large;
+  overflow-x: auto;
+  white-space: nowrap;
+  text-align: center;
 }
 
 .input-date{
   width: 70px;
+  padding: 0 5px;
 }
 
 .input-select{
@@ -536,13 +573,12 @@ button {
 
 .form .input-input, .form .input-select{
   text-align: left;
-  width: 100%;
-  overflow-x: auto;
-  white-space: nowrap;
+  width: 100%;  
 }
 
 .form .input{
   margin-bottom: 20px;
+  text-transform: uppercase;
 }
 
 .form .title{
@@ -610,10 +646,11 @@ button {
   left: 10px;
   right: 10px;
   border-top: none; 
+  background: #FFF;
   overflow-y: auto;
   overflow-x: hidden;
-  z-index: 4;
   display: none;
+  z-index: 4;
   -webkit-border-radius: 0 0 3px 3px;
   -moz-border-radius: 0 0 3px 3px;
   border-radius: 0 0 3px 3px;
@@ -689,6 +726,14 @@ button {
 
 .no-padding{
   padding: 0;
+}
+
+.padding-top{
+  padding-top: 60px;
+}
+
+.inactive{
+  color: #CCC;
 }
 
 .inactivePage {
@@ -833,6 +878,10 @@ button {
   background: url("../img/ico-search.png") left center no-repeat;
   background-size: 30px;
   border-bottom: 1px solid #AAA;
+}
+
+.text-center{
+  text-align: center !important;
 }
 
 .no-text-center{
@@ -1451,6 +1500,11 @@ button {
   box-shadow: inset 0 -10px 0 #900;
 }
 
+.selectedGrade{
+  font-weight: bold;
+  color: #900;
+}
+
 .produto-grade:nth-child(even){
   margin: 0 0 20px 0;
   float: right;
@@ -1528,9 +1582,98 @@ button {
 .slidesjs-pagination li a:hover {
   background-position: 0 -26px
 }
+.configs{
+  margin-bottom: 20px;
+  text-align: left;
+  margin-top: 2px;
+}
+.configs .title{
+  background: #EEE;
+  color: #900;
+  font-weight: bold;
+  font-size: large !important;
+  padding: 10px 20px;
+}
+.configs ul{
+  list-style: none;
+}
+.configs ul li{
+  position: relative;
+  padding: 20px 50px 20px 30px;
+}
+
+.sep{
+  background: #EEE;
+  color: #900;
+  font-weight: bold;
+  font-size: large;
+  text-align: right;
+  padding: 15px 20px;
+  margin-top: 2px;
+}
+.accordion h3{
+  background: #FFF;
+  font-weight: bold;
+  font-size: large !important;
+  padding: 15px 20px 15px 35px !important;
+}
+.accordion ul{
+  list-style: none;
+}
+.accordion ul li{
+  padding: 15px 10px;
+}
+.accordion-mark{
+  width: 20px;
+  height: 20px;
+  background-image: url("../img/ico-expand.png");
+  background-repeat: no-repeat;
+  background-size: 20px;
+}
+.accordion-mark-active{
+  width: 20px;
+  height: 20px;
+  background-image: url("../img/ico-collapse.png");
+  background-repeat: no-repeat;
+  background-size: 20px;
+}
+.nav-filter .accordion{
+  margin: 0 0 0 0 !important;
+  padding: 0 !important;
+}
+.nav-filter .accordionCentroLucro{
+  margin-left: -10px !important;
+}
+.nav-filter .accordion h3{
+  background: none;
+  font-weight: normal;
+  font-size: large;
+  padding: 15px 20px 15px 35px !important;
+}
+.nav-filter .accordion ul{  
+  margin: 0 0 0 15px !important;
+  padding: 0 !important;
+  overflow-x: hidden;
+}
+.nav-filter .accordion ul li{
+  padding: 0 !important;
+  border: none !important;
+}
+.nav-filter .accordion ul li.option{
+  position: relative;
+  padding: 15px !important;
+}
+.nav-filter .accordion ul li.option span{  
+  right: 20px;
+}
 
 @media only screen
 and (max-width: 600px){
+
+  #popup-dialog{
+    width: 300px;
+    margin-left: -150px;
+  }
 
   #actions-left #action #title img{
     max-width: 120px;

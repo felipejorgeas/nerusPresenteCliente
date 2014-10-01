@@ -3,11 +3,63 @@
   <p>Adicione os produtos</p>
 </div>
 
+<style>
+  #pedidoCliente{
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    background: #666;
+    color: #FFF;
+    padding: 10px;
+    text-align: center;
+    font-weight: bold;
+  }
+</style>
+
+<div id="pedidoCliente" onclick="exibeDialogSetClientePedido(this);">CLIENTE</div>
+
 <div class="content-response"></div>
 
 <script>
+  
+  function exibeDialogSetClientePedido(elem){
+    var cliente = $(elem).text();
+    
+    cliente = cliente.trim();
+    
+    if (cliente == "CLIENTE")
+      cliente = "";
+    
+    setElementPopupVal = elem;
+    
+    showDialog('Cliente', 'Digite o nome do cliente:', 'Cancelar', 'hideDialog()', 'Ok', 'setClientePedido()', true);
+    $("#popup-dialog").find("input").css("text-transform", "uppercase").val(cliente);
+  }
+  
+  function setClientePedido(){
+    var cliente = $("#popup-dialog").find("input").val();
+    
+    cliente = cliente.trim();
+    cliente = cliente.toUpperCase();
+    
+    if (cliente.length == 0){
+      cliente = "CLIENTE";
+      sessionStorage.setItem("pedidoCliente", "");
+    }
+    else
+      sessionStorage.setItem("pedidoCliente", cliente);
+    
+    $(setElementPopupVal).text(cliente);
+    
+    hideDialog();
+  }
 
   $(function() {
+    
+    var pedidoCliente = sessionStorage.getItem("pedidoCliente");
+    if (pedidoCliente != null && pedidoCliente != "CLIENTE")
+      $("#pedidoCliente").text(pedidoCliente);
 
     var lista = sessionStorage.getItem("pedidoNew");
     lista = JSON.parse(lista);

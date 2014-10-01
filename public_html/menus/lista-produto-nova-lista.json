@@ -47,7 +47,7 @@
   },
   "nav":
   {
-    "show": true,
+    "show": false,
     "type": "lista-produto"
   }
 }

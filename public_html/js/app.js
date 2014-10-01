@@ -6,6 +6,18 @@
  Prototipo de transicao de telas com animacao zoom in zoom out basica
  */
 
+var configsApp = {
+  serverUrl: {text: "http://eac-gvt.eacsoftware.com.br:8086/saciPresenteServidor", type: "input"},
+  maxTimeRequest: {text: "30", type: "input"},
+  maxTimeMsgToast: {text: "4", type: "input"},
+  storeno: {text: "", type: "input"},
+  pdvno: {text: "", type: "input"},
+  sendMail: {text: "0", type: "radio"}
+};
+
+//var connectionOk = false;
+
+var pageOld = "";
 var pageBack = [];
 var waitLoadPage = 0;
 var waitLoadPageInterval;
@@ -14,17 +26,176 @@ var waitToastMsg;
 
 var setElementPopupVal;
 
-var configServerUrl = "http://eac-gvt.eacsoftware.com.br:8086/saciPresenteServidor";
+//http://eac-gvt.eacsoftware.com.br:8086/saciPresenteServidorvar configServerUrl = "http://eac-gvt.eacsoftware.com.br:8086/saciPresenteServidor";
 
 var fileSplit;
 var limitSplitPrds = 10;
 
+/**
+ * Acoes ao pressionar o botão físico menu
+ * 
+ * @param {type} e
+ * @returns {undefined}
+ */
 function onBackKeyMenu(e) {
+  /* caso nao esteja na tela de login alterna entre abrir e fechar o menu */
+  if (!$("#login").is(":visible"))
+    menuSec();
+
   e.preventDefault();
 }
 
+/**
+ * Acoes ao pressionar o botão físico voltar
+ * 
+ * @param {type} e
+ * @returns {undefined}
+ */
 function onBackKeyDown(e) {
+  // limpa a pagina a ser preenchida com os dados
+  var page = $("#content").find(".page.activePage:last").attr("id");
+
+  var header = $("#header");
+  var action = header.find("#action");
+
+  var menu = $("#navigator");
+  var menuLeft = getTranslateX(menu);
+
+  /* caso a busca esteja ativa, oculta-a */
+  if ($("#search").is(":visible"))
+    hideSearch();
+
+  /* caso algum dialogo esteja ativo, oculta-o */
+  else if ($("#popup-dialog").is(":visible"))
+    hideDialog();
+
+  /* caso algum select esteja ativo, oculta-o */
+  else if ($("#popup-select").is(":visible")) {
+    $("#popup-select").hide();
+    hideMaskFull();
+  }
+
+  /* caso a lista de produtos esteja ativa, oculta-a */
+  else if ($("#list-prds").height() > 0)
+    $("#list-prds").slideUp(function () {
+      $("#list-prds").html("");
+    });
+
+  /* caso o menu topo direito esteja ativo, oculta-o */
+  else if ($("#menu").hasClass("activeMenu"))
+    hideMenu();
+
+  /* caso o menu lateral esquerdo esteja ativo, oculta-o */
+  else if (menuLeft == 0)
+    hideMenuSec();
+
+  /* caso nao tenha entrado em nenhuma das clausulas acima
+   * executa a seguinte acao:
+   * se a pagina ataul nao for a index aciona a acao do botao da logo do cliente */
+  else if (page != "index")
+    action.click();
+
+  /* caso a pagina atual seja index exibe o popup para fechar o aplicativo */
+  else
+    exibeDialogAppClose();
+
   e.preventDefault();
+}
+
+//function verifyConnectionServer(args) {
+//  if (navigator.onLine) {
+//    $.ajax({
+//      url: configsApp.serverUrl.text + "/conected.json",
+//      type: "POST",
+//      dataType: "jsonp",
+//      statusCode: {
+//        200: function () {
+//          execLastFunction(args);
+//        },
+//        404: function () {
+//          toast("Não há conexão com o servidor! Verifique as configurações do aplicativo!");
+//        }
+//      }
+//    });
+//  } else {
+//    toast("Verifique seu sinal de internet!");
+//  }
+//}
+//
+//function execLastFunction(args) {
+//  connectionOk = true;
+//
+//  var execFunc = $("#execFunction");
+//  var params = [];
+//  var func = "";
+//
+//  for (var i = 0; i < args.length; i++) {
+//    if (args.hasOwnProperty(i))
+//      params.push(args[i]);
+//  }
+//
+//  if(params.length == 0)
+//    func = args.callee.name + "()";
+//  
+//  else
+//    func = args.callee.name + "('" + params.join("','") + "')";  
+//
+//  execFunc.attr("onclick", func).click();
+//}
+
+function loadConfigsApp() {
+  var configs = JSON.parse(localStorage.getItem("configsApp"));
+
+  if (configs == null)
+    localStorage.setItem("configsApp", JSON.stringify(configsApp));
+
+  else
+    configsApp = configs;
+}
+
+function loadConfigsAppPage() {
+  if (configsApp != null) {
+    if (configsApp.sendMail.text == "1") {
+      var checkbox = $(".configs").find("li[data-value=sendMail]").find(".checkbox");
+      checkbox.addClass("active");
+    }
+  }
+}
+
+function exibeDialogSetConfigApp(elem) {
+  setElementPopupVal = elem;
+  showDialog('Configuração', '', 'Cancelar', 'hideDialog()', 'Ok', 'setConfigApp()', true, true);
+}
+
+function getConfigApp(configName) {
+  var config = configsApp[configName].text;
+  return config;
+}
+
+function setConfigApp() {
+  var elem = $(setElementPopupVal);
+  var val = $("#popup-dialog").find("input").val();
+
+  configsApp[elem.attr("data-value")].text = val;
+
+  localStorage.setItem("configsApp", JSON.stringify(configsApp));
+
+  hideDialog();
+}
+
+function setConfigAppRadio(item) {
+  var elem = $(item);
+  var checkbox = elem.find(".checkbox");
+
+  if (checkbox.hasClass("active")) {
+    configsApp[elem.attr("data-value")].text = "0";
+    checkbox.removeClass("active");
+  }
+  else {
+    configsApp[elem.attr("data-value")].text = "1";
+    checkbox.addClass("active");
+  }
+  localStorage.setItem("configsApp", JSON.stringify(configsApp));
 }
 
 function getTranslateX(el) {
@@ -182,6 +353,7 @@ function hideSearch() {
 }
 
 function loadPage(page, backButton, noPushPage) {
+
   $("#abas").hide();
   $("#prd-total").hide();
 
@@ -190,15 +362,16 @@ function loadPage(page, backButton, noPushPage) {
 
   var reloadPageOk = false;
 
-  if (backButton && $("#search").is(":visible")) {
+  if (backButton == true && $("#search").is(":visible")) {
     hideSearch();
   }
 
-  else if (backButton && menuLeft == 0) {
+  else if (backButton == true && menuLeft == 0) {
     hideMenuSec();
   }
 
   else {
+    hideMenuSec();
 
     if (waitLoadPage == 0) {
       clearInterval(waitLoadPageInterval);
@@ -278,11 +451,12 @@ function hideMaskShadow() {
 }
 
 function showMask() {
+  var duration = parseInt(configsApp.maxTimeRequest.text) * 1000;
   clearInterval(waitResponseAjax);
   waitResponseAjax = window.setInterval(function () {
     toast("Não foi possível concluir a operação. Tente novamente!");
     hideMask();
-  }, 10000);
+  }, duration);
   $("#mask").show();
 }
 
@@ -321,6 +495,7 @@ function generateLink(options) {
 }
 
 function loadHeader(page) {
+
   if (page != undefined) {
     var header = $("#header");
     var menu = $("#menu");
@@ -345,14 +520,7 @@ function loadHeader(page) {
     var actionsHeader = actionsAux.find(".actions");
     var exibMenu = header.find("#exibMenu");
 
-    //  hideMenuSec();
     back.hide();
-    descs.hide().html("");
-    actionsHeader.hide().html("");
-
-    search.hide();
-    menu.hide().html("");
-    exibMenu.hide();
 
     // personaliza os itens de acordo com cada pagina
     $.ajax({
@@ -367,23 +535,6 @@ function loadHeader(page) {
         var pageActions = response.hasOwnProperty("actions") ? response.actions : false;
         var pageMenu = response.hasOwnProperty("menu") ? response.menu : false;
         var pageNav = response.hasOwnProperty("nav") ? response.nav : false;
-
-        if (pageTitle) {
-          if (pageTitle.hasOwnProperty("show") && pageTitle.show) {
-            if (pageTitle.hasOwnProperty("logo")) {
-              title.find(".logo").html(pageTitle.logo).show();
-            }
-            else {
-              title.find(".logo").hide();
-              $.each(pageTitle.itens, function (i, item) {
-                descs.eq(i).html(item.desc).show();
-              });
-            }
-          }
-          if (pageTitle.hasOwnProperty("subtitle")) {
-            $("#sub-title-page").text(pageTitle.subtitle);
-          }
-        }
 
         if (pageDrawer && pageDrawer.hasOwnProperty("show") && pageDrawer.show) {
           action.attr("onclick", pageDrawer.onclick);
@@ -403,56 +554,84 @@ function loadHeader(page) {
           action.removeAttr("onclick");
         }
 
-        if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
-          $.each(pageActions.itens, function (i, item) {
-            var icon = getIcon(item.icon);
-            var type = "";
-            actionsHeader.eq(i).attr("onclick", item.onclick).html(icon).show();
-            animateClick(actionsHeader.eq(i));
-            if (item.type) {
-              switch (item.type) {
-                case "produto":
-                  type = "Produto";
-                  break;
-                default:
-                  type = "Cliente";
+        /* se a pagina for diferente da anterior recarrega os botoes de acoes */
+        if (page != pageOld) {
+
+          descs.hide().html("");
+          actionsHeader.hide().html("");
+
+          search.hide();
+          menu.hide().html("");
+          exibMenu.hide();
+
+          if (pageTitle) {
+            if (pageTitle.hasOwnProperty("show") && pageTitle.show) {
+              if (pageTitle.hasOwnProperty("logo")) {
+                title.find(".logo").html(pageTitle.logo).show();
               }
-              if (item.hasOwnProperty("barcode") && item.barcode) {
-                search.find("#action-0").show();
-                animateClick(search.find("#action-0"));
-              } else {
-                search.find("#action-0").hide();
+              else {
+                title.find(".logo").hide();
+                $.each(pageTitle.itens, function (i, item) {
+                  descs.eq(i).html(item.desc).show();
+                });
               }
-              search.find("input[name=search]").attr("placeholder", type);
-              search.find("input[name=funcSearch]").val(item.type);
             }
-          });
-        }
+            if (pageTitle.hasOwnProperty("subtitle")) {
+              $("#sub-title-page").text(pageTitle.subtitle);
+            }
+          }
 
-        if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
-          var options = "";
-          $.each(pageMenu.itens, function (i, item) {
-            options += '<li onclick="' + item.onclick + '">' + item.label + '</li>';
-          });
-          menu.append(options);
-          exibMenu.show();
-          window.setTimeout(function () {
-            menu.show();
-          }, 500);
-        }
+          if (pageActions && pageActions.hasOwnProperty("show") && pageActions.show) {
+            $.each(pageActions.itens, function (i, item) {
+              var icon = getIcon(item.icon);
+              var type = "";
+              actionsHeader.eq(i).attr("onclick", item.onclick).html(icon).show();
+              animateClick(actionsHeader.eq(i));
+              if (item.type) {
+                switch (item.type) {
+                  case "produto":
+                    type = "Produto";
+                    break;
+                  default:
+                    type = "Cliente";
+                }
+                if (item.hasOwnProperty("barcode") && item.barcode) {
+                  search.find("#action-0").show();
+                  animateClick(search.find("#action-0"));
+                } else {
+                  search.find("#action-0").hide();
+                }
+                search.find("input[name=search]").attr("placeholder", type);
+                search.find("input[name=funcSearch]").val(item.type);
+              }
+            });
+          }
 
-        if (pageNav && pageNav.hasOwnProperty("show") && pageNav.show) {
-          nav.find(".nav-filter").hide();
-          nav.show().find("#filter-" + pageNav.type).show();
-          var myScroll = new IScroll("#scroll", {
-            bounce: false,
-            scrollY: true,
-            scrollbars: "custom",
-            fadeScrollbars: true
-          });
-        }
-        else {
-          nav.hide();
+          if (pageMenu && pageMenu.hasOwnProperty("show") && pageMenu.show) {
+            var options = "";
+            $.each(pageMenu.itens, function (i, item) {
+              options += '<li onclick="' + item.onclick + '">' + item.label + '</li>';
+            });
+            menu.append(options);
+            exibMenu.show();
+            window.setTimeout(function () {
+              menu.show();
+            }, 500);
+          }
+
+          if (pageNav && pageNav.hasOwnProperty("show") && pageNav.show) {
+            nav.find(".nav-filter").hide();
+            nav.show().find("#filter-" + pageNav.type).show();
+            var myScroll = new IScroll("#scroll", {
+              bounce: false,
+              scrollY: true,
+              scrollbars: "custom",
+              fadeScrollbars: true
+            });
+          }
+          else {
+            nav.hide();
+          }
         }
       }
     });
@@ -538,9 +717,10 @@ function clickOut() {
 function hideLogin() {
   $("#login").hide();
   loadPage('index');
+//  loadPage('produto-busca');
 }
 
-function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2, elem, input) {
+function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2, input, config) {
   showMaskFull();
 
   var popupDialog = $("#popup-dialog");
@@ -554,22 +734,29 @@ function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2, elem
   // oculta todos os botoes
   popupDialog.find("button").hide();
 
-  // seta o titulo e a mensagem no dialog
-  popupDialog.find(".dialog").find(".title").text(title);
-  popupDialog.find(".dialog").find(".msg").text(msg);
-
   if (input == true) {
-    setElementPopupVal = elem;
-    popupDialog.find("input").show().val("").keypress(function (evt) {
+    var value = "";
+
+    if (config == true) {
+      var elem = $(setElementPopupVal);
+      value = getConfigApp(elem.attr("data-value"));
+      msg = elem.text().trim() + ":";
+    }
+
+    popupDialog.find("input").show().val(value).keypress(function (evt) {
       var tecla = (evt.keyCode ? evt.keyCode : evt.which);
       if (tecla == 13) {
         popupDialog.find("button").eq(1).click();
       }
-    })
+    });
   }
   else {
     popupDialog.find("input").hide();
   }
+
+  // seta o titulo e a mensagem no dialog
+  popupDialog.find(".dialog").find(".title").text(title);
+  popupDialog.find(".dialog").find(".msg").text(msg);
 
   var marginTop = -(50 + (parseInt(popupDialog.css("height")) / 2));
   popupDialog.css("margin-top", marginTop);
@@ -588,12 +775,7 @@ function showDialog(title, msg, labelBt1, onclickBt1, labelBt2, onclickBt2, elem
     popupDialog.find("button").eq(0).css("width", "100%");
   }
 
-  popupDialog.show();
-
-  if (input) {
-    popupDialog.find("input").focus();
-  }
-
+  popupDialog.show().find("input").css("text-transform", "none").focus();
 }
 
 function hideDialog() {
@@ -601,112 +783,172 @@ function hideDialog() {
   hideMaskFull();
 }
 
-function setPopupGradeQtty() {
-  var val = $("#popup-dialog").find("input").val();
-
-  val = parseInt(val);
-
-  if (!isNaN(val))
-    $(setElementPopupVal).text(val);
-
-  hideDialog();
+function tipoListaInArray(tipoCodigo, listas){
+  var existsOk = false;
+  $.each(listas, function(i, item){
+    if(tipoCodigo == item.tipo_codigo)
+      existsOk = true;
+  });
+  return existsOk;
 }
 
-function showSelect(type, elem) {
+function showSelect(type, elem, consistTypeList) {
   var popupSelect = $("#popup-select");
   var marginTop = 0;
+  var ul = $("<ul>");
+  var lis = "";
 
   switch (type) {
 
     case "day":
-      var ul = $("<ul>");
-      var lis = "";
+
       for (var i = 1; i <= 31; i++) {
         lis += "<li>" + (i < 10 ? "0" + i : i) + "</li>";
       }
-      ul.append(lis);
+
+      ul.html(lis);
       popupSelect.html(ul);
+
       popupSelect.find("ul").find("li").click(function () {
         var value = $(this).text();
         $(elem).text(value);
-        hideMaskFull();
         popupSelect.hide();
+        hideMaskFull();
       });
       break;
 
     case "month":
-      var ul = $("<ul>");
-      var lis = "";
+
       for (var i = 1; i <= 12; i++) {
         lis += "<li>" + (i < 10 ? "0" + i : i) + "</li>";
       }
-      ul.append(lis);
+
+      ul.html(lis);
       popupSelect.html(ul);
+
       popupSelect.find("ul").find("li").click(function () {
         var value = $(this).text();
         $(elem).text(value);
-        hideMaskFull();
         popupSelect.hide();
+        hideMaskFull();
       });
       break;
 
     case "year":
       var year = new Date().getFullYear();
-      var ul = $("<ul>");
-      var lis = "";
       year -= 10;
+
       for (var i = 0; i <= 20; i++) {
         lis += "<li>" + (year + i) + "</li>";
       }
-      ul.append(lis);
+
+      ul.html(lis);
       popupSelect.html(ul);
+
       popupSelect.find("ul").find("li").click(function () {
         var value = $(this).text();
         $(elem).text(value);
-        hideMaskFull();
         popupSelect.hide();
+        hideMaskFull();
       });
       break;
 
     case "tipoLista":
-      var ul = $("<ul>");
-      var lis = "";
-      var tipos = sessionStorage.getItem("tiposListas");
-      var tiposListas = JSON.parse(tipos);
+      if(consistTypeList){
+        var clienteListas = sessionStorage.getItem("clienteListas");
+        clienteListas = JSON.parse(clienteListas);
+      }
 
-      $.each(tiposListas, function (i, tipo) {
-        lis += "<li data-value='" + tipo.tipo_lista_codigo + "'>" + tipo.tipo_lista_nome + "</li>";
+      var itens = sessionStorage.getItem("tiposListas");
+      itens = JSON.parse(itens);
+
+      $.each(itens, function (i, item) {
+        var inactive = "";
+        
+        if(consistTypeList && clienteListas != null && tipoListaInArray(item.tipo_lista_codigo, clienteListas))
+          inactive = "inactive";
+        
+        lis += "<li class='" + inactive + "' data-value='" + item.tipo_lista_codigo + "'>" + item.tipo_lista_nome + "</li>";
       });
-      ul.append(lis);
+
+      ul.html(lis);
       popupSelect.html(ul);
+
       popupSelect.find("ul").find("li").click(function () {
-        var tipoName = $(this).text();
-        var tipoCodigo = $(this).attr("data-value");
-        $(elem).text(tipoName).attr("data-value", tipoCodigo);
-        hideMaskFull();
-        popupSelect.hide();
+        var nome = $(this).text();
+        var codigo = $(this).attr("data-value");
+        
+        if(consistTypeList && clienteListas != null && tipoListaInArray(codigo, clienteListas)){
+          toast("Não é possível criar mais uma lista deste tipo para este cliente!");
+        }
+        else{
+          $(elem).text(nome).attr("data-value", codigo);
+          popupSelect.hide();
+          hideMaskFull();
+        }
       });
       break;
 
     case "tipoListaDefault":
-      var ul = $("<ul>");
-      var lis = "";
-      var tipos = sessionStorage.getItem("tiposListas");
-      var tiposListas = JSON.parse(tipos);
 
-      $.each(tiposListas, function (i, tipo) {
-        lis += "<li data-value='" + tipo.tipo_lista_codigo + "'>" + tipo.tipo_lista_nome + "</li>";
+      var itens = sessionStorage.getItem("tiposListas");
+      itens = JSON.parse(itens);
+
+      $.each(itens, function (i, item) {
+        lis += "<li data-value='" + item.tipo_lista_codigo + "'>" + item.tipo_lista_nome + "</li>";
       });
-      ul.append(lis);
+
+      ul.html(lis);
       popupSelect.html(ul);
+
       popupSelect.find("ul").find("li").click(function () {
-        var tipoName = $(this).text();
-        var tipoCodigo = $(this).attr("data-value");
-
-        wsGetListaDefault(tipoCodigo);
-
-        hideMaskFull();
+        var nome = $(this).text();
+        var codigo = $(this).attr("data-value");
+        wsGetListaDefault(codigo);
         popupSelect.hide();
+        hideMaskFull();
+      });
+      break;
+
+    case "tipoProduto":
+
+      var itens = sessionStorage.getItem("tiposProdutos");
+      itens = JSON.parse(itens);
+
+      $.each(itens, function (i, item) {
+        lis += "<li data-value='" + item.tipo_produto_codigo + "'>" + item.tipo_produto_nome + "</li>";
+      });
+
+      ul.html(lis);
+      popupSelect.html(ul);
+
+      popupSelect.find("ul").find("li").click(function () {
+        var nome = $(this).text();
+        var codigo = $(this).attr("data-value");
+        $(elem).text(nome).attr("data-value", codigo);
+        popupSelect.hide();
+        hideMaskFull();
+      });
+      break;
+
+    case "fabricante":
+
+      var itens = sessionStorage.getItem("fabricantes");
+      itens = JSON.parse(itens);
+
+      $.each(itens, function (i, item) {
+        lis += "<li data-value='" + item.codigo_fabricante + "'>" + item.nome_fabricante + "</li>";
+      });
+
+      ul.html(lis);
+      popupSelect.html(ul);
+
+      popupSelect.find("ul").find("li").click(function () {
+        var nome = $(this).text();
+        var codigo = $(this).attr("data-value");
+        $(elem).text(nome).attr("data-value", codigo);
+        popupSelect.hide();
+        hideMaskFull();
       });
       break;
   }
@@ -749,7 +991,12 @@ function calcTotalPrds(prds) {
 
 function init() {
 
-  //hideLogin();
+  loadConfigsApp();
+
+  wsGetCentroLucro();
+
+//  hideLogin();
+//  menuSec();
 
   $.ajaxSetup({cache: false});
 
@@ -840,11 +1087,11 @@ function init() {
   $("#user-logged").on("touchstart", function (evt) {
     evt.stopPropagation();
   });
-  
+
   $("#user-logged").on("touchmove", function (evt) {
     evt.stopPropagation();
   });
-  
+
   $("#scroll").find("li").on("touchstart", function (evt) {
     evt.stopPropagation();
   });
@@ -903,10 +1150,18 @@ function init() {
       }
     }
   });
+
   $("#popup-login").find("input").keypress(function (evt) {
     var tecla = (evt.keyCode ? evt.keyCode : evt.which);
     if (tecla == 13) {
       wsLogin();
+    }
+  });
+
+  $("#filter-lista-produto").find(".produtoNome").keypress(function (evt) {
+    var tecla = (evt.keyCode ? evt.keyCode : evt.which);
+    if (tecla == 13) {
+      filterListPrds();
     }
   });
 
@@ -930,31 +1185,16 @@ function init() {
    * Remove o delay do clique em qualquer item do documento
    */
   FastClick.attach(document.body);
-
-  var sliderRange = $("#slider-range");
-  var priceMin = $("#price-min");
-  var priceMax = $("#price-max");
-  sliderRange.slider({
-    range: true,
-    min: 0,
-    max: 1000,
-    values: [0, 1000],
-    slide: function (event, ui) {
-      priceMin.text(ui.values[0]);
-      priceMax.text(ui.values[1]);
-    }
-  });
-  priceMin.text(sliderRange.slider("values", 0));
-  priceMax.text(sliderRange.slider("values", 1));
 }
 
 function toast(msg) {
+  var duration = parseInt(configsApp.maxTimeMsgToast.text) * 1000;
   clearInterval(waitToastMsg);
   $('#toast').html(msg);
   $('#toast').fadeIn();
   waitToastMsg = window.setInterval(function () {
     $('#toast').fadeOut();
-  }, 3000);
+  }, duration);
 }
 
 function inArrayCl(key, arr) {
@@ -969,10 +1209,10 @@ function inArrayCl(key, arr) {
 
 function resetPageContent() {
   // limpa a pagina a ser preenchida com os dados
-  var page = $("#content").find(".page.activePage:last").attr("id");
+  var page = $("#content").find(".page.activePage:last");
 
-  $("#" + page).find(".content-response").hide();
-  $("#" + page).find(".mark-agua").show();
+  page.find(".content-response").hide();
+  page.find(".mark-agua").show();
 }
 
 /*
@@ -989,6 +1229,7 @@ function resetPageContent() {
  * 
  */
 function wsLogin() {
+
   /* obtem os dados para execucao da requisicao */
   var usuario = $("#popup-login").find("input[name=usuario]").val();
   var senha = $("#popup-login").find("input[name=senha]").val();
@@ -1007,11 +1248,11 @@ function wsLogin() {
       senha: senha
     };
 
-// cria bloco de dados a serem enviados na requisicao
+    // cria bloco de dados a serem enviados na requisicao
     var dados = {wscallback: "wsResponseLogin", usuario: usuario};
     /* executa a requisicao via ajax */
     $.ajax({
-      url: configServerUrl + '/getFuncionario.php',
+      url: configsApp.serverUrl.text + '/getFuncionario.php',
       type: 'POST',
       dataType: 'jsonp',
       data: {dados: dados}
@@ -1047,10 +1288,10 @@ function wsResponseLogin(response) {
     /* guarda os dados do usuario na sessao */
     sessionStorage.setItem('usuarioLogado', JSON.stringify(response.wsresult));
 
-    wsGetTipoDeLista();
+//    wsGetTipoDeLista();
     hideLogin();
 
-    toast('Login realizado com sucesso');
+    toast('Login realizado com sucesso!');
   }
 }
 
@@ -1071,7 +1312,7 @@ function wsGetTipoDeLista() {
 
   // executa a requisicao via ajax
   $.ajax({
-    url: configServerUrl + "/getTipoDeLista.php",
+    url: configsApp.serverUrl.text + "/getTipoDeLista.php",
     type: "POST",
     dataType: "jsonp",
     data: {dados: dados}
@@ -1101,6 +1342,221 @@ function wsResponseGetTipoDeLista(response) {
   else if (response.wsstatus == 1) {
     var tiposListas = response.wsresult;
     sessionStorage.setItem("tiposListas", JSON.stringify(tiposListas));
+  }
+}
+
+/**
+ * wsGetTipoDeProduto
+ *
+ * Funcao obter os tipos de produtos via ajax
+ *
+ */
+function wsGetTipoDeProduto() {
+
+// cria bloco de dados a serem enviados na requisicao
+  var dados = {wscallback: "wsResponseGetTipoDeProduto"};
+
+  // executa a requisicao via ajax
+  $.ajax({
+    url: configsApp.serverUrl.text + "/getTipoDeProduto.php",
+    type: "POST",
+    dataType: "jsonp",
+    data: {dados: dados}
+  });
+}
+
+/**
+ * wsResponseGetTipoDeProduto
+ * 
+ * Funcao para tratar o retorno da requisicao "wsGetTipoDeProduto"
+ *
+ * @param {json} response
+ */
+function wsResponseGetTipoDeProduto(response) {
+  // faz o parser do json
+  response = JSON.parse(response);
+
+  // em caso de erro
+  if (response.wsstatus == 0) {
+    var msg = "Nenhum tipo de produto cadastrado!";
+    var error = response.wserror;
+    if (error.length > 0)
+      msg = error;
+    toast(msg);
+  }
+
+  // em caso de sucesso
+  else if (response.wsstatus == 1) {
+    var tiposProdutos = response.wsresult;
+    sessionStorage.setItem("tiposProdutos", JSON.stringify(tiposProdutos));
+  }
+}
+
+/**
+ * wsGetCentrolucro
+ *
+ * Funcao obter os centros de lucros via ajax
+ *
+ */
+function wsGetCentroLucro() {
+
+// cria bloco de dados a serem enviados na requisicao
+  var dados = {wscallback: "wsResponseGetCentroLucro"};
+
+  // executa a requisicao via ajax
+  $.ajax({
+    url: configsApp.serverUrl.text + "/getCentroLucro.php",
+    type: "POST",
+    dataType: "jsonp",
+    data: {dados: dados}
+  });
+}
+
+/**
+ * wsResponseGetCentroLucro
+ * 
+ * Funcao para tratar o retorno da requisicao "wsGetCentroLucro"
+ *
+ * @param {json} response
+ */
+function wsResponseGetCentroLucro(response) {
+  // faz o parser do json
+  response = JSON.parse(response);
+
+  // em caso de erro
+  if (response.wsstatus == 0) {
+    var msg = "Nenhum centro de lucro cadastrado!";
+    var error = response.wserror;
+    if (error.length > 0)
+      msg = error;
+    toast(msg);
+  }
+
+  // em caso de sucesso
+  else if (response.wsstatus == 1) {
+    var centrosLucro = response.wsresult;
+    sessionStorage.setItem("centrosLucro", JSON.stringify(centrosLucro.grupos));
+
+    var gp = "";
+    var dp = "";
+    var cl = "";
+
+    $.each(centrosLucro.grupos, function (i, g) {
+      gp += "<h3>" + g.nome + "</h3><ul>";
+
+      dp = "";
+      $.each(g.departamentos, function (i, d) {
+        dp += "<li><div class='accordion'><h3>" + d.nome + "</h3><ul>";
+
+        cl = "";
+        $.each(d.centrolucros, function (i, c) {
+          cl += "<li class='option'>" + c.nome + "<span class='checkbox' data-value='" + c.full + "'><span></span></span></li>";
+        });
+
+        dp += cl + "</ul></div></li>";
+      });
+
+      gp += dp + "</ul>";
+    });
+
+    $(".accordionCentroLucro").html(gp);
+
+    var icons = {
+      header: "accordion-mark",
+      activeHeader: "accordion-mark-active"
+    };
+
+    $(".accordion").accordion({
+      active: false,
+      collapsible: true,
+      heightStyle: "content",
+      icons: icons,
+      beforeActivate: function (event, ui) {
+        // The accordion believes a panel is being opened
+        if (ui.newHeader[0]) {
+          var currHeader = ui.newHeader;
+          var currContent = currHeader.next('.ui-accordion-content');
+          // The accordion believes a panel is being closed
+        } else {
+          var currHeader = ui.oldHeader;
+          var currContent = currHeader.next('.ui-accordion-content');
+        }
+        // Since we've changed the default behavior, this detects the actual status
+        var isPanelSelected = currHeader.attr('aria-selected') == 'true';
+
+        // Toggle the panel's header
+        currHeader.toggleClass('ui-corner-all', isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top', !isPanelSelected).attr('aria-selected', ((!isPanelSelected).toString()));
+
+        // Toggle the panel's icon
+        currHeader.children('.ui-icon').toggleClass('accordion-mark', isPanelSelected).toggleClass('accordion-mark-active', !isPanelSelected);
+
+        // Toggle the panel's content
+        currContent.toggleClass('accordion-content-active', !isPanelSelected)
+        if (isPanelSelected) {
+          currContent.slideUp();
+        } else {
+          currContent.slideDown();
+        }
+
+        return false; // Cancel the default action
+      }
+    });
+
+    $(".nav-filter").find(".option").click(function () {
+      var option = $(this);
+      var checkbox = option.find(".checkbox");
+      if (checkbox.hasClass("active"))
+        checkbox.removeClass("active");
+      else
+        checkbox.addClass("active");
+    });
+  }
+}
+
+/**
+ * wsGetFabricante
+ *
+ * Funcao obter os fabricantes via ajax
+ *
+ */
+function wsGetFabricante() {
+
+// cria bloco de dados a serem enviados na requisicao
+  var dados = {wscallback: "wsResponseGetFabricante"};
+
+  // executa a requisicao via ajax
+  $.ajax({
+    url: configsApp.serverUrl.text + "/getFabricante.php",
+    type: "POST",
+    dataType: "jsonp",
+    data: {dados: dados}
+  });
+}
+
+/**
+ * wsResponseGetFabricante
+ * 
+ * Funcao para tratar o retorno da requisicao "wsGetFabricante"
+ *
+ * @param {json} response
+ */
+function wsResponseGetFabricante(response) {
+  // faz o parser do json
+  response = JSON.parse(response);
+
+  // em caso de erro
+  if (response.wsstatus == 0) {
+    var msg = "Nenhum fabricante cadastrado!";
+    var error = response.wserror;
+    if (error.length > 0)
+      msg = error;
+    toast(msg);
+  }
+
+  // em caso de sucesso
+  else if (response.wsstatus == 1) {
+    var fabricantes = response.wsresult;
+    sessionStorage.setItem("fabricantes", JSON.stringify(fabricantes));
   }
 }
 
@@ -1139,7 +1595,6 @@ function wsGetLista(clienteCodigo) {
       tipo: tipoListaCodigo.length > 0 ? tipoListaCodigo : "",
       nome_cliente: clienteNome
     };
-
   }
 
 // cria bloco de dados a serem enviados na requisicao
@@ -1147,7 +1602,7 @@ function wsGetLista(clienteCodigo) {
 
   // executa a requisicao via ajax
   $.ajax({
-    url: configServerUrl + "/getLista.php",
+    url: configsApp.serverUrl.text + "/getLista.php",
     type: "POST", dataType: "jsonp",
     data: {dados: dados}
   });
@@ -1179,8 +1634,11 @@ function wsResponseGetLista(response) {
 
   // em caso de sucesso
   else if (response.wsstatus == 1) {
+    
+    sessionStorage.removeItem("clienteListas");    
 
     var listas = response.wsresult;
+    sessionStorage.setItem("clienteListas", JSON.stringify(listas));
 
     if (listas.hasOwnProperty("0")) {
 
@@ -1260,19 +1718,19 @@ function wsResponseGetLista(response) {
             listaOk.produtos.push(prd);
           });
 
-          sessionStorage.setItem("listaName", "listaSelecionada");
-          sessionStorage.setItem("listaSelecionada", JSON.stringify(listaOk));
-
           switch (modulo) {
             case "cliente":
-              loadPage("lista-produto-visualizacao-lista");
+              listaOk.produtos = [];
+              loadPage("lista-produto-edicao-lista");
               break;
 
             case "convidado":
               loadPage("lista-produto-visualizacao-convidado");
               break;
           }
-
+          
+          sessionStorage.setItem("listaName", "listaSelecionada");
+          sessionStorage.setItem("listaSelecionada", JSON.stringify(listaOk));          
         }
 
         else {
@@ -1291,30 +1749,6 @@ function wsResponseGetLista(response) {
   }
   $("#search").find("input[name=search]").val("");
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 /**
  * wsGetListaDefault
@@ -1339,7 +1773,7 @@ function wsGetListaDefault(tipoListaCodigo) {
 
   // executa a requisicao via ajax
   $.ajax({
-    url: configServerUrl + "/getLista.php",
+    url: configsApp.serverUrl.text + "/getLista.php",
     type: "POST", dataType: "jsonp",
     data: {dados: dados}
   });
@@ -1420,7 +1854,7 @@ function wsGetCliente() {
   clienteNome = removerAcentos(clienteNome);
 
   if (clienteNome.length == 0) {
-    showDialog("Cliente", "É necessário informar o nome do cliente!");
+    toast("É necessário informar o nome do cliente!");
     hideMask();
   }
 
@@ -1437,7 +1871,7 @@ function wsGetCliente() {
 
     // executa a requisicao via ajax
     $.ajax({
-      url: configServerUrl + "/getCliente.php",
+      url: configsApp.serverUrl.text + "/getCliente.php",
       type: "POST",
       dataType: "jsonp", data: {dados: dados}
     });
@@ -1552,7 +1986,7 @@ function exibeDialogSaveCliente() {
 
     sessionStorage.setItem("clienteInfo", JSON.stringify(clienteInfo));
 
-    showDialog("Cliente", "Salvar este cliente no SACI?", "Cancel", "hideDialog()", "Ok", "wsSaveCliente()");
+    showDialog("Cliente", "Salvar este cliente no NÉRUS?", "Cancelar", "hideDialog()", "Ok", "wsSaveCliente()");
   }
 }
 
@@ -1577,7 +2011,7 @@ function wsSaveCliente() {
 
   // executa a requisicao via ajax
   $.ajax({
-    url: configServerUrl + "/saveCliente.php",
+    url: configsApp.serverUrl.text + "/saveCliente.php",
     type: "POST",
     dataType: "jsonp",
     data: {dados: dados}
@@ -1613,7 +2047,7 @@ function wsResponseSaveCliente(response) {
     var cliente = response.wsresult;
     sessionStorage.removeItem("clienteInfo");
 
-    toast("Cliente salvo no SACI!");
+    toast("Cliente salvo no NÉRUS!");
 
     loadPage("index");
   }
@@ -1628,49 +2062,57 @@ function wsResponseSaveCliente(response) {
  *
  */
 function wsGetProduto() {
+  hideMenuSec();
+  showMask();
+
+  // obtem os dados para execucao da requisicao
   var search = $("#search");
   var searchField = search.find("input[name=search]");
   var prd = searchField.val();
-
-  searchField.val("");
   prd = removerAcentos(prd);
 
-  if (prd.length == 0) {
-    toast("É necessário informar o código ou o nome do produto!");
-    hideMask();
-  }
+  var filtros = $("#filter-produto-busca");
+  var fabricante = filtros.find(".input-select.fabricante").attr("data-value");
+  var tipoProduto = filtros.find(".input-select.tipoProduto").attr("data-value");
+  var centrosLucro = filtros.find(".accordionCentroLucro").find(".checkbox.active");
+  var cls = [];
 
-  else {
+  $.each(centrosLucro, function (i, item) {
+    cls.push(parseInt($(item).attr("data-value")));
+  });
 
-    showMask();
+  searchField.val("");
 
-    /* searchType
-     * 0 => numero
-     * 1 => texto
-     */
-    var searchType = 0;
+  /* searchType
+   * 0 => numero
+   * 1 => texto
+   */
+  var searchType = 0;
 
-    /* verifica se o campo foi preenchido com digito ou texto */
-    var num = new Number(prd);
-    if (!(num > 0))
-      searchType = 1;
+  /* verifica se o campo foi preenchido com digito ou texto */
+  var num = new Number(prd);
+  if (!(num > 0))
+    searchType = 1;
 
-    var produto = {
-      produto: prd,
-      searchType: searchType
-    };
+  // preparacao dos dados
+  var produto = {
+    produto: prd,
+    codigo_fabricante: fabricante.length > 0 ? fabricante : "",
+    tipo_produto: tipoProduto.length > 0 ? tipoProduto : "",
+    centro_lucro: cls.join(","),
+    searchType: searchType
+  };
 
-    // cria bloco de dados a serem enviados na requisicao
-    var dados = {wscallback: "wsResponseGetProduto", produto: produto};
+  // cria bloco de dados a serem enviados na requisicao
+  var dados = {wscallback: "wsResponseGetProduto", produto: produto};
 
-    // executa a requisicao via ajax
-    $.ajax({
-      url: configServerUrl + "/getProduto.php",
-      type: "POST",
-      dataType: "jsonp",
-      data: {dados: dados}
-    });
-  }
+  // executa a requisicao via ajax
+  $.ajax({
+    url: configsApp.serverUrl.text + "/getProduto.php",
+    type: "POST",
+    dataType: "jsonp",
+    data: {dados: dados}
+  });
 }
 
 /**  * wsResponseGetProduto
@@ -1750,7 +2192,9 @@ function wsResponseGetProduto(response) {
 
       // ativa as acoes de cliques nos blocos inseridos
       contentResponseList.find(".prds").click(function () {
-        contentResponseList.slideUp();
+        contentResponseList.slideUp(function () {
+          contentResponseList.html("");
+        });
         var produtoId = this.id;
         produtoId = produtoId.replace("produto-", "");
         var produto = produtosStorage[produtoId];
@@ -1762,8 +2206,19 @@ function wsResponseGetProduto(response) {
       hideSearch();
 
       $(window).click(function () {
-        contentResponseList.slideUp();
+        contentResponseList.slideUp(function () {
+          contentResponseList.html("");
+        });
       });
+    }
+    else{
+      var msg = 'Produto não encontrado!';
+      var error = response.wserror;
+      if (error.length > 0)
+        msg = error;
+
+      hideMask();
+      toast(msg);
     }
   }
 
@@ -1771,9 +2226,11 @@ function wsResponseGetProduto(response) {
 
     /* obtem as informacoes do produto que veio no retorno */
     var produto = response.wsresult;
-
+    
     /* armazena os dados do produto buscado */
     sessionStorage.setItem("produtoLoad", JSON.stringify(produto));
+    
+    var gradeLoadInfo = sessionStorage.getItem("gradeLoadInfo");
 
     var listaName = sessionStorage.getItem("listaName");
     var modulo = sessionStorage.getItem("modulo");
@@ -1797,7 +2254,7 @@ function wsResponseGetProduto(response) {
 
     var grades = $("<div id='produto-grades'>");
     var gradesLista = [];
-    var gradeQtty = 0;
+    var gradeQtty;
     var activeGrade = "";
     var prd;
 
@@ -1878,7 +2335,7 @@ function wsResponseGetProduto(response) {
 
     // Informações do produto
     var centrolucro = produto.centrolucro.nome_categoria;
-    centrolucro = centrolucro.replace(/\//g, ">");
+//    centrolucro = centrolucro.replace(/\//g, ">");
     info =
             "<div id='produto-info' class='bradius'>" +
             "<p class='produto-nome bradius'>" + produto.descricao + "</p>" +
@@ -1894,7 +2351,7 @@ function wsResponseGetProduto(response) {
     // Grades do produto
     if (produto.grades[0].length > 0) {
       $.each(produto.grades, function (i, grade) {
-        gradeQtty = 0;
+        gradeQtty = "0.00";
         activeGrade = "";
 
         /* monta o bloco com as informacoes do produto */
@@ -1907,48 +2364,41 @@ function wsResponseGetProduto(response) {
 
         if (prdInList(prd, lista.produtos)) {
           prd = listPrdGet(prd, lista.produtos);
-          gradeQtty = prd.grade.gradeQtty;
+          gradeQtty = number_format(prd.grade.gradeQtty, 2);
         }
 
         if (gradeQtty > 0)
           activeGrade = "activeGrade";
+        
+        var selectedGrade = "";
 
-        if (listaName == "listaSelecionada" && modulo == "cliente") {
-          box =
-                  "<div class='produto-grade bradius " + activeGrade + "'>" +
-                  "<p class='produto-grade-title'>" + grade + "</p>" +
-                  "<p class='produto-grade-bt'>" +
-                  "<span class='down bt hidden'>" +
-                  "<img src='img/ico-expand.png' />" +
-                  "</span>" +
-                  "<span class='qtty' >" + gradeQtty + "</span>" +
-                  "<span class='up bt hidden'>" +
-                  "<img src='img/ico-collapse.png' />" +
-                  "</span>" +
-                  "</p>" +
-                  "</div>";
-        }
-        else {
-          box =
-                  "<div class='produto-grade bradius " + activeGrade + "'>" +
-                  "<p class='produto-grade-title'>" + grade + "</p>" +
-                  "<p class='produto-grade-bt'>" +
-                  "<span class='down bt'>" +
-                  "<img src='img/ico-expand.png' />" +
-                  "</span>" +
-                  "<span class='qtty' onclick=\"showDialog('Quantidade', 'Digite a quantidade no campo abaixo:', 'Cancelar', 'hideDialog()', 'Ok', 'setPopupGradeQtty()', this, true);\">" + gradeQtty + "</span>" +
-                  "<span class='up bt'>" +
-                  "<img src='img/ico-collapse.png' />" +
-                  "</span>" +
-                  "</p>" +
-                  "</div>";
-        }
+        // caso a grade seja a que o 
+        if(gradeLoadInfo == grade)
+          selectedGrade = "selectedGrade";
+
+        box =
+                "<div class='produto-grade bradius " + activeGrade + "'>" +
+                "<p class='produto-grade-title " + selectedGrade + "'>" + grade + "</p>" +
+                "<p class='produto-grade-bt'>" +
+                "<span class='down bt'>" +
+                "<img src='img/ico-expand.png' />" +
+                "</span>" +
+                "<span class='qtty' onclick=\"exibeDialogSetGradeQtty(this);\">" + gradeQtty + "</span>" +
+                "<span class='up bt'>" +
+                "<img src='img/ico-collapse.png' />" +
+                "</span>" +
+                "</p>" +
+                "</div>";
+        
 
         gradesLista.push(box);
       });
     }
 
     else {
+      gradeQtty = "0.00";
+      activeGrade = "";
+
       /* monta o bloco com as informacoes do produto */
       prd = {
         "produto": produto,
@@ -1959,43 +2409,25 @@ function wsResponseGetProduto(response) {
 
       if (prdInList(prd, lista.produtos)) {
         prd = listPrdGet(prd, lista.produtos);
-        gradeQtty = prd.grade.gradeQtty;
+        gradeQtty = number_format(prd.grade.gradeQtty, 2);
       }
 
       if (gradeQtty > 0)
         activeGrade = "activeGrade";
 
-      if (listaName == "listaSelecionada" && modulo == "cliente") {
-        box =
-                "<div class='produto-grade bradius " + activeGrade + "' style='width: 100%;'>" +
-                "<p class='produto-grade-title'>Quantidade</p>" +
-                "<p class='produto-grade-bt'>" +
-                "<span class='down bt hidden'>" +
-                "<img src='img/ico-expand.png' />" +
-                "</span>" +
-                "<span class='qtty' >" + gradeQtty + "</span>" +
-                "<span class='up bt hidden'>" +
-                "<img src='img/ico-collapse.png' />" +
-                "</span>" +
-                "</p>" +
-                "</div>";
-      }
-
-      else {
-        box =
-                "<div class='produto-grade bradius " + activeGrade + "' style='width: 100%;'>" +
-                "<p class='produto-grade-title'>Quantidade</p>" +
-                "<p class='produto-grade-bt'>" +
-                "<span class='down bt'>" +
-                "<img src='img/ico-expand.png' />" +
-                "</span>" +
-                "<span class='qtty' onclick=\"showDialog('Quantidade', 'Digite a quantidade no campo abaixo:', 'Cancelar', 'hideDialog()', 'Ok', 'setPopupGradeQtty()', this, true);\">" + gradeQtty + "</span>" +
-                "<span class='up bt'>" +
-                "<img src='img/ico-collapse.png' />" +
-                "</span>" +
-                "</p>" +
-                "</div>";
-      }
+      box =
+              "<div class='produto-grade bradius " + activeGrade + "' style='width: 100%;'>" +
+              "<p class='produto-grade-title'>Quantidade</p>" +
+              "<p class='produto-grade-bt'>" +
+              "<span class='down bt'>" +
+              "<img src='img/ico-expand.png' />" +
+              "</span>" +
+              "<span class='qtty' onclick=\"exibeDialogSetGradeQtty(this);\">" + gradeQtty + "</span>" +
+              "<span class='up bt'>" +
+              "<img src='img/ico-collapse.png' />" +
+              "</span>" +
+              "</p>" +
+              "</div>";
 
       gradesLista.push(box);
     }
@@ -2005,24 +2437,29 @@ function wsResponseGetProduto(response) {
 
     // ativa o botoes de quantidade
     $(".produto-grade-bt").find(".bt").click(function () {
+      var mult = parseFloat($(".produto-mult").eq(0).text()) / 1000;
       var objBox = $(this).parent().parent();
-      var objQtty = $(this).parent().find(".qtty");
-      var qttyVal = parseInt(objQtty.text());
+      var objQtty = objBox.find(".qtty");
+      var qttyVal = parseFloat(objQtty.text());
 
       if (isNaN(qttyVal))
         qttyVal = 0;
 
       if ($(this).hasClass("down")) {
         if (qttyVal > 0) {
-          qttyVal--;
+          qttyVal -= mult;
         }
       }
       else {
-        qttyVal++;
+        qttyVal += mult;
       }
+
+      qttyVal = number_format(qttyVal, 2);
 
       objQtty.text(qttyVal);
     });
+    
+    sessionStorage.removeItem("gradeLoadInfo");
 
     marcaDagua.hide();
     contentResponse.scrollTop(0).show();
@@ -2032,15 +2469,51 @@ function wsResponseGetProduto(response) {
   }
 }
 
+function exibeDialogSetGradeQtty(elem) {
+  setElementPopupVal = elem;
+  showDialog('Quantidade', 'Digite a quantidade no campo abaixo:', 'Cancelar', 'hideDialog()', 'Ok', 'setGradeQtty()', true);
+}
+
+function setGradeQtty() {
+  var mult = parseFloat($(".produto-mult").eq(0).text()) / 1000;
+  var qttyVal = parseFloat($("#popup-dialog").find("input").val());
+
+  if (!isNaN(qttyVal)) {
+    qttyVal = ajustValueMult(qttyVal, mult);
+    qttyVal = number_format(qttyVal, 2);
+    $(setElementPopupVal).text(qttyVal);
+  }
+
+  hideDialog();
+}
+
+function ajustValueMult(qtty, mult) {
+  qtty = parseFloat(qtty);
+  mult = parseFloat(mult);
+
+  var quoe = qtty / mult; //resultado da divisao
+  var rest = parseFloat(number_format(qtty % mult, 2)); //resto da divisao
+
+  //se a divisao nao for exata, aumenta "1" no quoeficiente
+  if (rest > 0 && rest != mult) {
+    quoe++;
+    qtty = Math.floor(quoe) * mult;
+  }
+
+  return qtty;
+}
+
 function prdAddList() {
   var modulo = sessionStorage.getItem("modulo");
   var listaName = sessionStorage.getItem("listaName");
   var produtoLoad = sessionStorage.getItem("produtoLoad");
   var lista;
   var prd;
+  var msg = "Lista de Presentes atualizada!";
 
   if (modulo == "convidado" && listaName == "listaSelecionada") {
     listaName = "pedidoNew";
+    msg = "Pedido atualizado!";
   }
 
   lista = sessionStorage.getItem(listaName);
@@ -2094,7 +2567,7 @@ function prdAddList() {
 
   if (updateOk) {
     sessionStorage.setItem(listaName, JSON.stringify(lista));
-    toast("Lista de presentes atualizada!");
+    toast(msg);
   }
 
   else {
@@ -2195,7 +2668,7 @@ function wsSaveLista() {
 }
 
 function wsSplitLista(first, last) {
-  /* obtem a lista pronta para enviar para o SACI */
+  /* obtem a lista pronta para enviar para o NERUS */
   var listaOk = sessionStorage.getItem("listaOk");
   listaOk = JSON.parse(listaOk);
 
@@ -2214,7 +2687,7 @@ function wsSplitLista(first, last) {
     };
 
     $.ajax({
-      url: configServerUrl + '/splitLista.php',
+      url: configsApp.serverUrl.text + '/splitLista.php',
       type: "POST",
       dataType: "jsonp",
       data: {dados: dados}
@@ -2230,7 +2703,7 @@ function wsSplitLista(first, last) {
     };
 
     $.ajax({
-      url: configServerUrl + '/saveLista.php',
+      url: configsApp.serverUrl.text + '/saveLista.php',
       type: "POST",
       dataType: "jsonp",
       data: {dados: dados}
@@ -2254,7 +2727,7 @@ function wsSplitLista(first, last) {
     };
 
     $.ajax({
-      url: configServerUrl + '/splitLista.php',
+      url: configsApp.serverUrl.text + '/splitLista.php',
       type: "POST",
       dataType: "jsonp",
       data: {dados: dados}
@@ -2266,13 +2739,13 @@ function wsResponseSplitLista(response) {
   /* faz o parser do json */
   response = JSON.parse(response);
 
-  /* obtem a lista pronta para enviar para o SACI */
+  /* obtem a lista pronta para enviar para o NERUS */
   var listaOk = sessionStorage.getItem("listaOk");
   listaOk = JSON.parse(listaOk);
 
   /* em caso de erro */
   if (response.wsstatus == 0) {
-    var msg = 'Não foi possível salvar a lista no SACI!.';
+    var msg = 'Não foi possível salvar a lista no NÉRUS!';
     var error = response.wserror;
     if (error.length > 0)
       msg = error;
@@ -2300,7 +2773,7 @@ function wsResponseSaveLista(response) {
 
   /* em caso de erro */
   if (response.wsstatus == 0) {
-    var msg = 'Não foi possível salvar a lista no SACI!';
+    var msg = 'Não foi possível salvar a lista no NÉRUS!';
     var error = response.wserror;
     if (error.length > 0)
       msg = error;
@@ -2317,7 +2790,7 @@ function wsResponseSaveLista(response) {
     /* grava o historico de lista */
     //saveHist("lista", lista);
 
-    toast("Lista salva no SACI!");
+    toast("Lista salva no NÉRUS!");
 
     /* remove a lista da sessao */
     sessionStorage.removeItem(listaName);
@@ -2342,6 +2815,9 @@ function wsSavePedido() {
   /* obtem o pedido atual */
   var pedido = sessionStorage.getItem("pedidoNew");
   pedido = JSON.parse(pedido);
+  
+  /* obtem o cliente do pedido */
+  var cliente = sessionStorage.getItem("pedidoCliente");
 
   if (pedido != null) {
 
@@ -2360,9 +2836,11 @@ function wsSavePedido() {
     var cabecalho = {
       funcionarioCodigo: funcionarioCodigo,
       usuarioCodigo: usuarioCodigo,
-      clienteCodigo: lista.clienteCodigo,
+      clienteCodigo: 0,
+      clienteListaCodigo: lista.clienteCodigo,
       tipoListaCodigo: lista.tipoLista.tipoListaCodigo,
-      dataEvento: lista.dataEvento
+      dataEvento: lista.dataEvento,
+      observacoes: cliente
     };
 
     $.each(pedido.produtos, function (i, prd) {
@@ -2386,7 +2864,7 @@ function wsSavePedido() {
 }
 
 function wsSplitPedido(first, last) {
-  /* obtem o pedido pronto para enviar para o SACI */
+  /* obtem o pedido pronto para enviar para o NÉRUS */
   var pedidoOk = sessionStorage.getItem("pedidoOk");
   pedidoOk = JSON.parse(pedidoOk);
 
@@ -2405,7 +2883,7 @@ function wsSplitPedido(first, last) {
     };
 
     $.ajax({
-      url: configServerUrl + '/splitPedido.php',
+      url: configsApp.serverUrl.text + '/splitPedido.php',
       type: "POST",
       dataType: "jsonp",
       data: {dados: dados}
@@ -2421,7 +2899,7 @@ function wsSplitPedido(first, last) {
     };
 
     $.ajax({
-      url: configServerUrl + '/savePedido.php',
+      url: configsApp.serverUrl.text + '/savePedido.php',
       type: "POST",
       dataType: "jsonp",
       data: {dados: dados}
@@ -2445,7 +2923,7 @@ function wsSplitPedido(first, last) {
     };
 
     $.ajax({
-      url: configServerUrl + '/splitPedido.php',
+      url: configsApp.serverUrl.text + '/splitPedido.php',
       type: "POST",
       dataType: "jsonp",
       data: {dados: dados}
@@ -2457,13 +2935,13 @@ function wsResponseSplitPedido(response) {
   /* faz o parser do json */
   response = JSON.parse(response);
 
-  /* obtem o pedido pronto para enviar para o SACI */
+  /* obtem o pedido pronto para enviar para o NÉRUS */
   var pedidoOk = sessionStorage.getItem("pedidoOk");
   pedidoOk = JSON.parse(pedidoOk);
 
   /* em caso de erro */
   if (response.wsstatus == 0) {
-    var msg = 'Não foi possível salvar o pedido no SACI!.';
+    var msg = 'Não foi possível salvar o pedido no NÉRUS!';
     var error = response.wserror;
     if (error.length > 0)
       msg = error;
@@ -2491,7 +2969,7 @@ function wsResponseSavePedido(response) {
 
   /* em caso de erro */
   if (response.wsstatus == 0) {
-    var msg = 'Não foi possível salvar o pedido no SACI!';
+    var msg = 'Não foi possível salvar o pedido no NÉRUS!';
     var error = response.wserror;
     if (error.length > 0)
       msg = error;
@@ -2506,7 +2984,7 @@ function wsResponseSavePedido(response) {
     /* grava o historico de lista */
     //saveHist("lista", lista);
 
-    toast("Pedido salvo no SACI!");
+    toast("Pedido salvo no NÉRUS!");
 
     /* remove a lista da sessao */
     sessionStorage.removeItem("pedidoNew");
@@ -2529,7 +3007,7 @@ function exibeDialogClearList() {
   }
 
   else
-    showDialog("Produto", "Excluir todos os produto?", "Cancel", "hideDialog()", "Ok", "clearList()");
+    showDialog("Produto", "Excluir todos os produto?", "Cancelar", "hideDialog()", "Ok", "clearList()");
 }
 
 function clearList() {
@@ -2561,6 +3039,8 @@ function clearList() {
   contentResponse.hide();
   marcaDagua.show();
   totalPrds.hide();
+
+  toast("Produtos excluídos!");
 }
 
 function exibeDialogPrdDel(produtoId, produtoCodigo, produtoGrade) {
@@ -2573,7 +3053,7 @@ function exibeDialogPrdDel(produtoId, produtoCodigo, produtoGrade) {
 
   sessionStorage.setItem("prdDel", JSON.stringify(prdDel));
 
-  showDialog("Produto", "Excluir produto da lista?", "Cancel", "hideDialog()", "Ok", "prdDel()");
+  showDialog("Produto", "Excluir produto da lista?", "Cancelar", "hideDialog()", "Ok", "prdDel()");
 }
 
 function prdDel() {
@@ -2628,19 +3108,23 @@ function prdDel() {
     }
     else
       totalPrds.show();
+
+    toast("Produto excluído!");
   });
 }
 
-function prdLoad(produtoCodigo) {
+function prdLoad(produtoCodigo, produtoGrade) {
   var listaName = sessionStorage.getItem("listaName");
   var modulo = sessionStorage.getItem("modulo");
+  
   sessionStorage.setItem("produtoLoadInfo", produtoCodigo);
+  sessionStorage.setItem("gradeLoadInfo", produtoGrade);
 
   switch (listaName) {
 
     case "listaSelecionada":
       if (modulo == "cliente")
-        loadPage("produto-visualizacao");
+        loadPage("produto-busca");
       else
         loadPage("produto-busca");
       break;
@@ -2660,7 +3144,7 @@ function exibeDialogSaveLista() {
     toast("É necessário adicionar produtos na lista!");
 
   else
-    showDialog('Concluir', 'Salvar esta lista no SACI?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSaveLista()');
+    showDialog('Concluir', 'Salvar esta lista no NÉRUS?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSaveLista()');
 }
 
 function exibeDialogSavePedido() {
@@ -2672,17 +3156,20 @@ function exibeDialogSavePedido() {
     toast("É necessário adicionar produtos no pedido!");
 
   else
-    showDialog('Concluir', 'Salvar este pedido no SACI?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSavePedido()');
+    showDialog('Concluir', 'Salvar este pedido no NÉRUS?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSavePedido()');
 }
 
 function barcodeScan() {
   var scanner = cordova.plugins.barcodeScanner;
   scanner.scan(
           function (result) {
-            var search = $("#header").find("#search");
-            var searchInput = search.find("input[name=search]");
-            searchInput.val(result.text);
-            wsGetProduto();
+            var produto = result.text;
+            if (produto.length > 0) {
+              var search = $("#header").find("#search");
+              var searchInput = search.find("input[name=search]");
+              searchInput.val(result.text);
+              wsGetProduto();
+            }
           },
           function (error) {
             toast("Erro ao tentar ler o código de barras!");
@@ -2691,7 +3178,7 @@ function barcodeScan() {
 }
 
 function exibeDialogAppClose() {
-  showDialog('Aplicativo', 'Deseja fechar o aplicativo?', 'Cancelar', 'hideDialog()', 'Ok', 'appClose()');
+  showDialog('Aplicativo', 'Deseja fechar o aplicativo?', 'Cancelar', 'hideDialog()', 'Ok', 'appClose()');  
 }
 
 /**

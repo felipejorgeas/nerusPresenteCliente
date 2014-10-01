@@ -9,10 +9,12 @@
 
 <script>
   $(function () {
-    var produtoLoadInfo = sessionStorage.getItem("produtoLoadInfo");
-
+    var produtoLoadInfo = sessionStorage.getItem("produtoLoadInfo");    
     sessionStorage.removeItem("produtoLoad");
-
+    
+    wsGetTipoDeProduto();
+    wsGetFabricante();
+    
     if (produtoLoadInfo > 0) {
       window.setTimeout(showMask, 1);
       var search = $("#search");
@@ -20,6 +22,7 @@
       wsGetProduto();
       sessionStorage.removeItem("produtoLoadInfo");
     }
+    
     hideMask();
   });
 </script>
