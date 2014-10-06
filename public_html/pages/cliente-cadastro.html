@@ -1,11 +1,20 @@
 <div class="form">
-  <label>Nome do cliente</label>
+  <label class="required">Nome do cliente</label>
   <p>
     <input type="text" class="input input-input bradius" name="new_cliente_nome" />
   </p>
-  <label>CPF do cliente</label>
+  <label class="required">CPF ou CNPJ do cliente</label>
   <p>
-    <input type="text" class="input input-input bradius" name="new_cliente_cpf" />
+    <input type="text" class="input input-input bradius" name="new_cliente_cpf" onkeypress="return inputMask(event, 'cpfcnpj');" />
+  </p>
+  <label>Telefone</label>
+  <p>
+    <input type="text" class="input input-short bradius" name="new_cliente_ddd" maxlength="2" onkeypress="return inputMask(event, 'numeric');" />
+    <input type="text" class="input input-input input-medium bradius" name="new_cliente_telefone" maxlength="9" onkeypress="return inputMask(event, 'numeric');" />
+  </p>
+  <label>Email</label>
+  <p>
+    <input type="text" class="input input-input bradius no-uppercase" name="new_cliente_email" />
   </p>
 <!--  <p>
     <button type="button" onclick="exibeDialogSaveCliente();">Gravar</button>
@@ -14,6 +23,10 @@
 
 <script>
   $(function() {
+    
+    // marca visualmente os campos obrigatórios
+    $(".required").prepend(asterisk);
+    
     hideMask();
   });
 </script>

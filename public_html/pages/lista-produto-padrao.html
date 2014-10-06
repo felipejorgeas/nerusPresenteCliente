@@ -14,6 +14,7 @@
     var produtosLista = [];
     var grade;
     var box;
+    var img;
 
     marcaDagua.hide();
     contentResponse.scrollTop(0).show();
@@ -23,6 +24,11 @@
 
       if (prd.grade.gradeNome.length > 0)
         grade = " - Grade: " + prd.grade.gradeNome;
+      
+      if(prd.produto.hasOwnProperty("img") && prd.produto.img.hasOwnProperty("0"))
+        img = prd.produto.img[0].arquivo;
+      else
+        img = "img/nophoto.jpg";
 
       // criacao dos objetos a serem inseridos na pagina
       box =
@@ -31,12 +37,12 @@
 //              "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
               "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
               "</div>" +
+              "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
               "<div>" +
               "<div class='prd-img bradius'>" +
-              "<img src='" + "img/prd.png" + "' />" +
+              "<img src='" + img + "' />" +
               "</div>" +
-              "<div class='prd-desc'>" +
-              "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
+              "<div class='prd-desc'>" +              
               "<p class='prd-cod'>Cód.: " + prd.produto.codigo + grade + "</p>" +
               "<p class='prd-forn'>" + prd.produto.fornecedor.nome_fantasia + "</p>" +
               "</div>" +

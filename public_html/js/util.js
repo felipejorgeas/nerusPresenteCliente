@@ -18,6 +18,84 @@ function removerAcentos(newStringComAcento) {
   return string;
 }
 
+function validarEmail(email){
+  var pattern = /([\w-]+(?:\.[\w-]+)*)@((?:[\w-]+\.)*\w[\w-]{0,66})\.([a-z]{2,6}(?:\.[a-z]{2})?)/;
+  
+  var valid = new RegExp(pattern);
+
+  return valid.test(email);
+}
+
+function validarData(dia, mes, ano) {
+
+  if (isNaN(dia) || isNaN(mes) || isNaN(ano))
+    return false;
+
+  if (mes > 12 || mes < 1 || ano < 1 || dia < 1)
+    return false;
+
+  if (mes == 2) {
+    var maiorDia = (((!(ano % 4)) && (ano % 100)) || (!(ano % 400))) ? 29 : 28;
+
+    if (dia > maiorDia)
+      return false;
+  }
+
+  else if ((mes == 4 || mes == 6 || mes == 9 || mes == 11) && (dia > 30))
+    return false;
+
+  else if (dia > 31)
+    return false;
+
+  return true;
+}
+
+function valueOk(caractere, type) {
+  var pattern;
+
+  switch (type) {
+    
+    case 'numeric':
+      pattern = /[0-9]/;
+      break;
+    
+    case 'alpha-numeric':
+      pattern = /[a-zA-Z]/;
+      break;
+    
+    case 'cpfcnpj':
+      pattern = /[0-9\.\-\/]/;
+      break;
+    
+    case 'numeric-and-special':
+      pattern = /[^a-zA-Z\ ]/;
+      break;
+  }
+  
+  var valid = new RegExp(pattern);
+
+  return valid.test(caractere);
+}
+
+function inputMask(event, type) {
+  var BACKSPACE = 8;
+  var key;
+  var tecla;
+
+  if (navigator.appName.indexOf("Netscape") != -1)
+    tecla = event.which;
+
+  key = String.fromCharCode(tecla);
+
+  if (tecla == 13)
+    return false;
+
+  if (tecla == BACKSPACE)
+    return true;
+
+  return (valueOk(key, type));
+}
+
 function number_format(number, decimals, dec_point, thousands_sep) {
   //  discuss at: http://phpjs.org/functions/number_format/
   // original by: Jonas Raoni Soares Silva (http://www.jsfromhell.com)
@@ -76,7 +154,7 @@ function number_format(number, decimals, dec_point, thousands_sep) {
           sep = (typeof thousands_sep === 'undefined') ? ',' : thousands_sep,
           dec = (typeof dec_point === 'undefined') ? '.' : dec_point,
           s = '',
-          toFixedFix = function(n, prec) {
+          toFixedFix = function (n, prec) {
             var k = Math.pow(10, prec);
             return '' + (Math.round(n * k) / k)
                     .toFixed(prec);

@@ -24,12 +24,16 @@ var waitLoadPageInterval;
 var waitResponseAjax;
 var waitToastMsg;
 
+var actionExec;
+
 var setElementPopupVal;
 
 //http://eac-gvt.eacsoftware.com.br:8086/saciPresenteServidorvar configServerUrl = "http://eac-gvt.eacsoftware.com.br:8086/saciPresenteServidor";
 
 var fileSplit;
 var limitSplitPrds = 10;
+
+var asterisk = $("<span class='asterisk'>*</span>");
 
 /**
  * Acoes ao pressionar o botão físico menu
@@ -454,7 +458,7 @@ function showMask() {
   var duration = parseInt(configsApp.maxTimeRequest.text) * 1000;
   clearInterval(waitResponseAjax);
   waitResponseAjax = window.setInterval(function () {
-    toast("Não foi possível concluir a operação. Tente novamente!");
+    toast("Não foi possível concluir a operação. Tente novamente.");
     hideMask();
   }, duration);
   $("#mask").show();
@@ -783,10 +787,42 @@ function hideDialog() {
   hideMaskFull();
 }
 
-function tipoListaInArray(tipoCodigo, listas){
+function exibeDialogSetClientePedido(elem) {
+  var cliente = $(elem).text();
+
+  cliente = cliente.trim();
+
+  if (cliente == "CLIENTE")
+    cliente = "";
+
+  setElementPopupVal = elem;
+
+  showDialog('Cliente', 'Digite o nome do cliente:', 'Cancelar', 'hideDialog()', 'Ok', 'setClientePedido()', true);
+  $("#popup-dialog").find("input").css("text-transform", "uppercase").val(cliente);
+}
+
+function setClientePedido() {
+  var cliente = $("#popup-dialog").find("input").val();
+
+  cliente = cliente.trim();
+  cliente = cliente.toUpperCase();
+
+  if (cliente.length == 0) {
+    cliente = "CLIENTE";
+    sessionStorage.setItem("pedidoCliente", "");
+  }
+  else
+    sessionStorage.setItem("pedidoCliente", cliente);
+
+  $(setElementPopupVal).text(cliente);
+
+  hideDialog();
+}
+
+function tipoListaInArray(tipoCodigo, listas) {
   var existsOk = false;
-  $.each(listas, function(i, item){
-    if(tipoCodigo == item.tipo_codigo)
+  $.each(listas, function (i, item) {
+    if (tipoCodigo == item.tipo_codigo)
       existsOk = true;
   });
   return existsOk;
@@ -797,6 +833,8 @@ function showSelect(type, elem, consistTypeList) {
   var marginTop = 0;
   var ul = $("<ul>");
   var lis = "";
+
+  var exibSelectOk = true;
 
   switch (type) {
 
@@ -854,7 +892,7 @@ function showSelect(type, elem, consistTypeList) {
       break;
 
     case "tipoLista":
-      if(consistTypeList){
+      if (consistTypeList) {
         var clienteListas = sessionStorage.getItem("clienteListas");
         clienteListas = JSON.parse(clienteListas);
       }
@@ -864,10 +902,10 @@ function showSelect(type, elem, consistTypeList) {
 
       $.each(itens, function (i, item) {
         var inactive = "";
-        
-        if(consistTypeList && clienteListas != null && tipoListaInArray(item.tipo_lista_codigo, clienteListas))
+
+        if (consistTypeList && clienteListas != null && tipoListaInArray(item.tipo_lista_codigo, clienteListas))
           inactive = "inactive";
-        
+
         lis += "<li class='" + inactive + "' data-value='" + item.tipo_lista_codigo + "'>" + item.tipo_lista_nome + "</li>";
       });
 
@@ -877,11 +915,11 @@ function showSelect(type, elem, consistTypeList) {
       popupSelect.find("ul").find("li").click(function () {
         var nome = $(this).text();
         var codigo = $(this).attr("data-value");
-        
-        if(consistTypeList && clienteListas != null && tipoListaInArray(codigo, clienteListas)){
+
+        if (consistTypeList && clienteListas != null && tipoListaInArray(codigo, clienteListas)) {
           toast("Não é possível criar mais uma lista deste tipo para este cliente!");
         }
-        else{
+        else {
           $(elem).text(nome).attr("data-value", codigo);
           popupSelect.hide();
           hideMaskFull();
@@ -951,11 +989,46 @@ function showSelect(type, elem, consistTypeList) {
         hideMaskFull();
       });
       break;
+
+    case "pedidosLista":
+
+      var itens = sessionStorage.getItem("pedidosLista");
+      itens = JSON.parse(itens);
+
+      if (itens == null) {
+        toast("Não há pedidos relacionados a lista base! Impossível atualizar.");
+
+        exibSelectOk = false;
+      }
+
+      else {
+        hideDialog();
+
+        $.each(itens, function (i, item) {
+          lis += "<li data-value='" + item.codigo_pedido + "'>Pedido: " + item.codigo_pedido + "</li>";
+        });
+
+        ul.html(lis);
+        popupSelect.html(ul);
+
+        popupSelect.find("ul").find("li").click(function () {
+          var nome = $(this).text();
+          var codigo = $(this).attr("data-value");
+          wsSavePedido(codigo);
+          popupSelect.hide();
+          hideMaskFull();
+        });
+      }
+
+      break;
   }
-  showMaskFull();
-  marginTop = -(parseInt(popupSelect.css("height")) / 2);
-  popupSelect.css("margin-top", marginTop);
-  popupSelect.show();
+
+  if (exibSelectOk) {
+    showMaskFull();
+    marginTop = -(parseInt(popupSelect.css("height")) / 2);
+    popupSelect.css("margin-top", marginTop);
+    popupSelect.show();
+  }
 }
 
 function resetFields(elem, type) {
@@ -966,9 +1039,9 @@ function resetFields(elem, type) {
       p.find(".input-select").text("Selecione").attr("data-value", "");
       break;
     case "date":
-      p.find(".input-date.day").text("00");
-      p.find(".input-date.month").text("00");
-      p.find(".input-date.year").text("0000");
+      p.find(".input-short.day").text("00");
+      p.find(".input-short.month").text("00");
+      p.find(".input-short.year").text("0000");
       break;
     default:
       p.find(".input").val("");
@@ -977,11 +1050,13 @@ function resetFields(elem, type) {
 
 function calcTotalPrds(prds) {
   var price = 0;
+  var qtty = 0;
   var total = 0;
 
   prds.each(function (i, prd) {
     price = $(prd).find(".prd-price").find("span").text();
-    total += parseInt(price);
+    qtty = $(prd).find(".prd-qtty").find("span").text();
+    total += parseInt(price) * parseInt(qtty);
   });
 
   total = number_format(total / 100, 2, ',', '.');
@@ -992,8 +1067,6 @@ function calcTotalPrds(prds) {
 function init() {
 
   loadConfigsApp();
-
-  wsGetCentroLucro();
 
 //  hideLogin();
 //  menuSec();
@@ -1116,9 +1189,9 @@ function init() {
   var day = "00";
   var month = "00";
   var year = "0000";
-  $(".input-date.day").text(day);
-  $(".input-date.month").text(month);
-  $(".input-date.year").text(year);
+  $(".input-short.day").text(day);
+  $(".input-short.month").text(month);
+  $(".input-short.year").text(year);
 
   $("button").click(function () {
     var button = $(this);
@@ -1155,6 +1228,23 @@ function init() {
     var tecla = (evt.keyCode ? evt.keyCode : evt.which);
     if (tecla == 13) {
       wsLogin();
+      $(this).blur();
+    }
+  });
+  
+  $("#filter-lista-busca").find(".noivoPai").keypress(function (evt) {
+    var tecla = (evt.keyCode ? evt.keyCode : evt.which);
+    if (tecla == 13) {
+      wsGetLista();
+      $(this).blur();
+    }
+  });
+  
+  $("#filter-lista-busca").find(".noivoMae").keypress(function (evt) {
+    var tecla = (evt.keyCode ? evt.keyCode : evt.which);
+    if (tecla == 13) {
+      wsGetLista();
+      $(this).blur();
     }
   });
 
@@ -1162,6 +1252,7 @@ function init() {
     var tecla = (evt.keyCode ? evt.keyCode : evt.which);
     if (tecla == 13) {
       filterListPrds();
+      $(this).blur();
     }
   });
 
@@ -1213,6 +1304,120 @@ function resetPageContent() {
 
   page.find(".content-response").hide();
   page.find(".mark-agua").show();
+}
+
+/**
+ * setFuncionarioInfo
+ * 
+ * Funcao para setar os dados do funcionario logado na tela
+ */
+function setFuncionarioInfo() {
+  /* obtem os dados do funcionario na sessao */
+  var nome = getFuncionarioNome();
+  nome = nome.substr(0, 30);
+  var email = getFuncionarioEmail();
+
+  var user = $("#user-logged").find("#user-info");
+  
+  // seta os dados na tela
+  user.find("#user-name").text(nome);
+  user.find("#user-email").text(email);
+
+  /* verifica as permissoes do funcionario */
+  verificaPermFuncionario();
+}
+
+/**
+ * getFuncionarioCodigo
+ * 
+ * Funcao para obter o codigo do funcionario logado
+ */
+function getFuncionarioCodigo() {
+  /* obtem os dados do funcionario na sessao */
+  var user = JSON.parse(sessionStorage.getItem('funcionarioLogado'));
+  return user.codigo;
+}
+
+/**
+ * getFuncionarioNome
+ * 
+ * Funcao para obter o nome do funcionario logado
+ */
+function getFuncionarioNome() {
+  /* obtem os dados do funcionario na sessao */
+  var user = JSON.parse(sessionStorage.getItem('funcionarioLogado'));
+  var nome = user.nome.split(" ");
+  return nome[0] + " " + nome[nome.length - 1];
+}
+
+/**
+ * getFuncionarioEmail
+ * 
+ * Funcao para obter o email do funcionario logado
+ */
+function getFuncionarioEmail() {
+  /* obtem os dados do funcionario na sessao */
+  var user = JSON.parse(sessionStorage.getItem('funcionarioLogado'));
+  return user.email;
+}
+
+/**
+ * getFuncionarioLoja
+ * 
+ * Funcao para obter a loja do funcionario logado
+ */
+function getFuncionarioLoja() {
+  /* obtem os dados do funcionario na sessao */
+  var user = JSON.parse(sessionStorage.getItem('funcionarioLogado'));
+  return user.loja;
+}
+
+/**
+ * getFuncionarioUsuario
+ * 
+ * Funcao para obter o usuario do funcionario logado
+ */
+function getFuncionarioUsuario() {
+  /* obtem os dados do funcionario na sessao */
+  var user = JSON.parse(sessionStorage.getItem('funcionarioLogado'));
+  return user.usuario;
+}
+
+/**
+ * getFuncionarioCargo
+ * 
+ * Funcao para obter o cargo do funcionario logado
+ */
+function getFuncionarioCargo() {
+  /* obtem os dados do funcionario na sessao */
+  var user = JSON.parse(sessionStorage.getItem('funcionarioLogado'));
+  return user.cargo;
+}
+
+/**
+ * getFuncionarioPermissao
+ * Funcao para obter a permissao do funcionario logado
+ */
+function getFuncionarioPermissao() {
+  /* obtem os dados do funcionario na sessao */
+  var user = JSON.parse(sessionStorage.getItem('funcionarioLogado'));
+  return user.permissao;
+}
+
+function verificaPermFuncionario() {
+  /* obtem os dados do funcionario na sessao */
+  var permissao = getFuncionarioPermissao();
+  /**
+   * 1 - vendedor (permissao basico para acessar o aplicativo)
+   * 2 - gerente ou diretor (permissao avancada para acessar o aplicativo e configuracoes)
+   */
+  switch (permissao) {
+    case "2":
+      $("#nav-options").find("#settings").show();
+      break;
+    default:
+      $("#nav-options").find("#settings").hide();
+  }
 }
 
 /*
@@ -1285,10 +1490,12 @@ function wsResponseLogin(response) {
   /* em caso de sucesso */
   else if (response.wsstatus == 1) {
 
-    /* guarda os dados do usuario na sessao */
-    sessionStorage.setItem('usuarioLogado', JSON.stringify(response.wsresult));
+    /* guarda os dados do funcionario na sessao */
+    sessionStorage.setItem('funcionarioLogado', JSON.stringify(response.wsresult));
+    setFuncionarioInfo();
 
-//    wsGetTipoDeLista();
+    wsGetCentroLucro();
+
     hideLogin();
 
     toast('Login realizado com sucesso!');
@@ -1296,6 +1503,7 @@ function wsResponseLogin(response) {
 }
 
 function logoutAction() {
+  sessionStorage.removeItem('funcionarioLogado');
   window.location.reload();
 }
 
@@ -1561,6 +1769,63 @@ function wsResponseGetFabricante(response) {
 }
 
 /**
+ * wsGetPedidosLista
+ *
+ * Funcao obter os pedidos relacionados a lista base via ajax
+ *
+ */
+function wsGetPedidosLista() {
+  var listaSelecionada = sessionStorage.getItem("listaSelecionada");
+  listaSelecionada = JSON.parse(listaSelecionada);
+
+  // cria bloco de dados a serem enviados na requisicao
+  var pedidosLista = {
+    cliente_lista: listaSelecionada.clienteCodigo,
+    tipo_lista: listaSelecionada.tipoLista.tipoListaCodigo,
+    codigo_loja: configsApp.storeno.text
+  }
+
+  var dados = {wscallback: "wsResponseGetPedidosLista", pedidosLista: pedidosLista};
+
+  // executa a requisicao via ajax
+  $.ajax({
+    url: configsApp.serverUrl.text + "/getPedidosLista.php",
+    type: "POST",
+    dataType: "jsonp",
+    data: {dados: dados}
+  });
+}
+
+/**
+ * wsResponseGetPedidosLista
+ * 
+ * Funcao para tratar o retorno da requisicao "wsGetPedidosLista"
+ *
+ * @param {json} response
+ */
+function wsResponseGetPedidosLista(response) {
+  // faz o parser do json
+  response = JSON.parse(response);
+
+  sessionStorage.removeItem("pedidosLista");
+
+  // em caso de erro
+  if (response.wsstatus == 0) {
+    var msg = "Nenhum pedido cadastrado para a lista base!";
+    var error = response.wserror;
+    if (error.length > 0)
+      msg = error;
+    //toast(msg);
+  }
+
+  // em caso de sucesso
+  else if (response.wsstatus == 1) {
+    var pedidosLista = response.wsresult;
+    sessionStorage.setItem("pedidosLista", JSON.stringify(pedidosLista));
+  }
+}
+
+/**
  * wsGetLista
  *
  * Funcao obter as listas de presentes via ajax
@@ -1570,30 +1835,59 @@ function wsResponseGetFabricante(response) {
 function wsGetLista(clienteCodigo) {
   hideMenuSec();
   showMask();
+  
+  /** searchType
+   * 
+   * 0 => busca todas as listas do cliente pelo seu codigo
+   * 1 => busca todas as listas dos clientes pelo trecho de nome
+   * 2 => busca todas as listas do cliente pelo seu cpf ou cnpj
+   */
+  var searchType = 0;
 
   if (clienteCodigo != null && clienteCodigo > 0) {
     var lista = {
-      codigo_cliente: clienteCodigo
+      codigo_cliente: clienteCodigo,
+      searchType: searchType
     };
   }
 
   else {
     var filtros = $("#filter-lista-busca");
     // obtem os dados para execucao da requisicao
-    var dia = filtros.find(".input-date.day").text();
-    var mes = filtros.find(".input-date.month").text();
-    var ano = filtros.find(".input-date.year").text();
-    var tipoListaCodigo = filtros.find(".input-select.tipoLista").attr("data-value");
+    var dia = filtros.find(".input-short.day").text();
+    var mes = filtros.find(".input-short.month").text();
+    var ano = filtros.find(".input-short.year").text();
+    var tipoListaCodigo = filtros.find(".input-select.tipoLista").eq(0).attr("data-value");
+    var noivoPai = filtros.find(".input.noivoPai").eq(0).val();
+    var noivoMae = filtros.find(".input.noivoMae").eq(0).val();
 
-    var clienteNome = $("#search input[name=search]").val();
-    clienteNome = removerAcentos(clienteNome);
+    var clienteSearch = $("#search input[name=search]").val();
+    clienteSearch = removerAcentos(clienteSearch);
+        
+    searchType = 1;
+    
+    if(parseInt(clienteSearch.replace(/[^0-9]/g, "")) > 0){
+      searchType = 2;
+
+      clienteSearch = clienteSearch.replace(/[^0-9]/g, "");
+
+      if(clienteSearch.length == 11)
+        // formato cpf - ###.###.###-##
+        clienteSearch = clienteSearch.substr(0, 3) + "." + clienteSearch.substr(3, 3) + "." + clienteSearch.substr(6, 3) + "-" + clienteSearch.substr(9, 2); 
+      else
+        // formato cnpj - ##.###.###/####-##
+        clienteSearch = clienteSearch.substr(0, 2) + "." + clienteSearch.substr(2, 3) + "." + clienteSearch.substr(5, 3) + "/" + clienteSearch.substr(8, 4) + "-" + clienteSearch.substr(12, 2);
+    }
 
     // preparacao dos dados
     var dataEvento = "" + ano + mes + dia;
     var lista = {
       data_evento: parseInt(dataEvento) > 0 ? dataEvento : "",
       tipo: tipoListaCodigo.length > 0 ? tipoListaCodigo : "",
-      nome_cliente: clienteNome
+      pai_noivo: noivoPai.length > 0 ? noivoPai : "",
+      mae_noivo: noivoMae.length > 0 ? noivoMae : "",
+      cliente: clienteSearch,
+      searchType: searchType
     };
   }
 
@@ -1618,6 +1912,12 @@ function wsGetLista(clienteCodigo) {
 function wsResponseGetLista(response) {
   // faz o parser do json
   response = JSON.parse(response);
+  
+  // limpa a pagina a ser preenchida com os dados
+  var page = $("#content").find(".page.activePage:last");
+  var pageId = "#" + page.attr("id");
+  var marcaDagua = $(pageId).find(".mark-agua");
+  var contentResponse = $(pageId).find(".content-response");
 
   // em caso de erro
   if (response.wsstatus == 0) {
@@ -1634,19 +1934,15 @@ function wsResponseGetLista(response) {
 
   // em caso de sucesso
   else if (response.wsstatus == 1) {
-    
-    sessionStorage.removeItem("clienteListas");    
+
+    sessionStorage.removeItem("clienteListas");
+    sessionStorage.removeItem("pedidoCliente");
 
     var listas = response.wsresult;
     sessionStorage.setItem("clienteListas", JSON.stringify(listas));
 
     if (listas.hasOwnProperty("0")) {
-
-      // limpa a pagina a ser preenchida com os dados
-      var page = $("#content").find(".page.activePage:last");
-      var pageId = "#" + page.attr("id");
-      var marcaDagua = $(pageId).find(".mark-agua");
-      var contentResponse = $(pageId).find(".content-response");
+      
       var listasStorage = [];
       marcaDagua.hide();
       contentResponse.html("").scrollTop(0).show();
@@ -1683,7 +1979,7 @@ function wsResponseGetLista(response) {
       });
 
       // ativa as acoes de cliques nos blocos inseridos
-      contentResponse.find(".card").removeClass("activeCard");
+      //contentResponse.find(".card").removeClass("activeCard");
       contentResponse.find(".card").click(function () {
         if ($(this).hasClass("activeCard")) {
           var modulo = sessionStorage.getItem("modulo");
@@ -1697,7 +1993,10 @@ function wsResponseGetLista(response) {
             clienteCodigo: lista.cliente_codigo,
             clienteNome: lista.cliente_nome,
             dataEvento: lista.data_evento,
-            tipoLista: {tipoListaCodigo: lista.tipo_codigo, tipoListaNome: lista.tipo_nome},
+            tipoLista: {
+              tipoListaCodigo: lista.tipo_codigo, 
+              tipoListaNome: lista.tipo_nome
+            },
             produtos: []
           };
 
@@ -1710,27 +2009,41 @@ function wsResponseGetLista(response) {
                 multiplicador: produto.multiplicador,
                 preco: produto.preco,
                 img: produto.img,
-                centrolucro: {codigo_categoria: produto.centro_lucro, nome_categoria: produto.centro_lucro_nome},
-                fornecedor: {codigo_fabricante: produto.codigo_fabricante, nome_fabricante: produto.nome_fabricante, nome_fantasia: produto.nome_fantasia_fabricante}
+                centrolucro: {
+                  codigo_categoria: produto.centro_lucro, 
+                  nome_categoria: produto.centro_lucro_nome
+                },
+                fornecedor: {
+                  codigo_fabricante: produto.codigo_fabricante, 
+                  nome_fabricante: produto.nome_fabricante, 
+                  nome_fantasia: produto.nome_fantasia_fabricante
+                }
               },
-              grade: {gradeNome: produto.grade, gradeQtty: produto.quantidade_listada / 1000}
+              grade: {
+                gradeNome: produto.grade, 
+                gradeQtty: produto.quantidade_listada / 1000, 
+                gradeQttySold: produto.quantidade_vendida / 1000
+              }
             }
             listaOk.produtos.push(prd);
           });
 
+          sessionStorage.setItem("listaName", "listaSelecionada");
+
           switch (modulo) {
             case "cliente":
               listaOk.produtos = [];
+              sessionStorage.setItem("listaSelecionada", JSON.stringify(listaOk));
+              actionExec = "edicaoLista";
               loadPage("lista-produto-edicao-lista");
               break;
 
             case "convidado":
+              sessionStorage.setItem("listaSelecionada", JSON.stringify(listaOk));
+              actionExec = "novoPedido";
               loadPage("lista-produto-visualizacao-convidado");
               break;
           }
-          
-          sessionStorage.setItem("listaName", "listaSelecionada");
-          sessionStorage.setItem("listaSelecionada", JSON.stringify(listaOk));          
         }
 
         else {
@@ -1741,10 +2054,18 @@ function wsResponseGetLista(response) {
         return false;
       });
 
-      $(window).click(function () {
-        $(".card").removeClass("activeCard");
-      });
+//      $(window).click(function () {
+//        $(".card").removeClass("activeCard");
+//      });
     }
+    
+    else{
+      contentResponse.hide();
+      marcaDagua.show();
+      
+      toast("Nenhuma lista encontrada!");
+    }
+      
     hideMask();
   }
   $("#search").find("input[name=search]").val("");
@@ -1850,10 +2171,10 @@ function wsGetCliente() {
   hideMenuSec();
 
   // obtem os dados para execucao da requisicao
-  var clienteNome = $("#search [name=search]").val();
-  clienteNome = removerAcentos(clienteNome);
+  var clienteSearch = $("#search [name=search]").val();
+  clienteSearch = removerAcentos(clienteSearch);
 
-  if (clienteNome.length == 0) {
+  if (clienteSearch.length == 0) {
     toast("É necessário informar o nome do cliente!");
     hideMask();
   }
@@ -1861,9 +2182,25 @@ function wsGetCliente() {
   else {
 
     showMask();
+    
+    var searchType = 0;
+    
+    if(parseInt(clienteSearch.replace(/[^0-9]/g, "")) > 0){
+      searchType = 1;
+      
+      clienteSearch = clienteSearch.replace(/[^0-9]/g, "");
+
+      if(clienteSearch.length == 11)
+        // formato cpf - ###.###.###-##
+        clienteSearch = clienteSearch.substr(0, 3) + "." + clienteSearch.substr(3, 3) + "." + clienteSearch.substr(6, 3) + "-" + clienteSearch.substr(9, 2); 
+      else
+        // formato cnpj - ##.###.###/####-##
+        clienteSearch = clienteSearch.substr(0, 2) + "." + clienteSearch.substr(2, 3) + "." + clienteSearch.substr(5, 3) + "/" + clienteSearch.substr(8, 4) + "-" + clienteSearch.substr(12, 2);
+    }
 
     var cliente = {
-      nome_cliente: clienteNome
+      cliente: clienteSearch,
+      searchType: searchType
     };
 
 // cria bloco de dados a serem enviados na requisicao
@@ -1943,7 +2280,7 @@ function wsResponseGetCliente(response) {
       contentResponse.html(clientesLista);
 
       // ativa as acoes de cliques nos blocos inseridos
-      contentResponse.find(".cliente").removeClass("activeCliente");
+      //contentResponse.find(".cliente").removeClass("activeCliente");
       contentResponse.find(".cliente").click(function () {
         if ($(this).hasClass("activeCliente")) {
           var clienteId = this.id;
@@ -1960,9 +2297,9 @@ function wsResponseGetCliente(response) {
         return false;
       });
 
-      $(window).click(function () {
-        $(".cliente").removeClass("activeCliente");
-      });
+//      $(window).click(function () {
+//        $(".cliente").removeClass("activeCliente");
+//      });
 
       hideMask();
     }
@@ -1973,15 +2310,23 @@ function exibeDialogSaveCliente() {
   // obtem os dados para execucao da requisicao   
   var clienteNome = $(".form [name=new_cliente_nome]").val();
   var clienteCpf = $(".form [name=new_cliente_cpf]").val();
+  var clienteDDD = $(".form [name=new_cliente_ddd]").val();
+  var clienteTelefone = $(".form [name=new_cliente_telefone]").val();
+  var clienteEmail = $(".form [name=new_cliente_email]").val();
 
-  if (clienteNome.length == 0 || clienteCpf.length == 0) {
-    toast("Todos os campos são obrigatórios");
-  }
+  if (clienteNome.length == 0 || clienteCpf.length == 0)
+    toast("Os campos obrigatórios devem ser preenchidos!");
+    
+  else if(!validarEmail(clienteEmail))
+    toast("O email do cliente é inválido!");
 
   else {
     var clienteInfo = {
       clienteNome: clienteNome,
-      clienteCpf: clienteCpf
+      clienteCpf: clienteCpf,
+      clienteDDD: clienteDDD,
+      clienteTelefone: clienteTelefone,
+      clienteEmail: clienteEmail
     }
 
     sessionStorage.setItem("clienteInfo", JSON.stringify(clienteInfo));
@@ -2003,7 +2348,10 @@ function wsSaveCliente() {
 
   var cliente = {
     cliente_nome: clienteInfo.clienteNome,
-    cliente_cpf: clienteInfo.clienteCpf
+    cliente_cpf: clienteInfo.clienteCpf,
+    cliente_ddd: clienteInfo.clienteDDD,
+    cliente_telefone: clienteInfo.clienteTelefone,
+    cliente_email: clienteInfo.clienteEmail
   };
 
 // cria bloco de dados a serem enviados na requisicao
@@ -2084,8 +2432,8 @@ function wsGetProduto() {
   searchField.val("");
 
   /* searchType
-   * 0 => numero
-   * 1 => texto
+   * 0 => busca pelo codigo do produto
+   * 1 => busca pelo trecho de nome do produto
    */
   var searchType = 0;
 
@@ -2187,8 +2535,9 @@ function wsResponseGetProduto(response) {
       });
 
       // insere os blocos na pagina
-      contentResponse.scrollTop(0).show();
-      contentResponseList.html(produtosLista).scrollTop(0).slideDown();
+      page.scrollTop(0);
+      contentResponse.show();
+      contentResponseList.html(produtosLista).slideDown().scrollTop(0);
 
       // ativa as acoes de cliques nos blocos inseridos
       contentResponseList.find(".prds").click(function () {
@@ -2211,14 +2560,14 @@ function wsResponseGetProduto(response) {
         });
       });
     }
-    else{
-      var msg = 'Produto não encontrado!';
-      var error = response.wserror;
-      if (error.length > 0)
-        msg = error;
-
+    
+    else {
+      contentResponse.html("").hide();
+      marcaDagua.show();
+      
       hideMask();
-      toast(msg);
+      
+      toast('Produto não encontrado!');
     }
   }
 
@@ -2226,10 +2575,10 @@ function wsResponseGetProduto(response) {
 
     /* obtem as informacoes do produto que veio no retorno */
     var produto = response.wsresult;
-    
+
     /* armazena os dados do produto buscado */
     sessionStorage.setItem("produtoLoad", JSON.stringify(produto));
-    
+
     var gradeLoadInfo = sessionStorage.getItem("gradeLoadInfo");
 
     var listaName = sessionStorage.getItem("listaName");
@@ -2256,6 +2605,7 @@ function wsResponseGetProduto(response) {
     var gradesLista = [];
     var gradeQtty;
     var activeGrade = "";
+    var selectedGrade = "";
     var prd;
 
     var info;
@@ -2351,8 +2701,9 @@ function wsResponseGetProduto(response) {
     // Grades do produto
     if (produto.grades[0].length > 0) {
       $.each(produto.grades, function (i, grade) {
-        gradeQtty = "0.00";
+        gradeQtty = "0,00";
         activeGrade = "";
+        selectedGrade = "";
 
         /* monta o bloco com as informacoes do produto */
         prd = {
@@ -2364,16 +2715,12 @@ function wsResponseGetProduto(response) {
 
         if (prdInList(prd, lista.produtos)) {
           prd = listPrdGet(prd, lista.produtos);
-          gradeQtty = number_format(prd.grade.gradeQtty, 2);
+          gradeQtty = number_format(prd.grade.gradeQtty, 2, ",", ".");
+          activeGrade = "activeGrade";
         }
 
-        if (gradeQtty > 0)
-          activeGrade = "activeGrade";
-        
-        var selectedGrade = "";
-
         // caso a grade seja a que o 
-        if(gradeLoadInfo == grade)
+        if (gradeLoadInfo == grade)
           selectedGrade = "selectedGrade";
 
         box =
@@ -2389,14 +2736,14 @@ function wsResponseGetProduto(response) {
                 "</span>" +
                 "</p>" +
                 "</div>";
-        
+
 
         gradesLista.push(box);
       });
     }
 
     else {
-      gradeQtty = "0.00";
+      gradeQtty = "0,00";
       activeGrade = "";
 
       /* monta o bloco com as informacoes do produto */
@@ -2409,11 +2756,9 @@ function wsResponseGetProduto(response) {
 
       if (prdInList(prd, lista.produtos)) {
         prd = listPrdGet(prd, lista.produtos);
-        gradeQtty = number_format(prd.grade.gradeQtty, 2);
-      }
-
-      if (gradeQtty > 0)
+        gradeQtty = number_format(prd.grade.gradeQtty, 2, ",", ".");
         activeGrade = "activeGrade";
+      }
 
       box =
               "<div class='produto-grade bradius " + activeGrade + "' style='width: 100%;'>" +
@@ -2440,7 +2785,12 @@ function wsResponseGetProduto(response) {
       var mult = parseFloat($(".produto-mult").eq(0).text()) / 1000;
       var objBox = $(this).parent().parent();
       var objQtty = objBox.find(".qtty");
-      var qttyVal = parseFloat(objQtty.text());
+      var qttyVal = objQtty.text();
+      
+      qttyVal = qttyVal.replace(/\./g, "");
+      qttyVal = qttyVal.replace(/\,/g, ".");
+
+      qttyVal = parseFloat(qttyVal);
 
       if (isNaN(qttyVal))
         qttyVal = 0;
@@ -2454,11 +2804,11 @@ function wsResponseGetProduto(response) {
         qttyVal += mult;
       }
 
-      qttyVal = number_format(qttyVal, 2);
+      qttyVal = number_format(qttyVal, 2, ",", ".");
 
       objQtty.text(qttyVal);
     });
-    
+
     sessionStorage.removeItem("gradeLoadInfo");
 
     marcaDagua.hide();
@@ -2480,7 +2830,7 @@ function setGradeQtty() {
 
   if (!isNaN(qttyVal)) {
     qttyVal = ajustValueMult(qttyVal, mult);
-    qttyVal = number_format(qttyVal, 2);
+    qttyVal = number_format(qttyVal, 2, ",", ".");
     $(setElementPopupVal).text(qttyVal);
   }
 
@@ -2536,7 +2886,12 @@ function prdAddList() {
   $.each(gradesObj, function (i, item) {
     grd = $(item);
     gradeNome = grd.find(".produto-grade-title").text();
-    gradeQtty = parseFloat(grd.find(".qtty").text());
+    gradeQtty = grd.find(".qtty").text();
+    
+    gradeQtty = gradeQtty.replace(/\./g, "");
+    gradeQtty = gradeQtty.replace(/\,/g, ".");
+    
+    gradeQtty = parseFloat(gradeQtty);
 
     /* monta o bloco com as informacoes do produto */
     prd = {
@@ -2636,16 +2991,32 @@ function wsSaveLista() {
       produtos: []
     }
 
+    var cabecalho;
     var produtos = [];
     var produto;
 
-    var cabecalho = {
-      funcionarioCodigo: funcionarioCodigo,
-      usuarioCodigo: usuarioCodigo,
-      clienteCodigo: lista.clienteCodigo,
-      tipoListaCodigo: lista.tipoLista.tipoListaCodigo,
-      dataEvento: lista.dataEvento
-    };
+    if (actionExec == "edicaoLista") {
+      cabecalho = {
+        funcionarioCodigo: funcionarioCodigo,
+        usuarioCodigo: usuarioCodigo,
+        clienteCodigo: lista.clienteCodigo,
+        tipoListaCodigo: lista.tipoLista.tipoListaCodigo,
+        dataEvento: lista.dataEvento,
+        lojaCodigo: configsApp.storeno.text,
+        update: "1"
+      };
+    }
+
+    else {
+      cabecalho = {
+        funcionarioCodigo: funcionarioCodigo,
+        usuarioCodigo: usuarioCodigo,
+        clienteCodigo: lista.clienteCodigo,
+        tipoListaCodigo: lista.tipoLista.tipoListaCodigo,
+        dataEvento: lista.dataEvento,
+        lojaCodigo: configsApp.storeno.text,
+      };
+    }
 
     $.each(lista.produtos, function (i, prd) {
       produto = {
@@ -2804,7 +3175,7 @@ function wsResponseSaveLista(response) {
   }
 }
 
-function wsSavePedido() {
+function wsSavePedido(pedidoCodigo) {
 
   var listaName = sessionStorage.getItem("listaName");
 
@@ -2815,11 +3186,13 @@ function wsSavePedido() {
   /* obtem o pedido atual */
   var pedido = sessionStorage.getItem("pedidoNew");
   pedido = JSON.parse(pedido);
-  
+
   /* obtem o cliente do pedido */
   var cliente = sessionStorage.getItem("pedidoCliente");
 
   if (pedido != null) {
+
+    pedidoCodigo = pedidoCodigo > 0 ? pedidoCodigo : 0;
 
     /* obtem so dados do funcionario logado */
     var funcionarioCodigo = 1;//getUsuarioCodigo();
@@ -2836,18 +3209,22 @@ function wsSavePedido() {
     var cabecalho = {
       funcionarioCodigo: funcionarioCodigo,
       usuarioCodigo: usuarioCodigo,
-      clienteCodigo: 0,
+      pedidoCodigo: pedidoCodigo,
+      clienteCodigo: lista.clienteCodigo,
       clienteListaCodigo: lista.clienteCodigo,
       tipoListaCodigo: lista.tipoLista.tipoListaCodigo,
       dataEvento: lista.dataEvento,
-      observacoes: cliente
+      observacoes: cliente,
+      lojaCodigo: configsApp.storeno.text,
+      pdvCodigo: configsApp.pdvno.text
     };
 
     $.each(pedido.produtos, function (i, prd) {
       produto = {
         produtoCodigo: prd.produto.codigo,
         produtoGrade: prd.grade.gradeNome,
-        produtoQuantidade: prd.grade.gradeQtty * 1000
+        produtoQuantidade: prd.grade.gradeQtty * 1000,
+        produtoAmbiente: 0
 //          produtoPreco: prd.produto.preco
       };
       produtos.push(produto);
@@ -3116,7 +3493,7 @@ function prdDel() {
 function prdLoad(produtoCodigo, produtoGrade) {
   var listaName = sessionStorage.getItem("listaName");
   var modulo = sessionStorage.getItem("modulo");
-  
+
   sessionStorage.setItem("produtoLoadInfo", produtoCodigo);
   sessionStorage.setItem("gradeLoadInfo", produtoGrade);
 
@@ -3143,8 +3520,17 @@ function exibeDialogSaveLista() {
   if (lista == null || !lista.produtos.hasOwnProperty(0))
     toast("É necessário adicionar produtos na lista!");
 
-  else
-    showDialog('Concluir', 'Salvar esta lista no NÉRUS?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSaveLista()');
+  else {
+    switch (actionExec) {
+      case "novaLista":
+        showDialog('Concluir', 'Salvar esta lista no NÉRUS?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSaveLista()');
+        break;
+      case "edicaoLista":
+        showDialog('Concluir', 'Atualizar a lista no NÉRUS?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSaveLista()');
+        break;
+    }
+
+  }
 }
 
 function exibeDialogSavePedido() {
@@ -3156,7 +3542,7 @@ function exibeDialogSavePedido() {
     toast("É necessário adicionar produtos no pedido!");
 
   else
-    showDialog('Concluir', 'Salvar este pedido no NÉRUS?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSavePedido()');
+    showDialog('Concluir', 'Salvar este pedido no NÉRUS?', 'Concluir', 'wsSavePedido()', 'Atualizar', 'showSelect("pedidosLista")');
 }
 
 function barcodeScan() {
@@ -3178,7 +3564,7 @@ function barcodeScan() {
 }
 
 function exibeDialogAppClose() {
-  showDialog('Aplicativo', 'Deseja fechar o aplicativo?', 'Cancelar', 'hideDialog()', 'Ok', 'appClose()');  
+  showDialog('Aplicativo', 'Deseja fechar o aplicativo?', 'Cancelar', 'hideDialog()', 'Ok', 'appClose()');
 }
 
 /**
@@ -3203,4 +3589,54 @@ function logout() {
 
 function exibeDialogLogout() {
   showDialog('Usuário', 'Deseja sair deste usuário?', 'Cancelar', 'hideDialog()', 'Ok', 'logout()');
+}
+
+function setNewList() {
+
+  var cliente = sessionStorage.getItem("clienteSelecionado");
+  var listaNew = sessionStorage.getItem("listaNew");
+
+  var page = $("#content").find(".page.activePage:last");
+
+  var tipoListaCodigo = page.find(".form").find(".input.tipoLista").attr("data-value");
+  var tipoListaNome = page.find(".form").find(".input.tipoLista").text();
+  var tipoLista = {tipoListaCodigo: tipoListaCodigo, tipoListaNome: tipoListaNome};
+
+  var dia = page.find(".form").find(".input.day").text();
+  var mes = page.find(".form").find(".input.month").text();
+  var ano = page.find(".form").find(".input.year").text();
+
+  if ((parseInt(dia) == 0 || parseInt(mes) == 0 || parseInt(ano) == 0) || tipoListaCodigo.length == "")
+    toast("Os campos obrigatórios devem ser preenchidos!");
+
+  else if (!validarData(dia, mes, ano))
+    toast("A data do evento é inválida!");
+
+  else {
+
+    cliente = JSON.parse(cliente);
+    listaNew = JSON.parse(listaNew);
+
+    /* caso ja exista uma lista apenas atualiza as informacoes do cabecalho */
+    if (listaNew == null) {
+      var lista = {
+        clienteCodigo: cliente.cliente_codigo,
+        clienteNome: cliente.cliente_nome,
+        tipoLista: tipoLista,
+        dataEvento: ano + mes + dia,
+        produtos: []
+      };
+      sessionStorage.setItem("listaNew", JSON.stringify(lista));
+    }
+
+    else {
+      listaNew.clienteCodigo = cliente.cliente_codigo;
+      listaNew.clienteNome = cliente.cliente_nome;
+      listaNew.tipoLista = tipoLista;
+      listaNew.dataEvento = ano + mes + dia;
+      sessionStorage.setItem("listaNew", JSON.stringify(listaNew));
+    }
+    actionExec = "novaLista";
+    loadPage("lista-produto-nova-lista");
+  }
 }

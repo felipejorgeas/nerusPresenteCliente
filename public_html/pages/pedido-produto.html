@@ -3,64 +3,17 @@
   <p>Adicione os produtos</p>
 </div>
 
-<style>
-  #pedidoCliente{
-    width: 100%;
-    position: absolute;
-    top: 0;
-    left: 0;
-    background: #666;
-    color: #FFF;
-    padding: 10px;
-    text-align: center;
-    font-weight: bold;
-  }
-</style>
-
 <div id="pedidoCliente" onclick="exibeDialogSetClientePedido(this);">CLIENTE</div>
 
 <div class="content-response"></div>
 
 <script>
-  
-  function exibeDialogSetClientePedido(elem){
-    var cliente = $(elem).text();
-    
-    cliente = cliente.trim();
-    
-    if (cliente == "CLIENTE")
-      cliente = "";
-    
-    setElementPopupVal = elem;
-    
-    showDialog('Cliente', 'Digite o nome do cliente:', 'Cancelar', 'hideDialog()', 'Ok', 'setClientePedido()', true);
-    $("#popup-dialog").find("input").css("text-transform", "uppercase").val(cliente);
-  }
-  
-  function setClientePedido(){
-    var cliente = $("#popup-dialog").find("input").val();
-    
-    cliente = cliente.trim();
-    cliente = cliente.toUpperCase();
-    
-    if (cliente.length == 0){
-      cliente = "CLIENTE";
-      sessionStorage.setItem("pedidoCliente", "");
-    }
-    else
-      sessionStorage.setItem("pedidoCliente", cliente);
-    
-    $(setElementPopupVal).text(cliente);
-    
-    hideDialog();
-  }
-
   $(function() {
     
     var pedidoCliente = sessionStorage.getItem("pedidoCliente");
-    if (pedidoCliente != null && pedidoCliente != "CLIENTE")
+    if (pedidoCliente != null && pedidoCliente != "CLIENTE" && pedidoCliente.length > 0)
       $("#pedidoCliente").text(pedidoCliente);
-
+    
     var lista = sessionStorage.getItem("pedidoNew");
     lista = JSON.parse(lista);
 
@@ -74,6 +27,7 @@
       var produtosLista = [];
       var grade;
       var box;
+      var img;
 
       $.each(lista.produtos, function (i, prd) {
         grade = "";
@@ -81,23 +35,30 @@
         if (prd.grade.gradeNome.length > 0)
           grade = " - Grade: " + prd.grade.gradeNome;
 
+        if(prd.produto.hasOwnProperty("img") && prd.produto.img.hasOwnProperty("0"))
+          img = prd.produto.img[0].arquivo;
+        else
+          img = "img/nophoto.jpg";
+          
         // criacao dos objetos a serem inseridos na pagina
         box =
-                "<div id='produto-" + i + "' class='produto bradius'>" +
+                "<div id='produto-" + i + "' class='produto bradius'>" +                
                 "<div class='options animate'>" +
                 "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
-                "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\");' />" +
+                "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
                 "</div>" +
-                "<div>" +
-                "<div class='prd-img bradius'>" +
-                "<img src='" + "img/prd.png" + "' />" +
-                "</div>" +
-                "<div class='prd-desc'>" +
                 "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
-                "<p class='prd-cod'>Cód.: " + prd.produto.codigo + grade + "</p>" +
-                "<p class='prd-forn'>" + prd.produto.fornecedor.nome_fantasia + "</p>" +
+                "<div>" +                
+                "<div class='prd-img bradius'>" +
+                "<img src='" + img + "' />" +
                 "</div>" +
-                "<p class='prd-price'>R$ <strong>" + number_format(prd.produto.preco / 100, 2, ',', '.') + "</strong><span class='hidden'>" + prd.produto.preco + "</span></p>" +
+                "<div class='prd-desc'>" +                
+                "<p class='prd-cod'>Cód.: " + prd.produto.codigo + grade + "</p>" +
+//                "<p class='prd-forn'>" + prd.produto.fornecedor.nome_fantasia + "</p>" +
+                "<p class='prd-qtty'>Qtde.: " + number_format(prd.grade.gradeQtty, 2, ",", ".") + "<span class='hidden'>" + prd.grade.gradeQtty + "</span></p>" +
+                "<p>R$ " + number_format(prd.produto.preco / 100, 2, ',', '.') + "</p>" +
+                "</div>" +
+                "<p class='prd-price'>R$ <strong>" + number_format((prd.produto.preco * prd.grade.gradeQtty) / 100, 2, ',', '.') + "</strong><span class='hidden'>" + prd.produto.preco + "</span></p>" +
                 "</div>" +
                 "<p class='prd-cat'>" + prd.produto.centrolucro.nome_categoria + "</p>" +
                 "</div>";

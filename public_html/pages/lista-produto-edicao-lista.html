@@ -11,8 +11,6 @@
     var lista = sessionStorage.getItem("listaSelecionada");
     lista = JSON.parse(lista);
     
-    console.log(lista);
-    
     var page = $("#content").find(".page.activePage:last");
     var pageId = "#" + page.attr("id");
     var marcaDagua = $(pageId).find(".mark-agua");
@@ -23,6 +21,7 @@
       var produtosLista = [];
       var grade;
       var box;
+      var img;
 
       marcaDagua.hide();
       contentResponse.scrollTop(0).show();
@@ -35,6 +34,11 @@
           if (prd.grade.gradeNome.length > 0)
             grade = " - Grade: " + prd.grade.gradeNome;
 
+          if(prd.produto.hasOwnProperty("img") && prd.produto.img.hasOwnProperty("0"))
+            img = prd.produto.img[0].arquivo;
+          else
+            img = "img/nophoto.jpg";
+            
           // criacao dos objetos a serem inseridos na pagina
           box =
                   "<div id='produto-" + i + "' class='produto bradius'>" +
@@ -44,7 +48,7 @@
                   "</div>" +
                   "<div>" +
                   "<div class='prd-img bradius'>" +
-                  "<img src='" + "img/prd.png" + "' />" +
+                  "<img src='" + img + "' />" +
                   "</div>" +
                   "<div class='prd-desc'>" +
                   "<p class='prd-name'>" + prd.produto.descricao + "</p>" +

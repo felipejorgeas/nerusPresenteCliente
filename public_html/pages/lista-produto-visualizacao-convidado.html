@@ -103,6 +103,8 @@
   $(function () {
     var lista = sessionStorage.getItem("listaSelecionada");
     lista = JSON.parse(lista);
+        
+    wsGetPedidosLista();
 
     var page = $("#content").find(".page.activePage:last");
     var pageId = "#" + page.attr("id");
@@ -112,6 +114,8 @@
     var produtosLista = [];
     var grade;
     var box;
+    var img;
+    var sold;
 
     var priceMin = parseInt(lista.produtos[0].produto.preco);
     var priceMax = parseInt(lista.produtos[0].produto.preco);
@@ -132,23 +136,37 @@
       if (prd.grade.gradeNome.length > 0)
         grade = " - Grade: " + prd.grade.gradeNome;
 
+      if(prd.produto.hasOwnProperty("img") && prd.produto.img.hasOwnProperty("0"))
+        img = prd.produto.img[0].arquivo;
+      else
+        img = "img/nophoto.jpg";
+      
+      sold = "";
+      
+      if(parseInt(prd.grade.gradeQttySold) >= parseInt(prd.grade.gradeQtty))
+        sold = "<div class='sold'>vendido</div>";
+      
       // criacao dos objetos a serem inseridos na pagina
       box =
               "<div id='produto-" + i + "' class='produto bradius'>" +
+              sold + 
               "<div class='options animate'>" +
 //              "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
               "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\",\"" + prd.grade.gradeNome + "\");' />" +
               "</div>" +
+              "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
               "<div>" +
               "<div class='prd-img bradius'>" +
-              "<img src='" + "img/prd.png" + "' />" +
+              "<img src='" + img + "' />" +
               "</div>" +
-              "<div class='prd-desc'>" +
-              "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
+              "<div class='prd-desc'>" + 
               "<p class='prd-cod'>Cód.: " + prd.produto.codigo + grade + "</p>" +
-              "<p class='prd-forn'>" + prd.produto.fornecedor.nome_fantasia + "</p>" +
-              "</div>" +
-              "<p class='prd-price'>R$ <strong>" + number_format(prd.produto.preco / 100, 2, ',', '.') + "</strong><span class='hidden'>" + prd.produto.preco + "</span></p>" +
+//              "<p class='prd-forn'>" + prd.produto.fornecedor.nome_fantasia + "</p>" +
+              "<p class='prd-qtty'>Qtde. pedida: " + number_format(prd.grade.gradeQtty, 2, ",", ".") + "<span class='hidden'>" + prd.grade.gradeQtty + "</span></p>" +
+              "<p>Qtde. vendida: " + number_format(prd.grade.gradeQttySold, 2, ",", ".") + "<span class='hidden'>" + prd.grade.gradeQttySold + "</span></p>" +
+              "<p>R$ " + number_format(prd.produto.preco / 100, 2, ',', '.') + "</p>" +
+              "</div>" +              
+              "<p class='prd-price'>R$ <strong>" + number_format((prd.produto.preco * prd.grade.gradeQtty) / 100, 2, ',', '.') + "</strong><span class='hidden'>" + prd.produto.preco + "</span></p>" +
               "</div>" +
               "<p class='prd-cat'>" + prd.produto.centrolucro.nome_categoria + "</p>" +
               "<p class='prd-catname hidden'>" + prd.produto.centrolucro.codigo_categoria + "</p>" +

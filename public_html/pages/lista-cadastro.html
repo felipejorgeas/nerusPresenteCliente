@@ -1,66 +1,26 @@
 <div class="form">  
-  <label>Cliente</label>
+  <label class="required">Cliente</label>
   <p>
     <span class="input input-input cliente bradius" title=""></span>
   </p>
-  <label>Tipo de Lista de Presente</label>
+  <label class="required">Tipo de Lista de Presente</label>
   <p>
     <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this, true);" data-value="">Selecione</span>
   </p>
-  <label>Data do evento</label>
+  <label class="required">Data do evento</label>
   <p>
-    <span class="input input-date day bradius" onclick="showSelect('day', this);">00</span>
-    <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>
-    <span class="input input-date year bradius" onclick="showSelect('year', this);">0000</span>
+    <span class="input input-short day bradius" onclick="showSelect('day', this);">00</span>
+    <span class="input input-short month bradius" onclick="showSelect('month', this);">00</span>
+    <span class="input input-short year bradius" onclick="showSelect('year', this);">0000</span>
   </p>
 <!--  <p>
     <button type="button" onclick="setNewList();">Continuar</button>
   </p>-->
 </div>
 
-<script>
-  function setNewList(){
-    
-    var cliente = sessionStorage.getItem("clienteSelecionado");
-    var listaNew = sessionStorage.getItem("listaNew");
-    
-    var page = $("#content").find(".page.activePage:last");
-    
-    var tipoListaCodigo = page.find(".form").find(".input.tipoLista").attr("data-value");
-    var tipoListaNome = page.find(".form").find(".input.tipoLista").text();
-    var tipoLista = {tipoListaCodigo: tipoListaCodigo, tipoListaNome:tipoListaNome};
-    
-    var dia = page.find(".form").find(".input.day").text();
-    var mes = page.find(".form").find(".input.month").text();
-    var ano = page.find(".form").find(".input.year").text();
-    
-    cliente = JSON.parse(cliente);
-    listaNew = JSON.parse(listaNew);
-    
-    /* caso ja exista uma lista apenas atualiza as informacoes do cabecalho */
-    if(listaNew == null){
-      var lista = {
-        clienteCodigo: cliente.cliente_codigo,
-        clienteNome: cliente.cliente_nome,
-        tipoLista: tipoLista,
-        dataEvento: ano + mes + dia,
-        produtos: []
-      };      
-      sessionStorage.setItem("listaNew", JSON.stringify(lista));
-    }
-    
-    else{
-      listaNew.clienteCodigo = cliente.cliente_codigo;
-      listaNew.clienteNome = cliente.cliente_nome;
-      listaNew.tipoLista = tipoLista;
-      listaNew.dataEvento = ano + mes + dia;      
-      sessionStorage.setItem("listaNew", JSON.stringify(listaNew));      
-    }
-    
-    loadPage("lista-produto-nova-lista");
-  }
-  
+<script>  
   $(function() {
+    
     wsGetTipoDeLista();
     
     var page = $("#content").find(".page.activePage:last");
@@ -85,6 +45,9 @@
       page.find(".form").find(".input.year").text(year);
     }
 
+    // marca visualmente os campos obrigatórios
+    $(".required").prepend(asterisk);
+    
     hideMask();
   });
 </script>

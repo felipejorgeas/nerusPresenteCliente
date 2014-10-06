@@ -114,9 +114,9 @@
             <li>
               Data do evento
               <p>
-                <span class="input input-date day bradius" onclick="showSelect('day', this);">00</span>
-                <span class="input input-date month bradius" onclick="showSelect('month', this);">00</span>
-                <span class="input input-date year bradius" onclick="showSelect('year', this);">0000</span>
+                <span class="input input-short day bradius" onclick="showSelect('day', this);">00</span>
+                <span class="input input-short month bradius" onclick="showSelect('month', this);">00</span>
+                <span class="input input-short year bradius" onclick="showSelect('year', this);">0000</span>
                 <span class="reset-fields" onclick="resetFields(this, 'date');"></span>
               </p>
             </li>
@@ -125,6 +125,20 @@
               <p>
                 <span class="input input-select tipoLista bradius" onclick="showSelect('tipoLista', this);" data-value="">Selecione</span>
                 <span class="reset-fields" onclick="resetFields(this, 'select');"></span>
+              </p>
+            </li>
+            <li>
+              Pai do noivo
+              <p>
+                <input type="text" class="input noivoPai bradius no-text-center" />
+                <span class="reset-fields" onclick="resetFields(this);"></span>
+              </p>
+            </li>
+            <li>
+              Mãe do noivo
+              <p>
+                <input type="text" class="input noivoMae bradius no-text-center" />
+                <span class="reset-fields" onclick="resetFields(this);"></span>
               </p>
             </li>
             <li>
@@ -188,7 +202,7 @@
               <img class="icon" src="img/ico-list.png" />
               Histórico
             </li>
-            <li onclick="loadPage('configuracoes');">
+            <li id="settings" onclick="loadPage('configuracoes');">
               <img class="icon" src="img/ico-settings.png" />
               Configurações
             </li>
@@ -263,8 +277,8 @@
     <!-- javascript inicial a ser executado ao carregar o aplicativo -->
     <script>
       $LAB.setOptions({AlwaysPreserveOrder: true})
-//        .script("cordova.js")
-//        .script("barcodescanner.js")
+        .script("cordova.js")
+        .script("barcodescanner.js")
         .script("js/jquery.min.js")
         .script("js/iscroll.min.js")
         .script("js/jquery-scrollTo.min.js")
