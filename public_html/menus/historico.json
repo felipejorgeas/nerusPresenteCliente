@@ -41,5 +41,10 @@
         "label": "Configuracoes"
       }
     ]
+  },
+  "nav":
+  {
+    "show": false,
+    "type": "index"
   }
 }

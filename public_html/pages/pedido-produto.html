@@ -3,7 +3,7 @@
   <p>Adicione os produtos</p>
 </div>
 
-<div id="pedidoCliente" onclick="exibeDialogSetClientePedido(this);">CLIENTE</div>
+<div id="pedidoCliente" onclick="loadPage('convidado-busca');">CLIENTE</div>
 
 <div class="content-response"></div>
 
@@ -11,8 +11,10 @@
   $(function() {
     
     var pedidoCliente = sessionStorage.getItem("pedidoCliente");
-    if (pedidoCliente != null && pedidoCliente != "CLIENTE" && pedidoCliente.length > 0)
-      $("#pedidoCliente").text(pedidoCliente);
+    pedidoCliente = JSON.parse(pedidoCliente);    
+    
+    if (pedidoCliente != null)
+      $("#pedidoCliente").text(pedidoCliente.cliente_nome);
     
     var lista = sessionStorage.getItem("pedidoNew");
     lista = JSON.parse(lista);

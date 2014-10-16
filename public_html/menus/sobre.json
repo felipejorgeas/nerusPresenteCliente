@@ -3,7 +3,7 @@
   {
     "show": true,
     "logo": "<img src='img/logo-cliente.png' />",
-    "subtitle": "CONFIGURAÇÕES"
+    "subtitle": "SOBRE O APLICATIVO"
   },
   "drawer":
   {
@@ -41,5 +41,10 @@
         "label": "Configuracoes"
       }
     ]
+  },
+  "nav":
+  {
+    "show": false,
+    "type": "index"
   }
 }

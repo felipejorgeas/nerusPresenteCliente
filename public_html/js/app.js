@@ -7,11 +7,11 @@
  */
 
 var configsApp = {
-  serverUrl: {text: "http://eac-gvt.eacsoftware.com.br:8086/saciPresenteServidor", type: "input"},
-  maxTimeRequest: {text: "30", type: "input"},
-  maxTimeMsgToast: {text: "4", type: "input"},
+  serverUrl: {text: "", type: "input"},
   storeno: {text: "", type: "input"},
   pdvno: {text: "", type: "input"},
+  maxTimeRequest: {text: "30", type: "input"},
+  maxTimeMsgToast: {text: "4", type: "input"},  
   sendMail: {text: "0", type: "radio"}
 };
 
@@ -106,25 +106,56 @@ function onBackKeyDown(e) {
   e.preventDefault();
 }
 
-//function verifyConnectionServer(args) {
-//  if (navigator.onLine) {
-//    $.ajax({
-//      url: configsApp.serverUrl.text + "/conected.json",
-//      type: "POST",
-//      dataType: "jsonp",
-//      statusCode: {
-//        200: function () {
-//          execLastFunction(args);
-//        },
-//        404: function () {
-//          toast("Não há conexão com o servidor! Verifique as configurações do aplicativo!");
-//        }
-//      }
-//    });
-//  } else {
-//    toast("Verifique seu sinal de internet!");
-//  }
-//}
+function verifyConnectionServer() {
+  var configInit = $("#config-init");
+  
+  $.ajax({
+    url: configsApp.serverUrl.text + "/conected.json",
+    type: "POST",
+    dataType: "jsonp",
+    statusCode: {
+      200: function () {
+        
+        var margem = $(window).width() + 20;        
+        
+        /* ativa a tela de loading */
+        configInit.find("#followingBallsG").fadeOut();
+        
+        localStorage.setItem("configsApp", JSON.stringify(configsApp));
+        
+        configInit.css({
+          "-moz-transform": "translateX(-" + margem + "px)",
+          "-webkit-transform": "translateX(-" + margem + "px)",
+          "transform": "translateX(-" + margem + "px)",
+        });
+
+        window.setTimeout(function(){
+          hideConfigInit();
+        }, 200);
+        
+        toast("Conexão estabelecida com o servidor!");
+      },
+      404: function () {
+        
+        showConfigInit();
+        
+        var servidor = configInit.find('input[name=servidor]');
+        var loja = configInit.find('input[name=loja]');
+        var pdv = configInit.find('input[name=pdv]');
+        
+        servidor.val(configsApp.serverUrl.text);
+        loja.val(configsApp.storeno.text);
+        pdv.val(configsApp.pdvno.text);
+        
+        /* ativa a tela de loading */
+        $("#config-init #followingBallsG").fadeOut();
+        
+        toast("Não há conexão com o servidor! Verifique as configurações e/ou seu sinal de internet!");
+      }
+    }
+  });
+}
+
 //
 //function execLastFunction(args) {
 //  connectionOk = true;
@@ -150,11 +181,19 @@ function onBackKeyDown(e) {
 function loadConfigsApp() {
   var configs = JSON.parse(localStorage.getItem("configsApp"));
 
-  if (configs == null)
+  if (configs == null){
     localStorage.setItem("configsApp", JSON.stringify(configsApp));
+    
+    showConfigInit();
+  }
 
-  else
+  else{
     configsApp = configs;
+//    
+//    hideConfigInit();
+    
+    verifyConnectionServer();
+  }
 }
 
 function loadConfigsAppPage() {
@@ -204,6 +243,12 @@ function setConfigAppRadio(item) {
 
 function getTranslateX(el) {
   var translateX = el.css("transform");
+
+  if(translateX == undefined)
+    translateX = el.css("-moz-transform");
+  
+  if(translateX == undefined)
+    translateX = el.css("-webkit-transform");
 
   if (translateX != "none") {
     translateX = translateX.split("(")[1];
@@ -366,12 +411,13 @@ function loadPage(page, backButton, noPushPage) {
 
   var reloadPageOk = false;
 
-  if (backButton == true && $("#search").is(":visible")) {
+  if (backButton == true && $("#search").is(":visible")) {    
     hideSearch();
   }
 
   else if (backButton == true && menuLeft == 0) {
     hideMenuSec();
+    
   }
 
   else {
@@ -417,7 +463,8 @@ function loadPage(page, backButton, noPushPage) {
           success: function (response) {
             loadHeader(page);
             element.removeClass("inactivePage").addClass("activePage").html(response);
-          }
+          },
+          statusCode: { 404: function(){ errorConectionServer(); } }
         });
       }
 
@@ -458,7 +505,7 @@ function showMask() {
   var duration = parseInt(configsApp.maxTimeRequest.text) * 1000;
   clearInterval(waitResponseAjax);
   waitResponseAjax = window.setInterval(function () {
-    toast("Não foi possível concluir a operação. Tente novamente.");
+    toast("Não foi possível concluir a operação! Tente novamente.");
     hideMask();
   }, duration);
   $("#mask").show();
@@ -637,7 +684,8 @@ function loadHeader(page) {
             nav.hide();
           }
         }
-      }
+      },
+      statusCode: { 404: function(){ errorConectionServer(); } }
     });
   }
 }
@@ -787,37 +835,68 @@ function hideDialog() {
   hideMaskFull();
 }
 
-function exibeDialogSetClientePedido(elem) {
-  var cliente = $(elem).text();
-
-  cliente = cliente.trim();
-
-  if (cliente == "CLIENTE")
-    cliente = "";
-
-  setElementPopupVal = elem;
-
-  showDialog('Cliente', 'Digite o nome do cliente:', 'Cancelar', 'hideDialog()', 'Ok', 'setClientePedido()', true);
-  $("#popup-dialog").find("input").css("text-transform", "uppercase").val(cliente);
-}
-
-function setClientePedido() {
-  var cliente = $("#popup-dialog").find("input").val();
-
-  cliente = cliente.trim();
-  cliente = cliente.toUpperCase();
-
-  if (cliente.length == 0) {
-    cliente = "CLIENTE";
-    sessionStorage.setItem("pedidoCliente", "");
+function setConfigInit(){
+  var configInit = $("#config-init");
+  
+  var servidor = configInit.find('input[name=servidor]').val();
+  var loja = configInit.find('input[name=loja]').val();
+  var pdv = configInit.find('input[name=pdv]').val();
+  
+  if(servidor.length == 0 || loja.length == 0 || pdv.length == 0)
+    toast("Todos os campos são obrigatórios!");
+  
+  else{
+    
+    /* ativa a tela de loading */
+    $("#config-init #followingBallsG").fadeIn();
+    
+    configsApp.serverUrl.text = servidor;
+    configsApp.storeno.text = loja;
+    configsApp.pdvno.text = pdv;
+    
+    verifyConnectionServer();
   }
-  else
-    sessionStorage.setItem("pedidoCliente", cliente);
-
-  $(setElementPopupVal).text(cliente);
-
-  hideDialog();
 }
+
+function showConfigInit(){
+  $("#config-init").show();
+}
+
+function hideConfigInit(){
+  $("#config-init").hide();
+}
+
+//function exibeDialogSetClientePedido(elem) {
+//  var cliente = $(elem).text();
+//
+//  cliente = cliente.trim();
+//
+//  if (cliente == "CLIENTE")
+//    cliente = "";
+//
+//  setElementPopupVal = elem;
+//
+//  showDialog('Cliente', 'Digite o nome do cliente:', 'Cancelar', 'hideDialog()', 'Ok', 'setClientePedido()', true);
+//  $("#popup-dialog").find("input").css("text-transform", "uppercase").val(cliente);
+//}
+
+//function setClientePedido() {
+//  var cliente = $("#popup-dialog").find("input").val();
+//
+//  cliente = cliente.trim();
+//  cliente = cliente.toUpperCase();
+//
+//  if (cliente.length == 0) {
+//    cliente = "CLIENTE";
+//    sessionStorage.setItem("pedidoCliente", "");
+//  }
+//  else
+//    sessionStorage.setItem("pedidoCliente", cliente);
+//
+//  $(setElementPopupVal).text(cliente);
+//
+//  hideDialog();
+//}
 
 function tipoListaInArray(tipoCodigo, listas) {
   var existsOk = false;
@@ -995,8 +1074,12 @@ function showSelect(type, elem, consistTypeList) {
       var itens = sessionStorage.getItem("pedidosLista");
       itens = JSON.parse(itens);
 
+      /* obtem o cliente do pedido */
+      var pedidoCliente = sessionStorage.getItem("pedidoCliente");
+      pedidoCliente = JSON.parse(pedidoCliente);
+
       if (itens == null) {
-        toast("Não há pedidos relacionados a lista base! Impossível atualizar.");
+        toast("Não há pedidos relacionados a esta lista e este cliente! Impossível atualizar.");
 
         exibSelectOk = false;
       }
@@ -1005,19 +1088,34 @@ function showSelect(type, elem, consistTypeList) {
         hideDialog();
 
         $.each(itens, function (i, item) {
-          lis += "<li data-value='" + item.codigo_pedido + "'>Pedido: " + item.codigo_pedido + "</li>";
+          // lista apenas pedidos do convidado atual
+          if (pedidoCliente.cliente_codigo == item.cliente_codigo)
+//            lis += "<li data-value='pedido-" + i + "'><strong>" + item.pedido_codigo + "</strong> - " + item.cliente_nome + "</li>";
+            lis += "<li data-value='pedido-" + i + "'>Pedido " + item.pedido_codigo + "</li>";
         });
 
-        ul.html(lis);
-        popupSelect.html(ul);
+        if (lis.length == 0) {
+          toast("Não há pedidos relacionados a esta lista e este cliente! Impossível atualizar.");
 
-        popupSelect.find("ul").find("li").click(function () {
-          var nome = $(this).text();
-          var codigo = $(this).attr("data-value");
-          wsSavePedido(codigo);
-          popupSelect.hide();
-          hideMaskFull();
-        });
+          exibSelectOk = false;
+        }
+
+        else {
+
+          ul.html(lis);
+          popupSelect.html(ul);
+
+          popupSelect.find("ul").find("li").click(function () {
+            var codigoId = $(this).attr("data-value");
+            codigoId = codigoId.replace("pedido-", "");
+
+            var pedido = itens[codigoId];
+
+            wsSavePedido(pedido.pedido_codigo);
+            popupSelect.hide();
+            hideMaskFull();
+          });
+        }
       }
 
       break;
@@ -1065,9 +1163,11 @@ function calcTotalPrds(prds) {
 }
 
 function init() {
-
+  
+//  localStorage.removeItem("configsApp");
+  
   loadConfigsApp();
-
+  
 //  hideLogin();
 //  menuSec();
 
@@ -1220,6 +1320,10 @@ function init() {
         case "produto":
           wsGetProduto();
           break;
+
+        case "convidado":
+          wsGetCliente(true);
+          break;
       }
     }
   });
@@ -1232,6 +1336,14 @@ function init() {
     }
   });
   
+  $("#popup-config").find("input").keypress(function (evt) {
+    var tecla = (evt.keyCode ? evt.keyCode : evt.which);
+    if (tecla == 13) {
+      setConfigInit();
+      $(this).blur();
+    }
+  });
+
   $("#filter-lista-busca").find(".noivoPai").keypress(function (evt) {
     var tecla = (evt.keyCode ? evt.keyCode : evt.which);
     if (tecla == 13) {
@@ -1239,7 +1351,7 @@ function init() {
       $(this).blur();
     }
   });
-  
+
   $("#filter-lista-busca").find(".noivoMae").keypress(function (evt) {
     var tecla = (evt.keyCode ? evt.keyCode : evt.which);
     if (tecla == 13) {
@@ -1318,7 +1430,7 @@ function setFuncionarioInfo() {
   var email = getFuncionarioEmail();
 
   var user = $("#user-logged").find("#user-info");
-  
+
   // seta os dados na tela
   user.find("#user-name").text(nome);
   user.find("#user-email").text(email);
@@ -1434,6 +1546,7 @@ function verificaPermFuncionario() {
  * 
  */
 function wsLogin() {
+  var duration = parseInt(configsApp.maxTimeRequest.text) * 1000;
 
   /* obtem os dados para execucao da requisicao */
   var usuario = $("#popup-login").find("input[name=usuario]").val();
@@ -1449,7 +1562,7 @@ function wsLogin() {
     $("#login #followingBallsG").fadeIn();
 
     var usuario = {
-      usuario: usuario,
+      apelido: usuario,
       senha: senha
     };
 
@@ -1460,8 +1573,16 @@ function wsLogin() {
       url: configsApp.serverUrl.text + '/getFuncionario.php',
       type: 'POST',
       dataType: 'jsonp',
-      data: {dados: dados}
+      data: {dados: dados},
+      statusCode: { 404: function(){ errorConectionServer(); } }
     });
+
+    window.setTimeout(function () {
+      if ($("#login #followingBallsG").is(":visible")) {
+        $("#login #followingBallsG").fadeOut();
+        toast("Não foi possível concluir a operação! Tente novamente.");
+      }
+    }, duration);
   }
 }
 
@@ -1523,7 +1644,8 @@ function wsGetTipoDeLista() {
     url: configsApp.serverUrl.text + "/getTipoDeLista.php",
     type: "POST",
     dataType: "jsonp",
-    data: {dados: dados}
+    data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }
   });
 }
 
@@ -1569,7 +1691,8 @@ function wsGetTipoDeProduto() {
     url: configsApp.serverUrl.text + "/getTipoDeProduto.php",
     type: "POST",
     dataType: "jsonp",
-    data: {dados: dados}
+    data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }
   });
 }
 
@@ -1616,7 +1739,8 @@ function wsGetCentroLucro() {
     url: configsApp.serverUrl.text + "/getCentroLucro.php",
     type: "POST",
     dataType: "jsonp",
-    data: {dados: dados}
+    data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }
   });
 }
 
@@ -1737,7 +1861,8 @@ function wsGetFabricante() {
     url: configsApp.serverUrl.text + "/getFabricante.php",
     type: "POST",
     dataType: "jsonp",
-    data: {dados: dados}
+    data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }
   });
 }
 
@@ -1792,7 +1917,8 @@ function wsGetPedidosLista() {
     url: configsApp.serverUrl.text + "/getPedidosLista.php",
     type: "POST",
     dataType: "jsonp",
-    data: {dados: dados}
+    data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }
   });
 }
 
@@ -1833,9 +1959,10 @@ function wsResponseGetPedidosLista(response) {
  * @param {int} clienteCodigo
  */
 function wsGetLista(clienteCodigo) {
+  
   hideMenuSec();
   showMask();
-  
+
   /** searchType
    * 
    * 0 => busca todas as listas do cliente pelo seu codigo
@@ -1863,17 +1990,17 @@ function wsGetLista(clienteCodigo) {
 
     var clienteSearch = $("#search input[name=search]").val();
     clienteSearch = removerAcentos(clienteSearch);
-        
+
     searchType = 1;
-    
-    if(parseInt(clienteSearch.replace(/[^0-9]/g, "")) > 0){
+
+    if (parseInt(clienteSearch.replace(/[^0-9]/g, "")) > 0) {
       searchType = 2;
 
       clienteSearch = clienteSearch.replace(/[^0-9]/g, "");
 
-      if(clienteSearch.length == 11)
+      if (clienteSearch.length == 11)
         // formato cpf - ###.###.###-##
-        clienteSearch = clienteSearch.substr(0, 3) + "." + clienteSearch.substr(3, 3) + "." + clienteSearch.substr(6, 3) + "-" + clienteSearch.substr(9, 2); 
+        clienteSearch = clienteSearch.substr(0, 3) + "." + clienteSearch.substr(3, 3) + "." + clienteSearch.substr(6, 3) + "-" + clienteSearch.substr(9, 2);
       else
         // formato cnpj - ##.###.###/####-##
         clienteSearch = clienteSearch.substr(0, 2) + "." + clienteSearch.substr(2, 3) + "." + clienteSearch.substr(5, 3) + "/" + clienteSearch.substr(8, 4) + "-" + clienteSearch.substr(12, 2);
@@ -1898,8 +2025,14 @@ function wsGetLista(clienteCodigo) {
   $.ajax({
     url: configsApp.serverUrl.text + "/getLista.php",
     type: "POST", dataType: "jsonp",
-    data: {dados: dados}
+    data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }
   });
+}
+
+function errorConectionServer(){
+  hideMask();
+  toast("Sem conexão com o servidor! Verifique seu sinal de internet e/ou as configurações do aplicativo!");
 }
 
 /**
@@ -1912,7 +2045,7 @@ function wsGetLista(clienteCodigo) {
 function wsResponseGetLista(response) {
   // faz o parser do json
   response = JSON.parse(response);
-  
+
   // limpa a pagina a ser preenchida com os dados
   var page = $("#content").find(".page.activePage:last");
   var pageId = "#" + page.attr("id");
@@ -1942,7 +2075,7 @@ function wsResponseGetLista(response) {
     sessionStorage.setItem("clienteListas", JSON.stringify(listas));
 
     if (listas.hasOwnProperty("0")) {
-      
+
       var listasStorage = [];
       marcaDagua.hide();
       contentResponse.html("").scrollTop(0).show();
@@ -1994,7 +2127,7 @@ function wsResponseGetLista(response) {
             clienteNome: lista.cliente_nome,
             dataEvento: lista.data_evento,
             tipoLista: {
-              tipoListaCodigo: lista.tipo_codigo, 
+              tipoListaCodigo: lista.tipo_codigo,
               tipoListaNome: lista.tipo_nome
             },
             produtos: []
@@ -2010,18 +2143,18 @@ function wsResponseGetLista(response) {
                 preco: produto.preco,
                 img: produto.img,
                 centrolucro: {
-                  codigo_categoria: produto.centro_lucro, 
+                  codigo_categoria: produto.centro_lucro,
                   nome_categoria: produto.centro_lucro_nome
                 },
                 fornecedor: {
-                  codigo_fabricante: produto.codigo_fabricante, 
-                  nome_fabricante: produto.nome_fabricante, 
+                  codigo_fabricante: produto.codigo_fabricante,
+                  nome_fabricante: produto.nome_fabricante,
                   nome_fantasia: produto.nome_fantasia_fabricante
                 }
               },
               grade: {
-                gradeNome: produto.grade, 
-                gradeQtty: produto.quantidade_listada / 1000, 
+                gradeNome: produto.grade,
+                gradeQtty: produto.quantidade_listada / 1000,
                 gradeQttySold: produto.quantidade_vendida / 1000
               }
             }
@@ -2058,14 +2191,14 @@ function wsResponseGetLista(response) {
 //        $(".card").removeClass("activeCard");
 //      });
     }
-    
-    else{
+
+    else {
       contentResponse.hide();
       marcaDagua.show();
-      
+
       toast("Nenhuma lista encontrada!");
     }
-      
+
     hideMask();
   }
   $("#search").find("input[name=search]").val("");
@@ -2096,7 +2229,8 @@ function wsGetListaDefault(tipoListaCodigo) {
   $.ajax({
     url: configsApp.serverUrl.text + "/getLista.php",
     type: "POST", dataType: "jsonp",
-    data: {dados: dados}
+    data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }    
   });
 }
 
@@ -2167,7 +2301,7 @@ function wsResponseGetListaDefault(response) {
  *
  * @param {json} response
  */
-function wsGetCliente() {
+function wsGetCliente(convidado) {
   hideMenuSec();
 
   // obtem os dados para execucao da requisicao
@@ -2182,17 +2316,17 @@ function wsGetCliente() {
   else {
 
     showMask();
-    
+
     var searchType = 0;
-    
-    if(parseInt(clienteSearch.replace(/[^0-9]/g, "")) > 0){
+
+    if (parseInt(clienteSearch.replace(/[^0-9]/g, "")) > 0) {
       searchType = 1;
-      
+
       clienteSearch = clienteSearch.replace(/[^0-9]/g, "");
 
-      if(clienteSearch.length == 11)
+      if (clienteSearch.length == 11)
         // formato cpf - ###.###.###-##
-        clienteSearch = clienteSearch.substr(0, 3) + "." + clienteSearch.substr(3, 3) + "." + clienteSearch.substr(6, 3) + "-" + clienteSearch.substr(9, 2); 
+        clienteSearch = clienteSearch.substr(0, 3) + "." + clienteSearch.substr(3, 3) + "." + clienteSearch.substr(6, 3) + "-" + clienteSearch.substr(9, 2);
       else
         // formato cnpj - ##.###.###/####-##
         clienteSearch = clienteSearch.substr(0, 2) + "." + clienteSearch.substr(2, 3) + "." + clienteSearch.substr(5, 3) + "/" + clienteSearch.substr(8, 4) + "-" + clienteSearch.substr(12, 2);
@@ -2203,17 +2337,24 @@ function wsGetCliente() {
       searchType: searchType
     };
 
-// cria bloco de dados a serem enviados na requisicao
-    var dados = {wscallback: "wsResponseGetCliente", cliente: cliente};
+    var dados;
+
+    // cria bloco de dados a serem enviados na requisicao
+    if (convidado)
+      dados = {wscallback: "wsResponseGetConvidado", cliente: cliente};
+    else
+      dados = {wscallback: "wsResponseGetCliente", cliente: cliente};
 
     // executa a requisicao via ajax
     $.ajax({
       url: configsApp.serverUrl.text + "/getCliente.php",
       type: "POST",
-      dataType: "jsonp", data: {dados: dados}
+      dataType: "jsonp", data: {dados: dados},
+      statusCode: { 404: function(){ errorConectionServer(); } }
     });
   }
 }
+
 /**
  * wsResponseGetCliente
  *
@@ -2306,6 +2447,95 @@ function wsResponseGetCliente(response) {
   }
 }
 
+/**
+ * wsResponseGetConvidado
+ *
+ * Funcao para tratar o retorno da requisicao "wsGetConvidado"
+ *
+ * @param {json} response
+ */
+function wsResponseGetConvidado(response) {
+  // faz o parser do json
+  response = JSON.parse(response);
+
+  // limpa a pagina a ser preenchida com os dados
+  var page = $("#content").find(".page.activePage:last");
+  var pageId = "#" + page.attr("id");
+  var marcaDagua = $(pageId).find(".mark-agua");
+  var contentResponse = $(pageId).find(".content-response");
+
+  // em caso de erro
+  if (response.wsstatus == 0) {
+    var msg = "Nenhum cliente encontrado!";
+    var error = response.wserror;
+    if (error.length > 0)
+      msg = error;
+
+    contentResponse.hide();
+    marcaDagua.show();
+
+    toast(msg);
+    hideMask();
+  }
+
+  // em caso de sucesso
+  else if (response.wsstatus == 1) {
+
+    var clientes = response.wsresult;
+
+    if (clientes.length > 0) {
+
+      marcaDagua.hide();
+      contentResponse.html("").scrollTop(0).show();
+
+      var clientesLista = [];
+      var clientesStorage = [];
+
+      $.each(clientes, function (i, cliente) {
+        clientesStorage.push(cliente);
+
+        // tratamento dos dados retornados
+        var clienteCodigo = cliente.cliente_codigo;
+        var clienteName = cliente.cliente_nome;
+
+        // criacao dos objetos a serem inseridos na pagina
+        var box =
+                "<div id='cliente-" + i + "' class='cliente bradius'>" +
+                "<p class='title'>" + clienteName + "</p>" +
+                "</div>";
+
+        clientesLista.push(box);
+      });
+
+      // insere os blocos na pagina
+      contentResponse.html(clientesLista);
+
+      // ativa as acoes de cliques nos blocos inseridos
+      //contentResponse.find(".cliente").removeClass("activeCliente");
+      contentResponse.find(".cliente").click(function () {
+        if ($(this).hasClass("activeCliente")) {
+          var clienteId = this.id;
+          clienteId = clienteId.replace("cliente-", "");
+          var cliente = clientesStorage[clienteId];
+          sessionStorage.setItem("pedidoCliente", JSON.stringify(cliente));
+          loadPage("", true, true);
+        }
+        else {
+          contentResponse.find(".cliente").removeClass("activeCliente");
+          $(this).addClass("activeCliente");
+        }
+        return false;
+      });
+
+//      $(window).click(function () {
+//        $(".cliente").removeClass("activeCliente");
+//      });
+
+      hideMask();
+    }
+  }
+}
+
 function exibeDialogSaveCliente() {
   // obtem os dados para execucao da requisicao   
   var clienteNome = $(".form [name=new_cliente_nome]").val();
@@ -2316,8 +2546,8 @@ function exibeDialogSaveCliente() {
 
   if (clienteNome.length == 0 || clienteCpf.length == 0)
     toast("Os campos obrigatórios devem ser preenchidos!");
-    
-  else if(!validarEmail(clienteEmail))
+
+  else if (!validarEmail(clienteEmail))
     toast("O email do cliente é inválido!");
 
   else {
@@ -2362,7 +2592,8 @@ function wsSaveCliente() {
     url: configsApp.serverUrl.text + "/saveCliente.php",
     type: "POST",
     dataType: "jsonp",
-    data: {dados: dados}
+    data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }
   });
 }
 
@@ -2397,7 +2628,7 @@ function wsResponseSaveCliente(response) {
 
     toast("Cliente salvo no NÉRUS!");
 
-    loadPage("index");
+    loadPage('', true);
   }
 
   hideMask();
@@ -2459,7 +2690,8 @@ function wsGetProduto() {
     url: configsApp.serverUrl.text + "/getProduto.php",
     type: "POST",
     dataType: "jsonp",
-    data: {dados: dados}
+    data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }
   });
 }
 
@@ -2487,6 +2719,9 @@ function wsResponseGetProduto(response) {
     var error = response.wserror;
     if (error.length > 0)
       msg = error;
+
+    contentResponse.html("").hide();
+    marcaDagua.show();
 
     hideMask();
     toast(msg);
@@ -2560,13 +2795,13 @@ function wsResponseGetProduto(response) {
         });
       });
     }
-    
+
     else {
       contentResponse.html("").hide();
       marcaDagua.show();
-      
+
       hideMask();
-      
+
       toast('Produto não encontrado!');
     }
   }
@@ -2786,7 +3021,7 @@ function wsResponseGetProduto(response) {
       var objBox = $(this).parent().parent();
       var objQtty = objBox.find(".qtty");
       var qttyVal = objQtty.text();
-      
+
       qttyVal = qttyVal.replace(/\./g, "");
       qttyVal = qttyVal.replace(/\,/g, ".");
 
@@ -2887,10 +3122,10 @@ function prdAddList() {
     grd = $(item);
     gradeNome = grd.find(".produto-grade-title").text();
     gradeQtty = grd.find(".qtty").text();
-    
+
     gradeQtty = gradeQtty.replace(/\./g, "");
     gradeQtty = gradeQtty.replace(/\,/g, ".");
-    
+
     gradeQtty = parseFloat(gradeQtty);
 
     /* monta o bloco com as informacoes do produto */
@@ -2983,8 +3218,8 @@ function wsSaveLista() {
   if (lista != null) {
 
     /* obtem so dados do funcionario logado */
-    var funcionarioCodigo = 1;//getUsuarioCodigo();
-    var usuarioCodigo = 1;//getUsuarioUsuario();
+    var funcionarioCodigo = getFuncionarioCodigo();
+    var usuarioCodigo = getFuncionarioUsuario();
 
     var listaOk = {
       cabecalho: "",
@@ -3061,7 +3296,8 @@ function wsSplitLista(first, last) {
       url: configsApp.serverUrl.text + '/splitLista.php',
       type: "POST",
       dataType: "jsonp",
-      data: {dados: dados}
+      data: {dados: dados},
+      statusCode: { 404: function(){ errorConectionServer(); } }
     });
   }
 
@@ -3077,7 +3313,8 @@ function wsSplitLista(first, last) {
       url: configsApp.serverUrl.text + '/saveLista.php',
       type: "POST",
       dataType: "jsonp",
-      data: {dados: dados}
+      data: {dados: dados},
+      statusCode: { 404: function(){ errorConectionServer(); } }
     });
   }
 
@@ -3101,7 +3338,8 @@ function wsSplitLista(first, last) {
       url: configsApp.serverUrl.text + '/splitLista.php',
       type: "POST",
       dataType: "jsonp",
-      data: {dados: dados}
+      data: {dados: dados},
+      statusCode: { 404: function(){ errorConectionServer(); } }
     });
   }
 }
@@ -3157,9 +3395,17 @@ function wsResponseSaveLista(response) {
     var lista = response.wsresult;
 
     var listaName = sessionStorage.getItem("listaName");
+    
+    var cliente = sessionStorage.getItem("clienteSelecionado");
+    cliente = JSON.parse(cliente);
 
-    /* grava o historico de lista */
-    //saveHist("lista", lista);
+    var acao = "insercao";
+
+    if (actionExec == "edicaoLista")
+      acao = "atualizacao";
+
+    /* grava o historico */
+    saveHist("lista", acao, cliente.cliente_nome, lista);
 
     toast("Lista salva no NÉRUS!");
 
@@ -3169,13 +3415,150 @@ function wsResponseSaveLista(response) {
     /* retorna para o inicio do aplicativo */
     loadPage("index");
 
-    /* verifica se esta configurado para enviar orcamentos por email */
-//      if (configOrderSendMail == 1)
-//        exibeDialogSendEmailOrcameto(orcamento.codigo);
+    /* verifica se esta configurado para enviar emails */
+    if (configsApp.sendMail.text == "1")
+      exibeDialogSendEmailLista(cliente.cliente_codigo, lista.tipo);
+  }
+}
+
+function exibeDialogSendEmailLista(clienteCodigo, tipoLista){
+  
+  var lista = {
+    codigo_cliente: clienteCodigo,
+    codigo_tipo: tipoLista
+  }
+  
+  sessionStorage.setItem("sendEmailLista", JSON.stringify(lista));
+
+  showDialog('Concluir', 'Deseja receber esta lista de presentes em seu email?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSendEmailLista()');
+}
+
+/**
+ * wsSendEmailLista
+ * 
+ * Funcao para enviar a lista por email
+ *
+ * @param {json} response
+ */
+function wsSendEmailLista() {
+  hideDialog();
+  
+  var lista = sessionStorage.getItem("sendEmailLista");
+  lista = JSON.parse(lista);
+
+  showMask();
+
+  var dados = {wscallback: "wsResponseSendEmailLista", lista: lista};
+
+  // executa a requisicao via ajax
+  $.ajax({
+    url: configsApp.serverUrl.text + "/sendListaEmail.php",
+    type: "POST",
+    dataType: "jsonp", data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }
+  });
+  
+  window.setTimeout(function(){
+    sessionStorage.removeItem("sendEmailLista");
+    toast("O email está sendo enviado!");
+    hideMask();
+  }, 5000);
+}
+
+/**
+ * wsResponseSendEmailLista
+ *
+ * Funcao para tratar o retorno da requisicao "wsSendEmailLista"
+ *
+ * @param {json} response
+ */
+function wsResponseSendEmailLista(response) {
+  // faz o parser do json
+  response = JSON.parse(response);
+
+  hideMask();
+
+  // em caso de erro
+  if (response.wsstatus == 0) {
+    var msg = "Não foi possível enviar o email!";
+    var error = response.wserror;
+    if (error.length > 0)
+      msg = error;
+
+    toast(msg);
+  }
+}
+
+function exibeDialogSendEmailPedido(pedidoCodigo){
+  
+  var pedido = {
+    codigo_pedido: pedidoCodigo
+  }
+  
+  sessionStorage.setItem("sendEmailPedido", JSON.stringify(pedido));
+
+  showDialog('Concluir', 'Deseja receber este pedido em seu email?', 'Cancelar', 'hideDialog()', 'Ok', 'wsSendEmailPedido()');
+}
+
+/**
+ * wsSendEmailPedido
+ * 
+ * Funcao para enviar o pedido por email
+ *
+ * @param {json} response
+ */
+function wsSendEmailPedido() {
+  hideDialog();
+  
+  var pedido = sessionStorage.getItem("sendEmailPedido");
+  pedido = JSON.parse(pedido);
+
+  showMask();
+
+  var dados = {wscallback: "wsResponseSendEmailPedido", pedido: pedido};
+
+  // executa a requisicao via ajax
+  $.ajax({
+    url: configsApp.serverUrl.text + "/sendPedidoEmail.php",
+    type: "POST",
+    dataType: "jsonp", data: {dados: dados},
+    statusCode: { 404: function(){ errorConectionServer(); } }
+  });
+  
+  window.setTimeout(function(){
+    sessionStorage.removeItem("sendEmailPedido");
+    toast("O email está sendo enviado!");
+    hideMask();
+  }, 5000);
+}
+
+/**
+ * wsResponseSendEmailPedido
+ *
+ * Funcao para tratar o retorno da requisicao "wsSendEmailPedido"
+ *
+ * @param {json} response
+ */
+function wsResponseSendEmailPedido(response) {
+  // faz o parser do json
+  response = JSON.parse(response);
+
+  hideMask();
+
+  // em caso de erro
+  if (response.wsstatus == 0) {
+    var msg = "Não foi possível enviar o email!";
+    var error = response.wserror;
+    if (error.length > 0)
+      msg = error;
+
+    toast(msg);
   }
 }
 
 function wsSavePedido(pedidoCodigo) {
+
+  showMask();
 
   var listaName = sessionStorage.getItem("listaName");
 
@@ -3188,55 +3571,58 @@ function wsSavePedido(pedidoCodigo) {
   pedido = JSON.parse(pedido);
 
   /* obtem o cliente do pedido */
-  var cliente = sessionStorage.getItem("pedidoCliente");
+  var pedidoCliente = sessionStorage.getItem("pedidoCliente");
+  pedidoCliente = JSON.parse(pedidoCliente);
 
-  if (pedido != null) {
-
-    pedidoCodigo = pedidoCodigo > 0 ? pedidoCodigo : 0;
-
-    /* obtem so dados do funcionario logado */
-    var funcionarioCodigo = 1;//getUsuarioCodigo();
-    var usuarioCodigo = 1;//getUsuarioUsuario();
-
-    var pedidoOk = {
-      cabecalho: "",
-      produtos: []
-    }
-
-    var produtos = [];
-    var produto;
-
-    var cabecalho = {
-      funcionarioCodigo: funcionarioCodigo,
-      usuarioCodigo: usuarioCodigo,
-      pedidoCodigo: pedidoCodigo,
-      clienteCodigo: lista.clienteCodigo,
-      clienteListaCodigo: lista.clienteCodigo,
-      tipoListaCodigo: lista.tipoLista.tipoListaCodigo,
-      dataEvento: lista.dataEvento,
-      observacoes: cliente,
-      lojaCodigo: configsApp.storeno.text,
-      pdvCodigo: configsApp.pdvno.text
-    };
-
-    $.each(pedido.produtos, function (i, prd) {
-      produto = {
-        produtoCodigo: prd.produto.codigo,
-        produtoGrade: prd.grade.gradeNome,
-        produtoQuantidade: prd.grade.gradeQtty * 1000,
-        produtoAmbiente: 0
-//          produtoPreco: prd.produto.preco
-      };
-      produtos.push(produto);
-    });
-
-    pedidoOk.cabecalho = cabecalho;
-    pedidoOk.produtos = produtos;
-
-    sessionStorage.setItem("pedidoOk", JSON.stringify(pedidoOk));
+  if (pedidoCodigo > 0) {
+    sessionStorage.setItem("pedidoCodigo", pedidoCodigo);
+  }
+  else {
+    pedidoCodigo = 0;
+    sessionStorage.removeItem("pedidoCodigo");
   }
 
-  showMask();
+  /* obtem so dados do funcionario logado */
+  var funcionarioCodigo = getFuncionarioCodigo();
+  var usuarioCodigo = getFuncionarioUsuario();
+
+  var pedidoOk = {
+    cabecalho: "",
+    produtos: []
+  }
+
+  var produtos = [];
+  var produto;
+
+  var cabecalho = {
+    funcionarioCodigo: funcionarioCodigo,
+    usuarioCodigo: usuarioCodigo,
+    pedidoCodigo: pedidoCodigo,
+    clienteCodigo: pedidoCliente.cliente_codigo,
+    clienteListaCodigo: lista.clienteCodigo,
+    tipoListaCodigo: lista.tipoLista.tipoListaCodigo,
+//    dataEvento: lista.dataEvento,
+//      observacoes: cliente,
+    lojaCodigo: configsApp.storeno.text,
+    pdvCodigo: configsApp.pdvno.text
+  };
+
+  $.each(pedido.produtos, function (i, prd) {
+    produto = {
+      produtoCodigo: prd.produto.codigo,
+      produtoGrade: prd.grade.gradeNome,
+      produtoQuantidade: prd.grade.gradeQtty * 1000,
+      produtoAmbiente: 0
+//          produtoPreco: prd.produto.preco
+    };
+    produtos.push(produto);
+  });
+
+  pedidoOk.cabecalho = cabecalho;
+  pedidoOk.produtos = produtos;
+
+  sessionStorage.setItem("pedidoOk", JSON.stringify(pedidoOk));
+
   wsSplitPedido(true, false);
 }
 
@@ -3263,7 +3649,8 @@ function wsSplitPedido(first, last) {
       url: configsApp.serverUrl.text + '/splitPedido.php',
       type: "POST",
       dataType: "jsonp",
-      data: {dados: dados}
+      data: {dados: dados},
+      statusCode: { 404: function(){ errorConectionServer(); } }
     });
   }
 
@@ -3279,7 +3666,8 @@ function wsSplitPedido(first, last) {
       url: configsApp.serverUrl.text + '/savePedido.php',
       type: "POST",
       dataType: "jsonp",
-      data: {dados: dados}
+      data: {dados: dados},
+      statusCode: { 404: function(){ errorConectionServer(); } }
     });
   }
 
@@ -3303,7 +3691,8 @@ function wsSplitPedido(first, last) {
       url: configsApp.serverUrl.text + '/splitPedido.php',
       type: "POST",
       dataType: "jsonp",
-      data: {dados: dados}
+      data: {dados: dados},
+      statusCode: { 404: function(){ errorConectionServer(); } }
     });
   }
 }
@@ -3358,20 +3747,32 @@ function wsResponseSavePedido(response) {
     /* obtem as informacoes do orcamento que veio no retorno */
     var pedido = response.wsresult;
 
-    /* grava o historico de lista */
-    //saveHist("lista", lista);
+    var pedidoCodigo = sessionStorage.getItem("pedidoCodigo");
+    
+    /* obtem o cliente do pedido */
+    var pedidoCliente = sessionStorage.getItem("pedidoCliente");
+    pedidoCliente = JSON.parse(pedidoCliente);
 
-    toast("Pedido salvo no NÉRUS!");
+    var acao = "insercao";
+
+    if (pedidoCodigo > 0)
+      acao = "atualizacao";
+
+    /* grava o historico */
+    saveHist("pedido", acao, pedidoCliente.cliente_nome, pedido);
+
+    toast("Pedido <strong>" + pedido.codigo_pedido + "</strong> salvo no NÉRUS!");
 
     /* remove a lista da sessao */
     sessionStorage.removeItem("pedidoNew");
+    sessionStorage.removeItem("pedidoCliente");
 
     /* retorna para o inicio do aplicativo */
     loadPage("index");
 
-    /* verifica se esta configurado para enviar orcamentos por email */
-//      if (configOrderSendMail == 1)
-//        exibeDialogSendEmailOrcameto(orcamento.codigo);
+    /* verifica se esta configurado para enviar emails */
+    if (configsApp.sendMail.text == "1")
+      exibeDialogSendEmailPedido(pedido.codigo_pedido);
   }
 }
 
@@ -3537,9 +3938,16 @@ function exibeDialogSavePedido() {
   var pedido = sessionStorage.getItem("pedidoNew");
   pedido = JSON.parse(pedido);
 
+  /* obtem o cliente do pedido */
+  var pedidoCliente = sessionStorage.getItem("pedidoCliente");
+  pedidoCliente = JSON.parse(pedidoCliente);
+
   /* caso nao haja um pedido ou o mesmo esteja sem produtos nao salva o pedido */
   if (pedido == null || !pedido.produtos.hasOwnProperty(0))
     toast("É necessário adicionar produtos no pedido!");
+
+  else if (pedidoCliente == null)
+    toast("É necessário informar o cliente do pedido!");
 
   else
     showDialog('Concluir', 'Salvar este pedido no NÉRUS?', 'Concluir', 'wsSavePedido()', 'Atualizar', 'showSelect("pedidosLista")');
@@ -3639,4 +4047,166 @@ function setNewList() {
     actionExec = "novaLista";
     loadPage("lista-produto-nova-lista");
   }
+}
+
+function addHist(histItem, historico) {
+
+  var ano = histItem.data.substr(0, 4);
+  var mes = histItem.data.substr(4, 2);
+  var dia = histItem.data.substr(6, 2);
+
+  var anoExistsOK = false;
+  var mesExistsOK = false;
+  var diaExistsOK = false;
+
+  if (historico == null)
+    historico = [];
+
+  else {
+
+    for (var i = 0; i < historico.length; i++) {
+
+      if (historico[i].ano == ano) {
+        anoExistsOK = true;
+
+        mesExistsOK = false;
+        for (var j = 0; j < historico[i].meses.length; j++) {
+
+          if (historico[i].meses[j].mes == mes) {
+            mesExistsOK = true;
+
+            diaExistsOK = false;
+            for (var k = 0; k < historico[i].meses[j].dias.length; k++) {
+
+              if (historico[i].meses[j].dias[k].dia == dia) {
+                diaExistsOK = true;
+
+                historico[i].meses[j].dias[k].itens.unshift(histItem);
+              }
+            }
+
+            if (!diaExistsOK) {
+
+              var histDia = {
+                dia: dia,
+                itens: []
+              }
+
+              histDia.itens.unshift(histItem);
+
+              historico[i].meses[j].dias.unshift(histDia);
+            }
+          }
+        }
+
+        if (!mesExistsOK) {
+          var histMes = {
+            mes: mes,
+            dias: []
+          }
+
+          var histDia = {
+            dia: dia,
+            itens: []
+          }
+
+          histDia.itens.unshift(histItem);
+
+          histMes.dias.unshift(histDia);
+
+          historico[i].meses.unshift(histMes);
+        }
+      }
+    }
+  }
+
+  if (!anoExistsOK) {
+    var histAno = {
+      ano: ano,
+      meses: []
+    }
+
+    var histMes = {
+      mes: mes,
+      dias: []
+    }
+
+    var histDia = {
+      dia: dia,
+      itens: []
+    }
+
+    histDia.itens.unshift(histItem);
+
+    histMes.dias.unshift(histDia);
+
+    histAno.meses.unshift(histMes);
+
+    historico.unshift(histAno);
+  }
+
+  return historico;
+}
+
+function addZero(val) {
+  if (val < 10)
+    val = "0" + val;
+  return val;
+}
+
+function saveHist(tipo, acao, clienteNome, obj) {
+  var funcionarioCodigo = getFuncionarioCodigo();
+
+  /* acessa o hitorico do funcioario logado */
+  var historico = localStorage.getItem("histFunc-" + funcionarioCodigo);
+  historico = JSON.parse(historico);
+
+  // cria um obj date para obter data e hora
+  var date = new Date();
+
+  // obtem a data atual
+  var data = "" + date.getFullYear() + addZero(date.getMonth() + 1) + addZero(date.getDate());
+
+  // obtem a hora atual
+  var horas = addZero(date.getHours()) + ":" + addZero(date.getMinutes()) + ":" + addZero(date.getSeconds());
+
+  clienteNome = clienteNome.toUpperCase();
+
+  var label = "";
+
+  switch (tipo) {
+
+    case "lista":
+      label = "Cadastro às " + horas + " - Lista de " + obj.tipo_name + " de " + clienteNome;
+
+      if (acao == "atualizacao")
+        label = "Atualização às " + horas + " - Lista de " + obj.tipo_name + " de " + clienteNome;
+
+      break;
+
+    case "pedido":
+      label = "Cadastro às " + horas + " - Pedido " + obj.codigo_pedido + " de " + clienteNome;
+
+      if (acao == "atualizacao")
+        label = "Atualização às " + horas + " - Pedido " + obj.codigo_pedido + " de " + clienteNome;
+
+      break;
+  }
+
+  // bloco a ser adicionado no historico
+  var histItem = {
+    tipo: tipo,
+    acao: acao,
+    data: data,
+    hora: horas,
+    clientNome: clienteNome,
+    label: label,
+    obj: obj
+  };
+  
+  // adiciona o item no historico
+  historico = addHist(histItem, historico);
+
+  /* armazena o historico atualizado */
+  localStorage.setItem("histFunc-" + funcionarioCodigo, JSON.stringify(historico));
 }

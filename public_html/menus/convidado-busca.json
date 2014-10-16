@@ -3,7 +3,7 @@
   {
     "show": true,
     "logo": "<img src='img/logo-cliente.png' />",
-    "subtitle": "PRODUTOS DA LISTA"
+    "subtitle": "BUSCA DE CLIENTES"
   },
   "drawer":
   {
@@ -21,27 +21,28 @@
     "itens":
     [
       {
-        "onclick": "loadPage('produto-busca');",
+        "onclick": "actionSearch();",
+        "icon": "search",
+        "type": "convidado"
+      },
+      {
+        "onclick": "loadPage('cliente-cadastro');",
         "icon": "new"
-      },
-      {
-        "onclick": "exibeDialogSaveLista();",
-        "icon": "accept"
-      },
-      {
-        "onclick": "exibeDialogClearList();",
-        "icon": "cancel"
       }
     ]
   },
   "menu":
   {
-    "show": true,
+    "show": false,
     "itens":
     [
       {
-        "onclick": "showSelect('tipoListaDefault');",
-        "label": "Listas Padrão"
+        "onclick": "loadPage('lista-produto');",
+        "label": "Lista atual"
+      },
+      {
+        "onclick": "loadPage('orcamento-produto');",
+        "label": "Orçamento atual"
       }
     ]
   },

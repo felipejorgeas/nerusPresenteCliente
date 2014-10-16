@@ -46,6 +46,6 @@
   "nav":
   {
     "show": true,
-    "type": "produto-busca"
+    "type": "index"
   }
 }

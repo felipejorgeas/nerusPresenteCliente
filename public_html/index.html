@@ -54,7 +54,7 @@
 
       <!-- Menu topo direito -->
       <ul id="menu" class="animate"></ul>
-
+      
       <!-- Tela de login -->
       <div id="login" class="popup">
         <div id="popup-login" class="bradius">
@@ -79,8 +79,43 @@
           </div>
         </div>
         <p class="rodape">
-          NÉRUS Presente - v0.01
+          NÉRUS Presente - v1.0
         </p>
+      </div>
+      
+      <!-- Tela de cofiguração inicial -->
+      <div id="config-init" class="popup animate">
+        <div id="popup-config" class="bradius">
+          <p class="logo-nerus">
+            <img src="img/logo-nerus.png" />
+          </p>
+          <h1>Configuração Inicial</h1>
+          <p>Servidor</p>
+          <p>
+            <input id="config-servidor" type="text" class="bradius" name="servidor" />
+          </p>
+          <p>
+            <span>Loja</span>
+            <span style="float: right">PDV</span>
+          </p>
+          <p>
+            <span>
+              <input id="config-loja" type="text" class="bradius input-short" name="loja" />
+            </span>
+            <span style="float: right">
+              <input id="config-pdv" type="text" class="bradius input-short" name="pdv" />
+            </span>
+          </p>
+          <img class="next" src="img/ico-arrowforward.png" onclick="setConfigInit();" />
+          
+          <!-- Loading em CSS3 -->
+          <div id="followingBallsG">
+            <div id="followingBallsG_1" class="followingBallsG"></div>
+            <div id="followingBallsG_2" class="followingBallsG"></div>
+            <div id="followingBallsG_3" class="followingBallsG"></div>
+            <div id="followingBallsG_4" class="followingBallsG"></div>
+          </div>
+        </div>
       </div>
 
       <!-- popup para alert e promtps -->
@@ -215,7 +250,7 @@
               Fechar
             </li>
           </ul>
-          <p id="app">NÉRUS Presente - v0.01</p>
+          <p id="app">NÉRUS Presente - v1.0</p>
         </div>
       </div>
 
@@ -250,6 +285,7 @@
         <div id="cliente-busca" class="page animate"></div>
         <div id="cliente-cadastro" class="page animate"></div>
         <div id="cliente-lista" class="page animate"></div>
+        <div id="convidado-busca" class="page animate"></div>
         <div id="lista-busca" class="page animate"></div>
         <div id="lista-produto" class="page animate"></div>
         <div id="lista-produto-nova-lista" class="page animate"></div>
@@ -262,7 +298,7 @@
         <div id="produto-visualizacao" class="page animate no-padding"></div>
         <div id="historico" class="page animate no-padding"></div>
         <div id="configuracoes" class="page animate no-padding"></div>
-        <div id="sobre" class="page animate"></div>
+        <div id="sobre" class="page animate no-padding"></div>
         
         <div id="prd-total">
           <span id="qtty">Selecionados: <span>0</span></span>
@@ -277,8 +313,8 @@
     <!-- javascript inicial a ser executado ao carregar o aplicativo -->
     <script>
       $LAB.setOptions({AlwaysPreserveOrder: true})
-        .script("cordova.js")
-        .script("barcodescanner.js")
+//        .script("cordova.js")
+//        .script("barcodescanner.js")
         .script("js/jquery.min.js")
         .script("js/iscroll.min.js")
         .script("js/jquery-scrollTo.min.js")

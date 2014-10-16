@@ -39,7 +39,7 @@
   },
   "nav":
   {
-    "show": false,
-    "type": "lista-busca"
+    "show": true,
+    "type": "index"
   }
 }
