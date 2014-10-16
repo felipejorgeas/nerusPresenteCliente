@@ -56,6 +56,7 @@
                   "<div class='prd-desc'>" +                  
                   "<p class='prd-cod'>Cód.: " + prd.produto.codigo + grade + "</p>" +
                   "<p class='prd-forn'>" + prd.produto.fornecedor.nome_fantasia + "</p>" +
+                  "<p class='prd-qtty'>Qtde.: " + number_format(prd.grade.gradeQtty, 2, ",", ".") + "<span class='hidden'>" + prd.grade.gradeQtty + "</span></p>" +
                   "</div>" +
                   "<p class='prd-price'>R$ <strong>" + number_format(prd.produto.preco / 100, 2, ',', '.') + "</strong><span class='hidden'>" + prd.produto.preco + "</span></p>" +
                   "</div>" +
