@@ -3,6 +3,7 @@
 <script>
   $(function () {
     window.setTimeout(function () {
+      wsGetTipoDeLista();
       sessionStorage.removeItem("clienteListas");
       var cliente = sessionStorage.getItem("clienteSelecionado");
       cliente = JSON.parse(cliente);
