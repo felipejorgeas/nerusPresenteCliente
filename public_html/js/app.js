@@ -2861,7 +2861,7 @@ function wsResponseGetProduto(response) {
           //          var extensao = file[file.length - 1];
           //          imgUrl = imgUrl.replace('.' + extensao, '_min.' + extensao);
 
-          box = "<img u='image' src='" + imgUrl + "' />";
+          box = "<div u='image'><img src='" + imgUrl + "' /></div>";
 
           imagensLista.push(box);
         });
@@ -2879,14 +2879,14 @@ function wsResponseGetProduto(response) {
           //          var extensao = file[file.length - 1];
           //          imgUrl = imgUrl.replace('.' + extensao, '_min.' + extensao);
 
-          box = "<img u='image' src='" + imgUrl + "' />";
+          box = "<div u='image'><img src='" + imgUrl + "' />";
           imagensLista.push(box);
         }
       }
     }
     else {
       for (var i = 0; i < 3; i++) {
-        box = "<img u='image' src='img/nophoto.jpg' />";
+        box = "<div u='image'><img src='img/nophoto.jpg' />";
         imagensLista.push(box);
       }
     }
@@ -2906,10 +2906,29 @@ function wsResponseGetProduto(response) {
       },
       callback: {
         loaded: function (number) {
-          var pagination = $(".slidesjs-pagination");
+//          var pagination = $(".slidesjs-pagination");
 //            pagination.css({
 //              "margin-left": -(pagination.width() / 2)
 //            });
+          $(".slidesjs-pagination").hide();
+          $('#slides > div').css("opacity", "0");
+          window.setTimeout(function(){
+            var imagens = $('#slides').find("img");
+            var marginTop = 0;
+            $.each(imagens, function(i, img){
+              marginTop = 0;              
+              if($(img).height() > 0  && $(img).height() < $(img).parent().height()){
+                marginTop = ($(img).parent().height() - $(img).height()) / 2;
+                $(img).css("margin-top", marginTop);
+              }
+              if(i+1 == imagens.length){
+                $('#slides > div').css("opacity", "1");
+                $('#slides').css("background-color", "#666");
+                $(".slidesjs-pagination").show();
+              }
+            });
+          }, 1000);
+
         },
         start: function (number) {
         },
@@ -2917,7 +2936,7 @@ function wsResponseGetProduto(response) {
         }
       }
     });
-
+    
     // Informações do produto
     var centrolucro = produto.centrolucro.nome_categoria;
 //    centrolucro = centrolucro.replace(/\//g, ">");

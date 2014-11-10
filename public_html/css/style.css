@@ -16,7 +16,7 @@
   -moz-box-sizing: border-box;
   box-sizing: border-box;
 
-  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);sel
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
   color: #222;
 }
 
@@ -488,8 +488,7 @@ button {
 
 #login #popup-login{
   position: absolute;
-  width: 70%;
-  max-width: 250px;
+  width: 250px;
   top: 50%;
   left: 50%;
   margin-top: -150px;
@@ -1663,15 +1662,23 @@ button {
 
 /* Prevent the slideshow from flashing on load */
 #slides {
-  padding: 10px 20px;
-  background: #666;
+  padding: 10px;
+  background-image: url('../img/loading.gif');
+  background-repeat: no-repeat;
+  background-size: 50px;
+  background-position: 50%;
+  background-color: #FFF;
 }
-#slides > div {
+#slides .slidesjs-control > div{
+  width: 100%;
+  height: 100%;
+  background: #FFF;  
   border: 10px #FFF solid;
+  text-align: center;
 }
-#slides > div img {
-  min-width: 100%;
-  min-height: 100%;
+#slides .slidesjs-control > div img{
+  max-width: 100%;
+  max-height: 100%;
 }
 /* Center the slideshow */
 .container {
