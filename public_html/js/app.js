@@ -11,8 +11,9 @@ var configsApp = {
   storeno: {text: "", type: "input"},
   pdvno: {text: "", type: "input"},
   maxTimeRequest: {text: "30", type: "input"},
-  maxTimeMsgToast: {text: "4", type: "input"},  
-  sendMail: {text: "0", type: "radio"}
+  maxTimeMsgToast: {text: "4", type: "input"},
+  sendMail: {text: "0", type: "mark"},
+  prdInfoLite: {text: "0", type: "mark"}
 };
 
 //var connectionOk = false;
@@ -188,6 +189,15 @@ function loadConfigsApp() {
   }
 
   else{
+    
+    var name;
+    var reg;
+    
+    $.each(configsApp, function(i, item){
+      if(!configs.hasOwnProperty(i))
+        configs[i] = item;
+    });
+    
     configsApp = configs;
 //    
 //    hideConfigInit();
@@ -196,12 +206,20 @@ function loadConfigsApp() {
   }
 }
 
+/**
+ * Utilizado para carregar marcacoes de campos que ficam visiveis na tela
+ * de configuracoes assim que a mesma eh aberta
+ * Ex.: radio, checkbox, ...
+ */
 function loadConfigsAppPage() {
-  if (configsApp != null) {
-    if (configsApp.sendMail.text == "1") {
-      var checkbox = $(".configs").find("li[data-value=sendMail]").find(".checkbox");
-      checkbox.addClass("active");
-    }
+  if (configsApp != null) {    
+    var item;
+    $.each(configsApp, function(i, item){
+      if(configsApp[i].text == "1" && configsApp[i].type == "mark"){
+        item = $(".configs").find("li[data-value=" + i + "]").find(".mark");
+        item.addClass("active");
+      }
+    });
   }
 }
 
@@ -226,17 +244,17 @@ function setConfigApp() {
   hideDialog();
 }
 
-function setConfigAppRadio(item) {
-  var elem = $(item);
-  var checkbox = elem.find(".checkbox");
+function setConfigAppSpecial(e) {
+  var elem = $(e);
+  var item = elem.find(".mark");
 
-  if (checkbox.hasClass("active")) {
+  if (item.hasClass("active")) {
     configsApp[elem.attr("data-value")].text = "0";
-    checkbox.removeClass("active");
+    item.removeClass("active");
   }
   else {
     configsApp[elem.attr("data-value")].text = "1";
-    checkbox.addClass("active");
+    item.addClass("active");
   }
   localStorage.setItem("configsApp", JSON.stringify(configsApp));
 }
@@ -1782,7 +1800,7 @@ function wsResponseGetCentroLucro(response) {
 
         cl = "";
         $.each(d.centrolucros, function (i, c) {
-          cl += "<li class='option'>" + c.nome + "<span class='checkbox' data-value='" + c.full + "'><span></span></span></li>";
+          cl += "<li class='option'>" + c.nome + "<span class='mark checkbox' data-value='" + c.full + "'><span></span></span></li>";
         });
 
         dp += cl + "</ul></div></li>";
@@ -1836,11 +1854,11 @@ function wsResponseGetCentroLucro(response) {
 
     $(".nav-filter").find(".option").click(function () {
       var option = $(this);
-      var checkbox = option.find(".checkbox");
-      if (checkbox.hasClass("active"))
-        checkbox.removeClass("active");
+      var item = option.find(".mark");
+      if (item.hasClass("active"))
+        item.removeClass("active");
       else
-        checkbox.addClass("active");
+        item.addClass("active");
     });
   }
 }
@@ -2653,7 +2671,7 @@ function wsGetProduto() {
   var filtros = $("#filter-produto-busca");
   var fabricante = filtros.find(".input-select.fabricante").attr("data-value");
   var tipoProduto = filtros.find(".input-select.tipoProduto").attr("data-value");
-  var centrosLucro = filtros.find(".accordionCentroLucro").find(".checkbox.active");
+  var centrosLucro = filtros.find(".accordionCentroLucro").find(".mark.active");
   var cls = [];
 
   $.each(centrosLucro, function (i, item) {

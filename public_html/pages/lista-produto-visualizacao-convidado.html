@@ -1,14 +1,14 @@
 <div class="content-response"></div>
 
 <script>
-  function ajustRangePrice(min, max){
+  function ajustRangePrice(min, max) {
     var sliderRange = $("#slider-range");
     var priceMin = $("#price-min");
     var priceMax = $("#price-max");
-    
+
     min /= 100;
     max /= 100;
-    
+
     sliderRange.slider({
       range: true,
       min: min,
@@ -24,30 +24,30 @@
     priceMin.text(number_format(min, 2, ",", "."));
     priceMax.text(number_format(max, 2, ",", "."));
   }
-  
-  function inArray(key, arr){
+
+  function inArray(key, arr) {
     var existsOk = false;
-    $.each(arr, function(i, item){
-      if(item == key)
+    $.each(arr, function (i, item) {
+      if (item == key)
         existsOk = true;
     });
     return existsOk;
   }
-  
-  function filterListPrds(){
+
+  function filterListPrds() {
     hideMenuSec();
-    
+
     var page = $("#content").find(".page.activePage:last");
-    var contentResponse = page.find(".content-response");    
+    var contentResponse = page.find(".content-response");
     var filtros = $("#filter-lista-produto");
-    
+
     var produtos = contentResponse.find(".produto");
     var visibleOk = false;
     var prd;
     var produtoNome;
     var produtoPreco;
     var produtoCentroLucro;
-    
+
     var search;
     var filtroProdutoNome = filtros.find(".produtoNome").eq(0).val();
     var filtroPrecoMin = filtros.find("#price-min").text();
@@ -55,7 +55,7 @@
     var filtroPrecoMax = filtros.find("#price-max").text();
     var filtroCentrosLucro = filtros.find(".accordionCentroLucro").find(".checkbox.active");
     var cls = [];
-    
+
     filtroProdutoNome = filtroProdutoNome.toUpperCase();
     filtroPrecoMin = filtroPrecoMin.replace(/[^0-9]/g, "");
     filtroPrecoMax = filtroPrecoMax.replace(/[^0-9]/g, "");
@@ -63,39 +63,39 @@
     $.each(filtroCentrosLucro, function (i, item) {
       cls.push(parseInt($(item).attr("data-value")));
     });
-    
+
     produtos.hide();
-    
-    $.each(produtos, function(i, item){
+
+    $.each(produtos, function (i, item) {
       visibleOk = false;
       prd = $(item);
-      
+
       produtoNome = prd.find(".prd-name").text();
       search = new RegExp(filtroProdutoNome);
-      
+
       produtoPreco = prd.find(".prd-price").eq(0).find("span").text();
       produtoPreco = parseInt(produtoPreco);
-      
+
       produtoCentroLucro = parseInt(prd.find(".prd-catname").eq(0).text());
-      
-      if(search.test(produtoNome))
+
+      if (search.test(produtoNome))
         visibleOk = true;
       else
         visibleOk = false;
 
-      if(visibleOk == true && (produtoPreco >= filtroPrecoMin && produtoPreco <= filtroPrecoMax))
+      if (visibleOk == true && (produtoPreco >= filtroPrecoMin && produtoPreco <= filtroPrecoMax))
         visibleOk = true;
       else
         visibleOk = false;
-            
-      if(cls.length > 0){
-        if(visibleOk == true && inArray(produtoCentroLucro, cls))
+
+      if (cls.length > 0) {
+        if (visibleOk == true && inArray(produtoCentroLucro, cls))
           visibleOk = true;
         else
           visibleOk = false;
       }
-      
-      if(visibleOk)
+
+      if (visibleOk)
         prd.fadeIn();
     });
   }
@@ -103,7 +103,7 @@
   $(function () {
     var lista = sessionStorage.getItem("listaSelecionada");
     lista = JSON.parse(lista);
-    
+
     wsGetPedidosLista();
 
     var page = $("#content").find(".page.activePage:last");
@@ -123,58 +123,109 @@
     marcaDagua.hide();
     contentResponse.scrollTop(0).show();
 
-    $.each(lista.produtos, function (i, prd) {
+    // verifica se eh para exibir apenas informacoes basicas dos produtos nas listas
+    if (configsApp.prdInfoLite.text == "1") {
       
-      if(parseInt(prd.produto.preco) < priceMin)
-        priceMin = prd.produto.preco;
-      
-      else if(parseInt(prd.produto.preco) > priceMax)
-        priceMax = prd.produto.preco;
-      
-      grade = "";
+      $.each(lista.produtos, function (i, prd) {
 
-      if (prd.grade.gradeNome.length > 0)
-        grade = " - Grade: " + prd.grade.gradeNome;
+        if (parseInt(prd.produto.preco) < priceMin)
+          priceMin = prd.produto.preco;
 
-      if(prd.produto.hasOwnProperty("img") && prd.produto.img.hasOwnProperty("0"))
-        img = prd.produto.img[0].arquivo;
-      else
-        img = "img/nophoto.jpg";
-      
-      sold = "";
-      
-      if(parseInt(prd.grade.gradeQttySold) >= parseInt(prd.grade.gradeQtty))
-        sold = "<div class='sold'>vendido</div>";
-      
-      // criacao dos objetos a serem inseridos na pagina
-      box =
-              "<div id='produto-" + i + "' class='produto bradius'>" +
-              sold + 
-              "<div class='options animate'>" +
-//              "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
-              "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\",\"" + prd.grade.gradeNome + "\");' />" +
-              "</div>" +
-              "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
-              "<div>" +
-              "<div class='prd-img bradius'>" +
-              "<img src='" + img + "' />" +
-              "</div>" +
-              "<div class='prd-desc'>" + 
-              "<p class='prd-cod'>Cód.: " + prd.produto.codigo + grade + "</p>" +
-//              "<p class='prd-forn'>" + prd.produto.fornecedor.nome_fantasia + "</p>" +
-              "<p class='prd-qtty'>Qtde. pedida: " + number_format(prd.grade.gradeQtty, 2, ",", ".") + "<span class='hidden'>" + prd.grade.gradeQtty + "</span></p>" +
-              "<p>Qtde. vendida: " + number_format(prd.grade.gradeQttySold, 2, ",", ".") + "<span class='hidden'>" + prd.grade.gradeQttySold + "</span></p>" +
-              "<p>R$ " + number_format(prd.produto.preco / 100, 2, ',', '.') + "</p>" +
-              "</div>" +              
-              "<p class='prd-price'>R$ <strong>" + number_format((prd.produto.preco * prd.grade.gradeQtty) / 100, 2, ',', '.') + "</strong><span class='hidden'>" + prd.produto.preco + "</span></p>" +
-              "</div>" +
-              "<p class='prd-cat'>" + prd.produto.centrolucro.nome_categoria + "</p>" +
-              "<p class='prd-catname hidden'>" + prd.produto.centrolucro.codigo_categoria + "</p>" +
-              "</div>";
+        else if (parseInt(prd.produto.preco) > priceMax)
+          priceMax = prd.produto.preco;
 
-      produtosLista += box;
+        grade = "";
 
-    });
+        if (prd.grade.gradeNome.length > 0)
+          grade = " - Grade: " + prd.grade.gradeNome;
+
+        sold = "";
+
+        if (parseInt(prd.grade.gradeQttySold) >= parseInt(prd.grade.gradeQtty))
+          sold = "<div class='sold'>vendido</div>";
+
+        // criacao dos objetos a serem inseridos na pagina
+        box =
+                "<div id='produto-" + i + "' class='produto lite bradius'>" +
+                sold +
+                "<div class='options animate'>" +
+                //              "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
+                "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\",\"" + prd.grade.gradeNome + "\");' />" +
+                "</div>" +
+                "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
+                "<div>" +
+                "<div class='prd-desc'>" +
+                "<p class='prd-cod'>Cód.: " + prd.produto.codigo + grade + "</p>" +
+                "<p>R$ " + number_format(prd.produto.preco / 100, 2, ',', '.') + "</p>" +
+                "<p class='prd-qtty'>Qtde. pedida: " + number_format(prd.grade.gradeQtty, 2, ",", ".") + "<span class='hidden'>" + prd.grade.gradeQtty + "</span></p>" +
+                "<p>Qtde. vendida: " + number_format(prd.grade.gradeQttySold, 2, ",", ".") + "<span class='hidden'>" + prd.grade.gradeQttySold + "</span></p>" +                
+                "</div>" +
+                "<p class='prd-price hidden'>R$ <strong>" + number_format((prd.produto.preco * prd.grade.gradeQtty) / 100, 2, ',', '.') + "</strong><span class='hidden'>" + prd.produto.preco + "</span></p>" +
+                "</div>" +
+                "<p class='prd-catname hidden'>" + prd.produto.centrolucro.codigo_categoria + "</p>" +
+                "</div>";
+
+        produtosLista += box;
+
+      });
+      
+    } 
+    
+    else {
+
+      $.each(lista.produtos, function (i, prd) {
+
+        if (parseInt(prd.produto.preco) < priceMin)
+          priceMin = prd.produto.preco;
+
+        else if (parseInt(prd.produto.preco) > priceMax)
+          priceMax = prd.produto.preco;
+
+        grade = "";
+
+        if (prd.grade.gradeNome.length > 0)
+          grade = " - Grade: " + prd.grade.gradeNome;
+
+        if (prd.produto.hasOwnProperty("img") && prd.produto.img.hasOwnProperty("0"))
+          img = prd.produto.img[0].arquivo;
+        else
+          img = "img/nophoto.jpg";
+
+        sold = "";
+
+        if (parseInt(prd.grade.gradeQttySold) >= parseInt(prd.grade.gradeQtty))
+          sold = "<div class='sold'>vendido</div>";
+
+        // criacao dos objetos a serem inseridos na pagina
+        box =
+                "<div id='produto-" + i + "' class='produto bradius'>" +
+                sold +
+                "<div class='options animate'>" +
+                //              "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
+                "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\",\"" + prd.grade.gradeNome + "\");' />" +
+                "</div>" +
+                "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
+                "<div>" +
+                "<div class='prd-img bradius'>" +
+                "<img src='" + img + "' />" +
+                "</div>" +
+                "<div class='prd-desc'>" +
+                "<p class='prd-cod'>Cód.: " + prd.produto.codigo + grade + "</p>" +
+                //              "<p class='prd-forn'>" + prd.produto.fornecedor.nome_fantasia + "</p>" +
+                "<p class='prd-qtty'>Qtde. pedida: " + number_format(prd.grade.gradeQtty, 2, ",", ".") + "<span class='hidden'>" + prd.grade.gradeQtty + "</span></p>" +
+                "<p>Qtde. vendida: " + number_format(prd.grade.gradeQttySold, 2, ",", ".") + "<span class='hidden'>" + prd.grade.gradeQttySold + "</span></p>" +
+                "<p>R$ " + number_format(prd.produto.preco / 100, 2, ',', '.') + "</p>" +
+                "</div>" +
+                "<p class='prd-price'>R$ <strong>" + number_format((prd.produto.preco * prd.grade.gradeQtty) / 100, 2, ',', '.') + "</strong><span class='hidden'>" + prd.produto.preco + "</span></p>" +
+                "</div>" +
+                "<p class='prd-cat'>" + prd.produto.centrolucro.nome_categoria + "</p>" +
+                "<p class='prd-catname hidden'>" + prd.produto.centrolucro.codigo_categoria + "</p>" +
+                "</div>";
+
+        produtosLista += box;
+
+      });
+    }
 
     contentResponse.append(produtosLista);
 
@@ -195,8 +246,8 @@
     });
 
     var pedido = sessionStorage.getItem("pedidoNew");
-    
-    if(pedido == null){
+
+    if (pedido == null) {
       var pedido = {
         produtos: []
       };
@@ -210,7 +261,7 @@
     totalPrds.find("#qtty").hide();
     totalPrds.find("#price").find("span").text(total);
     totalPrds.hide();
-    
+
     $("#filter-lista-produto").find(".produtoNome").eq(0).val("");
     ajustRangePrice(priceMin, priceMax);
 
