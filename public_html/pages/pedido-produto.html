@@ -43,12 +43,13 @@
           // criacao dos objetos a serem inseridos na pagina
           box =
                   "<div id='produto-" + i + "' class='produto lite bradius'>" +                
-                  "<div class='options animate'>" +
-                  "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
-                  "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
-                  "</div>" +
+                  "<img class='del-prd bradius' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
+//                  "<div class='options animate'>" +
+//                  "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
+//                  "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
+//                  "</div>" +
                   "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
-                  "<div>" +                  
+                  "<div onclick='prdLoad(\"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");'>" +                  
                   "<div class='prd-desc'>" +                
                   "<p class='prd-cod'>Cód.: " + prd.produto.codigo + grade + "</p>" +
                   "<p>R$ " + number_format(prd.produto.preco / 100, 2, ',', '.') + "</p>" +
@@ -78,13 +79,14 @@
 
           // criacao dos objetos a serem inseridos na pagina
           box =
-                  "<div id='produto-" + i + "' class='produto bradius'>" +                
-                  "<div class='options animate'>" +
-                  "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
-                  "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
-                  "</div>" +
+                  "<div id='produto-" + i + "' class='produto bradius'>" +
+                  "<img class='del-prd bradius' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
+//                  "<div class='options animate'>" +
+//                  "<img class='del' src='img/ico-cancel.png' onclick='exibeDialogPrdDel(\"" + i + "\", \"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
+//                  "<img class='about' src='img/ico-about.png' onclick='prdLoad(\"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");' />" +
+//                  "</div>" +
                   "<p class='prd-name'>" + prd.produto.descricao + "</p>" +
-                  "<div>" +                
+                  "<div onclick='prdLoad(\"" + prd.produto.codigo + "\", \"" + prd.grade.gradeNome + "\");'>" +                
                   "<div class='prd-img bradius'>" +
                   "<img src='" + img + "' />" +
                   "</div>" +
@@ -106,22 +108,22 @@
 
       contentResponse.append(produtosLista);
 
-      // ativa as acoes de cliques nos blocos inseridos      
-      contentResponse.find(".produto").click(function () {
-        var item = $(this);
-        var prds = contentResponse.find(".produto");
-
-        if (!item.hasClass("activeProduto")) {
-          prds.removeClass("activeProduto").find(".options").removeClass('activeOption');
-          item.addClass("activeProduto").find(".options").addClass('activeOption');
-        }
-
-        else {
-          item.removeClass("activeProduto").find(".options").removeClass('activeOption');
-        }
-
-        return false;
-      });
+//      // ativa as acoes de cliques nos blocos inseridos      
+//      contentResponse.find(".produto").click(function () {
+//        var item = $(this);
+//        var prds = contentResponse.find(".produto");
+//
+//        if (!item.hasClass("activeProduto")) {
+//          prds.removeClass("activeProduto").find(".options").removeClass('activeOption');
+//          item.addClass("activeProduto").find(".options").addClass('activeOption');
+//        }
+//
+//        else {
+//          item.removeClass("activeProduto").find(".options").removeClass('activeOption');
+//        }
+//
+//        return false;
+//      });
 
       var prds = contentResponse.find(".produto");
       var total = calcTotalPrds(prds);

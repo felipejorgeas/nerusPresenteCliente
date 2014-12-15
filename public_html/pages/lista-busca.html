@@ -6,8 +6,22 @@
 <div class="content-response"></div>
 
 <script>
-  $(function() {    
+  $(function() {
+    /** caso nao tenha uma data minima no filtro utiliza a data minima padrao
+     * definida nas configuracoes do aplicaitvo
+     */
+    var configsApp = JSON.parse(localStorage.getItem("configsApp"));    
+    var busca = $("#filter-lista-busca");
+    var data = configsApp.dateInitial.text.split("/");
+    
+    if(busca.find(".month.inicio").eq(0).text() == "00")
+      busca.find(".month.inicio").eq(0).text(data[0]);
+    
+    if(busca.find(".year.inicio").eq(0).text() == "0000")
+      busca.find(".year.inicio").eq(0).text(data[1]);
+    
     wsGetTipoDeLista();
+    
     hideMask();
   });
 </script>

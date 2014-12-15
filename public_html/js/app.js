@@ -6,12 +6,16 @@
  Prototipo de transicao de telas com animacao zoom in zoom out basica
  */
 
+var date = new Date();
+var dataInicial = (date.getMonth() + 1 < 10 ? "0" : "") + (date.getMonth() + 1) + "/" + date.getFullYear();
+
 var configsApp = {
   serverUrl: {text: "", type: "input"},
   storeno: {text: "", type: "input"},
   pdvno: {text: "", type: "input"},
   maxTimeRequest: {text: "30", type: "input"},
-  maxTimeMsgToast: {text: "4", type: "input"},
+  maxTimeMsgToast: {text: "4", type: "input"},  
+  dateInitial: {text: dataInicial, type: "dateLite"},
   sendMail: {text: "0", type: "mark"},
   prdInfoLite: {text: "0", type: "mark"}
 };
@@ -28,6 +32,8 @@ var waitToastMsg;
 var actionExec;
 
 var setElementPopupVal;
+
+var exibPopCl = false;
 
 //http://eac-gvt.eacsoftware.com.br:8086/saciPresenteServidorvar configServerUrl = "http://eac-gvt.eacsoftware.com.br:8086/saciPresenteServidor";
 
@@ -80,6 +86,14 @@ function onBackKeyDown(e) {
     hideMaskFull();
   }
 
+  /* caso algum select search (popup com filtro de itens da lista)
+   *  esteja ativo, oculta-o 
+   */
+  else if ($(".popup-select-search").is(":visible")) {
+    $(".popup-select-search").hide();
+    hideMaskFull();
+  }
+  
   /* caso a lista de produtos esteja ativa, oculta-a */
   else if ($("#list-prds").height() > 0)
     $("#list-prds").slideUp(function () {
@@ -134,7 +148,7 @@ function verifyConnectionServer() {
           hideConfigInit();
         }, 200);
         
-        toast("Conexão estabelecida com o servidor!");
+        toast("Conexão estabelecida com o servidor!");        
       },
       404: function () {
         
@@ -189,10 +203,7 @@ function loadConfigsApp() {
   }
 
   else{
-    
-    var name;
-    var reg;
-    
+        
     $.each(configsApp, function(i, item){
       if(!configs.hasOwnProperty(i))
         configs[i] = item;
@@ -212,7 +223,7 @@ function loadConfigsApp() {
  * Ex.: radio, checkbox, ...
  */
 function loadConfigsAppPage() {
-  if (configsApp != null) {    
+  if (configsApp != null) {
     var item;
     $.each(configsApp, function(i, item){
       if(configsApp[i].text == "1" && configsApp[i].type == "mark"){
@@ -240,6 +251,17 @@ function setConfigApp() {
   configsApp[elem.attr("data-value")].text = val;
 
   localStorage.setItem("configsApp", JSON.stringify(configsApp));
+  
+  if(configsApp[elem.attr("data-value")].type == "dateLite"){
+    
+    var data = val.split("/");
+  
+    // seta a data no filtro de busca de listas
+    if(elem.attr("data-value") == "dateInitial"){
+      $("#filter-lista-busca").find(".month.inicio").eq(0).text(data[0]);
+      $("#filter-lista-busca").find(".year.inicio").eq(0).text(data[1]);
+    }
+  }
 
   hideDialog();
 }
@@ -508,7 +530,7 @@ function showMaskFull() {
 }
 
 function hideMaskFull() {
-  $("#mask-full").hide();
+  $("#mask-full").hide();  
 }
 
 function showMaskShadow() {
@@ -932,6 +954,7 @@ function showSelect(type, elem, consistTypeList) {
   var lis = "";
 
   var exibSelectOk = true;
+  var hasInputOk = false;
 
   switch (type) {
 
@@ -1067,16 +1090,10 @@ function showSelect(type, elem, consistTypeList) {
       break;
 
     case "fabricante":
-
-      var itens = sessionStorage.getItem("fabricantes");
-      itens = JSON.parse(itens);
-
-      $.each(itens, function (i, item) {
-        lis += "<li data-value='" + item.codigo_fabricante + "'>" + item.nome_fabricante + "</li>";
-      });
-
-      ul.html(lis);
-      popupSelect.html(ul);
+      
+      var popupSelect = $("#popup-select-fabricantes");
+      popupSelect.find('input[name=search_fabricante]').val("");
+      popupSelect.find('li').show();
 
       popupSelect.find("ul").find("li").click(function () {
         var nome = $(this).text();
@@ -1085,6 +1102,47 @@ function showSelect(type, elem, consistTypeList) {
         popupSelect.hide();
         hideMaskFull();
       });
+
+//      var itens = sessionStorage.getItem("fabricantes");
+//      itens = JSON.parse(itens);
+//
+//      $.each(itens, function (i, item) {
+//        lis += "<li data-value='" + item.codigo_fabricante + "'>" + item.nome_fabricante + "</li>";
+//      });
+//
+//      ul.html(lis);
+//      popupSelect.html(ul);
+//
+//      popupSelect.find("ul").find("li").click(function () {
+//        var nome = $(this).text();
+//        var codigo = $(this).attr("data-value");
+//        $(elem).text(nome).attr("data-value", codigo);
+//        popupSelect.hide();
+//        hideMaskFull();
+//      });
+        
+        hasInputOk = true;
+
+      break;
+      
+    case "centrolucro":
+      
+      var popupSelect = $("#popup-select-centrolucro");
+      popupSelect.find('input[name=search_centrolucro]').val("");
+      popupSelect.find('li').show();
+
+      popupSelect.find("ul").find("li").click(function () {
+        var actives = popupSelect.find(".option").find('.mark.active');
+      
+        if(actives.length > 0)
+          $(elem).text("SELECIONADOS").attr("data-value", "1");
+        
+        else
+          $(elem).text("Selecione").attr("data-value", "0");
+      });
+      
+      hasInputOk = true;
+      
       break;
 
     case "pedidosLista":
@@ -1135,7 +1193,6 @@ function showSelect(type, elem, consistTypeList) {
           });
         }
       }
-
       break;
   }
 
@@ -1143,7 +1200,10 @@ function showSelect(type, elem, consistTypeList) {
     showMaskFull();
     marginTop = -(parseInt(popupSelect.css("height")) / 2);
     popupSelect.css("margin-top", marginTop);
-    popupSelect.show();
+    popupSelect.scrollTop(0).show();
+    
+    if(hasInputOk)
+      popupSelect.find('input').focus();
   }
 }
 
@@ -1154,11 +1214,16 @@ function resetFields(elem, type) {
     case "select":
       p.find(".input-select").text("Selecione").attr("data-value", "");
       break;
+    case "select-centrolucro":
+      var popupSelect = $("#popup-select-centrolucro");
+      popupSelect.find('.option').find('.mark').removeClass('active');
+      p.find(".input-select").text("Selecione").attr("data-value", "");      
+     break;
     case "date":
       p.find(".input-short.day").text("00");
       p.find(".input-short.month").text("00");
       p.find(".input-short.year").text("0000");
-      break;
+      break;      
     default:
       p.find(".input").val("");
   }
@@ -1405,7 +1470,7 @@ function init() {
    *
    * Remove o delay do clique em qualquer item do documento
    */
-  FastClick.attach(document.body);
+  FastClick.attach(document.body); 
 }
 
 function toast(msg) {
@@ -1634,6 +1699,8 @@ function wsResponseLogin(response) {
     setFuncionarioInfo();
 
     wsGetCentroLucro();
+    
+    wsGetFabricante();
 
     hideLogin();
 
@@ -1787,78 +1854,50 @@ function wsResponseGetCentroLucro(response) {
     var centrosLucro = response.wsresult;
     sessionStorage.setItem("centrosLucro", JSON.stringify(centrosLucro.grupos));
 
-    var gp = "";
-    var dp = "";
-    var cl = "";
-
+    var popupSelect = $("#popup-select-centrolucro");
+    var marginTop = 0;
+    var ul = $("<ul>");
+    var lis = "";
+    
+    lis += "<input type='text' class='search' name='search_centrolucro' value='' />";
+    
     $.each(centrosLucro.grupos, function (i, g) {
-      gp += "<h3>" + g.nome + "</h3><ul>";
-
-      dp = "";
       $.each(g.departamentos, function (i, d) {
-        dp += "<li><div class='accordion'><h3>" + d.nome + "</h3><ul>";
-
-        cl = "";
         $.each(d.centrolucros, function (i, c) {
-          cl += "<li class='option'>" + c.nome + "<span class='mark checkbox' data-value='" + c.full + "'><span></span></span></li>";
+          lis += "<li class='option' style='position: relative;'><p style='font-size: medium'>" + g.nome + " > " + d.nome + "</p><p class='clname'>" + c.nome + "<span class='mark checkbox' data-value='" + c.full + "'><span></span></span></p></li>";
         });
-
-        dp += cl + "</ul></div></li>";
       });
-
-      gp += dp + "</ul>";
     });
-
-    $(".accordionCentroLucro").html(gp);
-
-    var icons = {
-      header: "accordion-mark",
-      activeHeader: "accordion-mark-active"
-    };
-
-    $(".accordion").accordion({
-      active: false,
-      collapsible: true,
-      heightStyle: "content",
-      icons: icons,
-      beforeActivate: function (event, ui) {
-        // The accordion believes a panel is being opened
-        if (ui.newHeader[0]) {
-          var currHeader = ui.newHeader;
-          var currContent = currHeader.next('.ui-accordion-content');
-          // The accordion believes a panel is being closed
-        } else {
-          var currHeader = ui.oldHeader;
-          var currContent = currHeader.next('.ui-accordion-content');
-        }
-        // Since we've changed the default behavior, this detects the actual status
-        var isPanelSelected = currHeader.attr('aria-selected') == 'true';
-
-        // Toggle the panel's header
-        currHeader.toggleClass('ui-corner-all', isPanelSelected).toggleClass('accordion-header-active ui-state-active ui-corner-top', !isPanelSelected).attr('aria-selected', ((!isPanelSelected).toString()));
-
-        // Toggle the panel's icon
-        currHeader.children('.ui-icon').toggleClass('accordion-mark', isPanelSelected).toggleClass('accordion-mark-active', !isPanelSelected);
-
-        // Toggle the panel's content
-        currContent.toggleClass('accordion-content-active', !isPanelSelected)
-        if (isPanelSelected) {
-          currContent.slideUp();
-        } else {
-          currContent.slideDown();
-        }
-
-        return false; // Cancel the default action
-      }
-    });
-
-    $(".nav-filter").find(".option").click(function () {
+    
+    ul.html(lis);
+    popupSelect.html(ul);
+    
+    popupSelect.find(".option").click(function () {
       var option = $(this);
       var item = option.find(".mark");
       if (item.hasClass("active"))
         item.removeClass("active");
       else
         item.addClass("active");
+        
+      popupSelect.find('input').focus();
+    });
+    
+    popupSelect.find('input').keyup(function(){
+      var val = $(this).val();
+      var ul = $(this).parent();
+      var lis = ul.find("li");
+      var search = new RegExp(val);
+      
+      lis.hide();
+      
+      $.each(lis, function(i, item){
+        if(search.test($(item).text().toLowerCase()))
+          $(item).show();
+      });
+      
+      marginTop = -(parseInt(popupSelect.css("height")) / 2);
+      popupSelect.css("margin-top", marginTop);
     });
   }
 }
@@ -1908,6 +1947,37 @@ function wsResponseGetFabricante(response) {
   else if (response.wsstatus == 1) {
     var fabricantes = response.wsresult;
     sessionStorage.setItem("fabricantes", JSON.stringify(fabricantes));
+    
+    var popupSelect = $("#popup-select-fabricantes");
+    var marginTop = 0;
+    var ul = $("<ul>");
+    var lis = "";
+    
+    lis += "<input type='text' class='search' name='search_fabricante' value='' />";
+    
+    $.each(fabricantes, function (i, item) {
+      lis += "<li data-value='" + item.codigo_fabricante + "'>" + item.nome_fabricante + "</li>";
+    });
+    
+    ul.html(lis);
+    popupSelect.html(ul);
+    
+    $('input[name=search_fabricante]').keyup(function(){
+      var val = $(this).val();
+      var ul = $(this).parent();      
+      var lis = ul.find("li");
+      var search = new RegExp(val);
+      
+      lis.hide();
+      
+      $.each(lis, function(i, item){        
+        if(search.test($(item).text().toLowerCase()))
+          $(item).show();
+      });
+      
+      marginTop = -(parseInt(popupSelect.css("height")) / 2);
+      popupSelect.css("margin-top", marginTop);
+    });
   }
 }
 
@@ -1999,9 +2069,11 @@ function wsGetLista(clienteCodigo) {
   else {
     var filtros = $("#filter-lista-busca");
     // obtem os dados para execucao da requisicao
-    var dia = filtros.find(".input-short.day").text();
-    var mes = filtros.find(".input-short.month").text();
-    var ano = filtros.find(".input-short.year").text();
+    var mesInicio = filtros.find(".input-short.month.inicio").eq(0).text();
+    var anoInicio = filtros.find(".input-short.year.inicio").eq(0).text();
+    var dia = filtros.find(".input-short.day").not(".inicio").eq(0).text();
+    var mes = filtros.find(".input-short.month").not(".inicio").eq(0).text();
+    var ano = filtros.find(".input-short.year").not(".inicio").eq(0).text();
     var tipoListaCodigo = filtros.find(".input-select.tipoLista").eq(0).attr("data-value");
     var noivoPai = filtros.find(".input.noivoPai").eq(0).val();
     var noivoMae = filtros.find(".input.noivoMae").eq(0).val();
@@ -2025,13 +2097,16 @@ function wsGetLista(clienteCodigo) {
     }
 
     // preparacao dos dados
+    var dataInicio = "" + anoInicio + mesInicio + "00";
     var dataEvento = "" + ano + mes + dia;
+    
     var lista = {
+      data_inicio: parseInt(dataInicio) > 0 ? dataInicio : "",
       data_evento: parseInt(dataEvento) > 0 ? dataEvento : "",
       tipo: tipoListaCodigo.length > 0 ? tipoListaCodigo : "",
       pai_noivo: noivoPai.length > 0 ? noivoPai : "",
       mae_noivo: noivoMae.length > 0 ? noivoMae : "",
-      cliente: clienteSearch,
+      cliente: clienteSearch.trim().length > 0 ? clienteSearch : "",
       searchType: searchType
     };
   }
@@ -2097,33 +2172,96 @@ function wsResponseGetLista(response) {
       var listasStorage = [];
       marcaDagua.hide();
       contentResponse.html("").scrollTop(0).show();
+      
+      var clienteCodigo;
+      var clienteNome;
+      var clientePais;
+      var conjugeNome;
+      var conjugePais;
+      var tipoCodigo;
+      var tipoNome;
+      var dataEvento;
+
+      var anoEvento;
+      var mesEvento;
+      var diaEvento;
+
+      // criacao dos objetos a serem inseridos na pagina
+      var card;
+      var titleCliente;
+      var titleConjuge;
+      var paisCliente;
+      var paisConjuge;
+      var desc;
+      
       $.each(listas, function (i, lista) {
         listasStorage.push(lista);
         // tratamento dos dados retornados
-        var clienteCodigo = lista.cliente_codigo;
-        var clienteNome = lista.cliente_nome;
-        var tipoCodigo = lista.tipo;
-        var tipoNome = lista.tipo_nome;
-        var dataEvento = lista.data_evento;
-
-        var anoEvento = dataEvento.substr(0, 4);
-        var mesEvento = dataEvento.substr(4, 2);
-        var diaEvento = dataEvento.substr(6, 2);
+        clienteCodigo = lista.cliente_codigo;
+        
+        clienteNome = lista.cliente_nome;
+        conjugeNome = lista.noivo_nome;
+        
+        clientePais = "";
+        
+        if(lista.cliente_pai.length > 0 && lista.cliente_mae.length > 0)
+          clientePais = lista.cliente_pai + " e " + lista.cliente_mae;
+        else if(lista.cliente_pai.length > 0)
+          clientePais = lista.cliente_pai
+        else if(lista.cliente_mae.length > 0)
+          clientePais = lista.cliente_mae
+        
+        conjugePais = "";
+        
+        if(lista.noivo_pai.length > 0 && lista.noivo_mae.length > 0)
+          conjugePais = lista.noivo_pai + " e " + lista.noivo_mae;
+        else if(lista.noivo_pai.length > 0)
+          conjugePais = lista.noivo_pai
+        else if(lista.noivo_mae.length > 0)
+          conjugePais = lista.noivo_mae
+        
+        tipoCodigo = lista.tipo;
+        tipoNome = lista.tipo_nome;
+        
+        dataEvento = lista.data_evento;
+        
+        anoEvento = dataEvento.substr(0, 4);
+        mesEvento = dataEvento.substr(4, 2);
+        diaEvento = dataEvento.substr(6, 2);
 
         dataEvento = diaEvento + "/" + mesEvento + "/" + anoEvento;
 
         // criacao dos objetos a serem inseridos na pagina
-        var card = $("<div>");
-        var title = $("<p>");
-        var desc = $("<p>");
+        card = $("<div>");
+        titleCliente = $("<p>");
+        paisCliente = $("<p>");
+        titleConjuge = $("<p>");
+        paisConjuge = $("<p>");
+        desc = $("<p>");
 
         // seta as informacoes
-        title.addClass("title").text(clienteNome);
+        titleCliente.addClass("title").text(clienteNome);
+        titleConjuge.addClass("title").text("Cônjuge: " + conjugeNome);
+        
+        paisCliente.addClass("pais").text("Pais: " + clientePais);
+        paisConjuge.addClass("pais").text("Pais: " + conjugePais);
+       
         desc.addClass("desc").text(tipoNome + " dia " + dataEvento);
 
         // finaliza o bloco de informacoes
         card.addClass("card").addClass("bradius").attr("id", "lista-" + i);
-        card.append(title);
+        
+        card.append(titleCliente);
+        
+        if((clientePais.length > 0))
+          card.append(paisCliente);
+        
+        if((conjugeNome.length > 0))
+          card.append(titleConjuge);
+        
+        if((conjugePais.length > 0))
+          card.append(paisConjuge);
+        
         card.append(desc);
         // insere o bloco na pagina
         contentResponse.append(card);
@@ -2132,7 +2270,7 @@ function wsResponseGetLista(response) {
       // ativa as acoes de cliques nos blocos inseridos
       //contentResponse.find(".card").removeClass("activeCard");
       contentResponse.find(".card").click(function () {
-        if ($(this).hasClass("activeCard")) {
+//        if ($(this).hasClass("activeCard")) {
           var modulo = sessionStorage.getItem("modulo");
           var listaId = this.id;
           listaId = listaId.replace("lista-", "");
@@ -2195,12 +2333,12 @@ function wsResponseGetLista(response) {
               loadPage("lista-produto-visualizacao-convidado");
               break;
           }
-        }
-
-        else {
-          contentResponse.find(".card").removeClass("activeCard");
-          $(this).addClass("activeCard");
-        }
+//        }
+//
+//        else {
+//          contentResponse.find(".card").removeClass("activeCard");
+//          $(this).addClass("activeCard");
+//        }
 
         return false;
       });
@@ -2423,7 +2561,7 @@ function wsResponseGetCliente(response) {
         clientesStorage.push(cliente);
 
         // tratamento dos dados retornados
-        var clienteCodigo = cliente.cliente_codigo;
+//        var clienteCodigo = cliente.cliente_codigo;
         var clienteName = cliente.cliente_nome;
 
         // criacao dos objetos a serem inseridos na pagina
@@ -2441,18 +2579,18 @@ function wsResponseGetCliente(response) {
       // ativa as acoes de cliques nos blocos inseridos
       //contentResponse.find(".cliente").removeClass("activeCliente");
       contentResponse.find(".cliente").click(function () {
-        if ($(this).hasClass("activeCliente")) {
+//        if ($(this).hasClass("activeCliente")) {
           var clienteId = this.id;
           clienteId = clienteId.replace("cliente-", "");
           var cliente = clientesStorage[clienteId];
           sessionStorage.setItem("clienteSelecionado", JSON.stringify(cliente));
           sessionStorage.removeItem("listaNew");
           loadPage("cliente-lista");
-        }
-        else {
-          contentResponse.find(".cliente").removeClass("activeCliente");
-          $(this).addClass("activeCliente");
-        }
+//        }
+//        else {
+//          contentResponse.find(".cliente").removeClass("activeCliente");
+//          $(this).addClass("activeCliente");
+//        }
         return false;
       });
 
@@ -2513,7 +2651,7 @@ function wsResponseGetConvidado(response) {
         clientesStorage.push(cliente);
 
         // tratamento dos dados retornados
-        var clienteCodigo = cliente.cliente_codigo;
+//        var clienteCodigo = cliente.cliente_codigo;
         var clienteName = cliente.cliente_nome;
 
         // criacao dos objetos a serem inseridos na pagina
@@ -2531,17 +2669,17 @@ function wsResponseGetConvidado(response) {
       // ativa as acoes de cliques nos blocos inseridos
       //contentResponse.find(".cliente").removeClass("activeCliente");
       contentResponse.find(".cliente").click(function () {
-        if ($(this).hasClass("activeCliente")) {
+//        if ($(this).hasClass("activeCliente")) {
           var clienteId = this.id;
           clienteId = clienteId.replace("cliente-", "");
           var cliente = clientesStorage[clienteId];
           sessionStorage.setItem("pedidoCliente", JSON.stringify(cliente));
           loadPage("", true, true);
-        }
-        else {
-          contentResponse.find(".cliente").removeClass("activeCliente");
-          $(this).addClass("activeCliente");
-        }
+//        }
+//        else {
+//          contentResponse.find(".cliente").removeClass("activeCliente");
+//          $(this).addClass("activeCliente");
+//        }
         return false;
       });
 
@@ -2671,7 +2809,7 @@ function wsGetProduto() {
   var filtros = $("#filter-produto-busca");
   var fabricante = filtros.find(".input-select.fabricante").attr("data-value");
   var tipoProduto = filtros.find(".input-select.tipoProduto").attr("data-value");
-  var centrosLucro = filtros.find(".accordionCentroLucro").find(".mark.active");
+  var centrosLucro = $("#popup-select-centrolucro").find(".mark.active");
   var cls = [];
 
   $.each(centrosLucro, function (i, item) {
@@ -3868,7 +4006,7 @@ function exibeDialogPrdDel(produtoId, produtoCodigo, produtoGrade) {
 
   sessionStorage.setItem("prdDel", JSON.stringify(prdDel));
 
-  showDialog("Produto", "Excluir produto da lista?", "Cancelar", "hideDialog()", "Ok", "prdDel()");
+  showDialog("Produto", "Excluir produto da lista?", "Cancelar", "hideDialog()", "Ok", "prdDel()");  
 }
 
 function prdDel() {

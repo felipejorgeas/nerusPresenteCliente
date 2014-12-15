@@ -79,7 +79,7 @@
           </div>
         </div>
         <p class="rodape">
-          NÉRUS Presente - v1.2
+          NÉRUS Presente - v1.2.1
         </p>
       </div>
       
@@ -131,6 +131,12 @@
 
       <!-- popup para simular select field -->
       <div id="popup-select" class="popup bradius"></div>
+      
+      <!-- popup para simular select field de fabricantes -->
+      <div id="popup-select-fabricantes" class="popup bradius popup-select-search"></div>
+      
+      <!-- popup para simular select field de centro de lucros -->
+      <div id="popup-select-centrolucro" class="popup bradius popup-select-search"></div>
 
       <!-- Menu lateral -->
       <div id="navigator">
@@ -146,6 +152,14 @@
           </div>
           <ul id="filter-lista-busca" class="nav-filter">
             <li class="category">Filtros</li>
+            <li>
+              Eventos a partir de
+              <p>
+                <span class="input input-short month inicio bradius" onclick="showSelect('month', this);">00</span>
+                <span class="input input-short year inicio bradius" onclick="showSelect('year', this);">0000</span>
+                <span class="reset-fields" onclick="resetFields(this, 'date');"></span>
+              </p>
+            </li>
             <li>
               Data do evento
               <p>
@@ -197,9 +211,10 @@
               </p>
             </li>
             <li>
-              Centro de Lucro
+              Centros de Lucro
               <p>
-                <div class="accordionCentroLucro accordion"></div>
+                <span class="input input-select centrolucro bradius" onclick="showSelect('centrolucro', this);" data-value="">Selecione</span>
+                <span class="reset-fields" onclick="resetFields(this, 'select-centrolucro');"></span>
               </p>
             </li>
             <li>
@@ -223,9 +238,10 @@
               </p>
             </li>
             <li>
-              Centro de Lucro
+              Centros de Lucro
               <p>
-                <div class="accordionCentroLucro accordion"></div>
+                <span class="input input-select centrolucro bradius" onclick="showSelect('centrolucro', this);" data-value="">Selecione</span>
+                <span class="reset-fields" onclick="resetFields(this, 'select-centrolucro');"></span>
               </p>
             </li>
             <li>
@@ -250,7 +266,7 @@
               Fechar
             </li>
           </ul>
-          <p id="app">NÉRUS Presente - v1.2</p>
+          <p id="app">NÉRUS Presente - v1.2.1</p>
         </div>
       </div>
 

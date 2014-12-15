@@ -639,6 +639,110 @@ button {
   border-bottom: none;
 }
 
+#popup-select-fabricantes{
+  position: absolute;
+  width: 300px;
+  top: 50%;
+  left: 50%;
+  margin-left: -150px;
+  background: #FFF;
+  padding-top: 65px;
+  display: none;
+}
+
+#popup-select-fabricantes .search{
+  position: absolute;
+  width: 280px;
+  background-color: #FFF;
+  background-image: url("../img/ico-search.png");
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 30px;
+  font-size: x-large;
+  height: 60px;
+  top: 0;
+  padding: 10px 0 10px 30px;
+  text-transform: uppercase;
+}
+
+#popup-select-fabricantes ul{
+  max-height: 300px;
+  margin: 0 10px;
+  list-style: none;
+  overflow-y: auto;
+}
+
+#popup-select-fabricantes ul li{
+  font-size: x-large;
+  border-bottom: 1px solid #CCC;
+  padding: 10px;
+  text-align: center;
+}
+
+#popup-select-fabricantes ul li strong{
+  font-size: x-large;
+}
+
+#popup-select-fabricantes ul li:last-child{
+  border-bottom: none;
+}
+
+#popup-select-centrolucro{
+  position: absolute;
+  width: 300px;
+  top: 50%;
+  left: 50%;
+  margin-left: -150px;
+  background: #FFF;
+  padding-top: 65px;
+  display: none;
+}
+
+#popup-select-centrolucro .search{
+  position: absolute;
+  width: 280px;
+  background-color: #FFF;
+  background-image: url("../img/ico-search.png");
+  background-position: left center;
+  background-repeat: no-repeat;
+  background-size: 30px;
+  font-size: x-large;
+  height: 60px;
+  top: 0;
+  padding: 10px 0 10px 30px;
+  text-transform: uppercase;
+}
+
+#popup-select-centrolucro ul{
+  max-height: 300px;
+  overflow-y: auto;
+  margin: 0 10px;
+  list-style: none;  
+}
+
+#popup-select-centrolucro ul li{
+  font-size: x-large;
+  border-bottom: 1px solid #CCC;
+  padding: 10px 0;
+  text-align: center;  
+}
+
+#popup-select-centrolucro ul li .clname{
+  font-size: x-large;
+}
+
+#popup-select-centrolucro ul li .mark{
+  right: 0;
+}
+
+#popup-select-centrolucro ul li strong{
+  font-size: x-large;
+}
+
+#popup-select-centrolucro ul li:last-child{
+  border-bottom: none;
+}
+
 .input{
   height: 40px;
   line-height: 40px;
@@ -1119,15 +1223,22 @@ button {
   margin-bottom: 10px;
 }
 
+.card .pais{
+  width: 70%;
+  font-size: medium;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
 .card .desc{
   color: #900;
 }
 
 .card.activeCard{
   background-color: #900;
-  -webkit-box-shadow: inset 0 -35px 0 #CCC;
-  -moz-box-shadow: inset 0 -35px 0 #CCC;
-  box-shadow: inset 0 -35px 0 #333;
+  -webkit-box-shadow: inset 0 -35px 0 #444;
+  -moz-box-shadow: inset 0 -35px 0 #444;
+  box-shadow: inset 0 -35px 0 #444;
 }
 
 .card.activeCard p{
@@ -1212,6 +1323,14 @@ button {
   -webkit-transform-origin: 50% 0;
   -moz-transform-origin: 50% 0;
   transform-origin: 50% 0;
+}
+
+.produto .del-prd{
+  width: 90%;
+  max-width: 50px;
+  padding: 5px;
+  float: right;
+  background: #EEE;
 }
 
 .produto .options img{
@@ -1793,6 +1912,16 @@ button {
   position: relative;
   padding: 20px 50px 20px 30px;
 }
+.configs ul li.mini{
+  text-align: justify;
+  padding: 10px 20px;
+}
+.configs ul li.mini:first-child{
+  padding-top: 20px;
+}
+.configs ul li.mini:last-child{
+  padding-bottom: 20px;
+}
 
 .sep{
   background: #EEE;
@@ -1829,33 +1958,34 @@ button {
   background-repeat: no-repeat;
   background-size: 20px;
 }
-.nav-filter .accordion{
+
+#popup-select-centrolucro .accordion{
   margin: 0 0 0 0 !important;
   padding: 0 !important;
 }
-.nav-filter .accordionCentroLucro{
-  margin-left: -10px !important;
+#popup-select-centrolucro .accordionCentroLucro{
+/*  margin-left: -10px !important;*/
 }
-.nav-filter .accordion h3{
+#popup-select-centrolucro .accordion h3{
   background: none;
   font-weight: normal;
   font-size: large;
   padding: 15px 20px 15px 35px !important;
 }
-.nav-filter .accordion ul{  
+#popup-select-centrolucro .accordion ul{  
   margin: 0 0 0 15px !important;
   padding: 0 !important;
   overflow-x: hidden;
 }
-.nav-filter .accordion ul li{
+#popup-select-centrolucro .accordion ul li{
   padding: 0 !important;
   border: none !important;
 }
-.nav-filter .accordion ul li.option{
+#popup-select-centrolucro .accordion ul li.option{
   position: relative;
   padding: 15px !important;
 }
-.nav-filter .accordion ul li.option span{  
+#popup-select-centrolucro .accordion ul li.option span{  
   right: 20px;
 }
 

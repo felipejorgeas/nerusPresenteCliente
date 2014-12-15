@@ -18,18 +18,18 @@
   $(function() {
 
     $(".box").click(function(){
-      if($(this).hasClass("activeBox")){
+//      if($(this).hasClass("activeBox")){
         var box = $(this);
         var page = box.attr("data-value");
         var modulo = box.attr("id");
         
         sessionStorage.setItem("modulo", modulo);
         loadPage(page);
-      }
-      else{
-        $(".box").removeClass("activeBox");
-        $(this).addClass("activeBox");
-      }
+//      }
+//      else{
+//        $(".box").removeClass("activeBox");
+//        $(this).addClass("activeBox");
+//      }
       return false;
     });
     
